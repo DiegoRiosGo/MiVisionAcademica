@@ -1,0 +1,368 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* ================= ESTILO GENERAL ================= */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+}
+body {
+    margin: 0;
+    background-color: #f4f6f8;
+}
+
+/* ================= CONTENEDOR PRINCIPAL LOGIN ================= */
+.login-page {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;   
+    align-items: center;       
+    background-color: #f4f6f8; 
+}
+
+.login-page * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+}
+
+.login-page .container{
+    width: 880px;
+    height: 500px;
+    display: flex;
+    position: relative;
+    align-items: center;
+    background-color: #fdfdfd;
+    border-radius: 15px;
+    overflow: hidden; 
+    box-shadow: 0 0 10px #9c7fdc;
+}
+
+/* ================= FORMULARIOS LOGIN ================= */
+.login-page .container-form{
+    width: 100%;
+    overflow: hidden;
+}
+
+.login-page .container-form form{
+    height: 100%;
+    display:  flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease-in;
+}
+
+/* ================= INPUTS LOGIN ================= */
+.login-page .container-form span{
+    font-size: 14px;
+    margin-bottom: 15px;
+    color: #172041;
+}
+
+.login-page .container-input{
+    width: 300px;
+    height: 40px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 0 15px;
+    background-color: #eee0f8;
+}
+
+.login-page .container-input input{
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    background-color: inherit;
+}
+
+/* ================= LINK DE CONTRASEÑA LOGIN ================= */
+.login-page .link-contra{
+    color: #8357a4;
+    font-size: 14px;
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+/* ================= BOTONES LOGIN ================= */
+.login-page .button{
+    width: 170px;
+    height: 45px;
+    font-size: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    background-color: #eee0f8;
+    color: #18233f;
+}
+
+/* ================= ICONOS LOGIN ================= */
+.login-page .icon { 
+    width: 24px;
+    height: 24px;
+}
+
+/* ================= TITULOS LOGIN ================= */
+.login-page h2{
+    font-size: 30px;
+    margin-bottom: 20px;
+    color: #18233f;
+}
+
+/* ================= ANIMACION DE FORMULARIO LOGIN ================= */
+.login-page .sign-up{
+    transform: translateX(-100%);
+}
+.login-page .container.toggle .sign-in{
+    transform: translateX(100%);
+}
+.login-page .container.toggle .sign-up{
+    transform: translateX(0);
+}
+
+/* ================= CONTENEDOR WELCOME LOGIN ================= */
+.login-page .container-welcome{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transform: translateX(100%);
+    background-color: #9c7fdc;
+    transition: transform 0.5s ease-in-out, border-radius 0.5s ease-in-out;
+    overflow: hidden;
+    border-radius: 50% 0 0 50%;
+    background-blend-mode: color #f0deff;
+}
+
+/* ================= CONTENEDOR ATRAS LOGIN ================= */
+.login-page .container-atras{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    right: 55%;
+    align-items: center;
+    transform: translateX(100%);
+    background-color: #f0deff;
+    transition: transform 0.5s ease-in-out, border-radius 0.5s ease-in-out;
+    overflow: hidden;
+    border-radius: 50% 0 0 50%;
+}
+
+/* ================= ESTADOS DE TRANSICION LOGIN ================= */
+.login-page .container.toggle .container-atras{
+    transform: translateX(0);
+    border-radius: 0 50% 50% 0;
+    background-color: #f0deff; 
+    left: 5%;
+}
+
+.login-page .container.toggle .container-welcome{
+    transform: translateX(0);
+    border-radius: 0 50% 50% 0;
+    background-color: #9c7fdc; 
+}
+
+/* ================= WELCOME SIGN LOGIN ================= */
+.login-page .container-welcome .welcome{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 50px;
+    color: #18233f;
+    transition: transform 0.5s ease-in-out;
+}
+
+.login-page .welcome-sign-in{
+    transform: translateX(100%);
+}
+
+.login-page .container-welcome h3{
+    font-size: 40px;
+}
+
+.login-page .container-welcome p{
+    font-size: 17px;
+    text-align: center;
+}
+
+.login-page .container-welcome .button{
+    border: 2px solid #f0deff;
+    background-color: transparent;
+    color: white;
+}
+
+/* ================= TRANSICIONES BOTONES WELCOME LOGIN ================= */
+.login-page .container.toggle .welcome-sign-in{
+    transform: translateX(0);
+}
+
+.login-page .container.toggle .welcome-sign-up{
+    transform: translateX(-100%);
+}
+
+
+/* ================= Sidebar ================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100%;
+    background-color: #7c60ba;
+    padding-top: 20px;
+    overflow-y: auto;
+}
+
+.sidebar .profile img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.sidebar .profile h5 {
+    color: white;
+    margin: 0;
+}
+
+.sidebar .nav {
+    margin-top: 20px;
+}
+
+.sidebar .nav-link {
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: #9c7fdc;
+    color: white;
+    border-radius: 5px;
+}
+
+.sidebar .nav-link.active i {
+    color: white;
+}
+
+.sidebar .nav .nav-link {
+    display: flex;
+}
+
+.sidebar .nav-link .text-danger{
+    color: white;
+}
+/* En revisión */
+.sidebar .nav-link.text-white {
+    color: white !important;
+}
+
+.sidebar .nav-link.text-white:hover {
+    background-color: #9c7fdc;
+    color: white !important;
+}
+
+/* ================= Contenido principal ================= */
+.content {
+    margin-left: 220px;
+    padding: 50px;
+}
+
+.topbar {
+    margin-bottom: 20px;
+    color: #18233f;
+}
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ================= Botones personalizados ================= */
+.btn-primary-custom {
+    background-color: #7c60ba !important; 
+    color: white !important;
+    border: none;
+}
+
+.btn-primary-custom:hover {
+    background-color: #9c7fdc !important; 
+}
+
+.btn-view-custom {
+    background-color: #eee0f8 !important;
+    color: #7c60ba !important;
+    border: none;
+}
+
+.btn-view-custom:hover {
+    background-color: #ddd0f5 !important; 
+}
+
+/* ================= Gráficos ================= */
+.graphs-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 250px;
+    gap: 20px;
+    justify-items: center;
+    align-items: start;
+}
+
+.graphs-container .graph-card {
+    width: 100%;
+}
+
+.graphs-container .card{
+    width: 100%;
+}
+
+.graphs-container canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* ================= Foto de perfil ================= */
+.profile-change-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #7c60ba;
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+/* Estilo del popup central */
+#confirmationPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #7c60ba;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 9999;
+    font-size: 16px;
+    text-align: center;
+}
+

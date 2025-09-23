@@ -1,9 +1,77 @@
+<!--Inicio sesion-->
+{% load static %}
 <!DOCTYPE html>
-<html>
-<body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso</title> 
+    <link rel="stylesheet" href="{% static 'assets/style.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'assets/imagenes/logo1.png' %}">
 
-<h1>Hello World!</h1>
-<p>Welcome to my first Django project!</p>
+</head>
+<body class="login-page">
 
+<div class="container">
+    <!-- Formulario Iniciar Sesion -->
+    <div class="container-form sign-in-form">
+        <form>
+            <h2>Iniciar Sesión</h2>
+            <span>Use su correo y contraseña</span>
+            <div class="container-input">
+                <img src="{% static 'assets/imagenes/correo.png' %}" class="icon">
+                <input type="email" placeholder="Correo Electronico">
+            </div>
+            <div class="container-input">
+                <img src="{% static 'assets/imagenes/contra.png' %}" class="icon">
+                <input type="password" placeholder="Contraseña">
+            </div>
+            <a href="#" class="link-contra">¿Olvidaste tu contraseña?</a>
+            <button type="button" class="button">Iniciar Sesión</button>
+        </form>
+    </div>
+
+    <!-- Formulario Registrarse -->
+    <div class="container-form sign-up-form">
+        <form>
+            <h2>Registrarse</h2>
+            <span>Use su correo electronico para registrarse</span>
+            <div class="container-input">
+                <img src="{% static 'assets/imagenes/perfil.png' %}" class="icon">
+                <input type="text" placeholder="Nombre de Usuario">
+            </div>
+            <div class="container-input">
+                <img src="{% static 'assets/imagenes/correo.png' %}" class="icon">
+                <input type="email" placeholder="Correo Electronico">
+            </div>
+            <div class="container-input">
+                <img src="{% static 'assets/imagenes/contra.png' %}" class="icon">
+                <input type="password" placeholder="Contraseña">
+            </div>
+            <div class="container-input">
+                <img src="{% static 'assets/imagenes/contra.png' %}" class="icon">
+                <input type="password" placeholder="Confirmar Contraseña">
+            </div>
+            <button type="button" class="button">Registrarse</button>
+        </form>
+    </div>
+
+    <!-- Contenedor animado -->
+    <div class="container-atras"></div>
+    <div class="container-welcome">
+        <div class="welcome welcome-sign-up">
+            <h3>¡Bienvenido!</h3>
+            <p>Ingrese sus datos personales para usar todas las funciones del sitio</p>
+            <button type="button" class="button" id="btn-sign-up">Registrarse</button>
+        </div>
+        <div class="welcome welcome-sign-in">
+            <h3>Hola</h3>
+            <p>Registrse con sus datos personales para usar todas las funciones del sitio</p>
+            <button type="button" class="button" id="btn-sign-in">Iniciar Sesión</button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'assets/scripts.js' %}"></script>
 </body>
 </html>
