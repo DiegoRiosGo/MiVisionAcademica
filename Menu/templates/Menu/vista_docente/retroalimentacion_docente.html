@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retroalimentación con Gráficos</title>
+  <link rel="icon" type="image/png" href="{% static 'assets/imagenes/logo1.png' %}">
+  <link rel="stylesheet" href="{% static 'assets/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="profile text-center p-3">
+      <img id="sidebarProfile" src="https://i.pinimg.com/736x/90/84/3c/90843c905d93dcd08ed9e970b194a077.jpg" alt="Perfil">
+      <h5 class="text-white">Kento Nanami</h5>
+    </div>
+    <ul class="nav flex-column">
+      <li><a href="{% url 'InicioDocente' %}" class="nav-link"><i class="fas fa-home me-2"></i>Inicio</a></li>
+      <li><a href="{% url 'PerfilDocente' %}" class="nav-link"><i class="fas fa-user-tie me-2"></i>Perfil</a></li>
+      <li><a href="{% url 'RetroalimentacionDocente' %}" class="nav-link active"><i class="fas fa-comments me-2"></i>Retroalimentación</a></li>
+      <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+    </ul>
+  </nav>
+
+  <!-- Contenido -->
+  <div class="content">
+    <div class="topbar"><h4>Retroalimentación a Estudiantes</h4></div>
+
+    <!-- Formulario -->
+    <div class="card p-4 mb-4">
+      <form id="feedbackForm">
+        <div class="mb-3">
+          <label for="subjectSelect" class="form-label">Selecciona Asignatura</label>
+          <select class="form-control" id="subjectSelect"></select>
+        </div>
+        <div class="mb-3">
+          <label for="studentSelect" class="form-label">Selecciona Estudiante</label>
+          <select class="form-control" id="studentSelect"></select>
+        </div>
+        <div class="mb-3">
+          <label for="feedback" class="form-label">Retroalimentación</label>
+          <textarea class="form-control" id="feedback" rows="3" placeholder="Escribe tu retroalimentación..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary-custom"><i class="fas fa-paper-plane"></i> Enviar</button>
+      </form>
+    </div>
+
+    <!-- Gráficos de muestra -->
+    <h5 class="mb-3">Gráficos de Estudiante</h5>
+    <div class="graphs-container">
+      <div class="card p-4 mb-4">
+        <canvas id="barChartSubject"></canvas>
+      </div>
+      <div class="card p-4 mb-4">
+        <canvas id="lineChartSubject"></canvas>
+      </div>
+      <div class="card p-4 mb-4">
+        <canvas id="radarChartSubject"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup de confirmación -->
+  <div id="confirmationPopup">Retroalimentación enviada con éxito</div>
+
+<script>
+  // Datos de ejemplo por asignatura y estudiante
+  const data = {
+    matematicas: { "1": { bar:[12,16,14,18], line:[13,15,14,17], radar:[75,70,80,60,65] }, "2": { bar:[14,18,15,20], line:[14,16,15,19], radar:[70,75,80,65,60] }, "3": { bar:[10,12,14,16], line:[11,13,14,15], radar:[60,65,70,75,80] }, "4": { bar:[15,14,16,18], line:[15,16,18,20], radar:[65,70,75,80,85] } },
+    lenguaje: { "1": { bar:[11,15,13,17], line:[12,14,15,16], radar:[70,65,75,60,68] }, "2": { bar:[13,16,14,18], line:[13,15,14,17], radar:[65,70,75,68,72] }, "3": { bar:[10,12,13,14], line:[11,12,13,15], radar:[60,62,64,66,68] }, "4": { bar:[14,15,16,18], line:[14,15,16,18], radar:[68,70,72,74,76] } },
+    ciencias: { "1": { bar:[12,14,16,18], line:[13,14,15,16], radar:[72,74,76,78,80] }, "2": { bar:[11,13,15,17], line:[12,13,14,16], radar:[70,72,74,76,78] }, "3": { bar:[10,12,14,16], line:[11,12,13,14], radar:[68,70,72,74,76] }, "4": { bar:[13,15,16,18], line:[13,14,15,17], radar:[70,72,74,76,78] } },
+    historia: { "1": { bar:[14,16,18,20], line:[15,16,17,18], radar:[75,78,80,82,85] }, "2": { bar:[12,14,16,18], line:[13,14,15,16], radar:[70,72,74,76,78] }, "3": { bar:[10,12,14,16], line:[11,12,13,14], radar:[65,68,70,72,74] }, "4": { bar:[13,15,16,18], line:[14,15,16,17], radar:[68,70,72,74,76] } }
+  };
+
+  const subjectSelect = document.getElementById('subjectSelect');
+  const studentSelect = document.getElementById('studentSelect');
+
+  // Llenar asignaturas
+  Object.keys(data).forEach(subject => {
+    const opt = document.createElement('option');
+    opt.value = subject;
+    opt.textContent = subject.charAt(0).toUpperCase() + subject.slice(1);
+    subjectSelect.appendChild(opt);
+  });
+
+  // Actualizar estudiantes según asignatura
+  function updateStudentOptions() {
+    const subject = subjectSelect.value;
+    studentSelect.innerHTML = '';
+    Object.keys(data[subject]).forEach(id => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = 'Estudiante ' + id;
+      studentSelect.appendChild(opt);
+    });
+    updateCharts();
+  }
+
+  function updateCharts() {
+    const subject = subjectSelect.value;
+    const studentId = studentSelect.value;
+    if(!data[subject] || !data[subject][studentId]) return;
+    const studentData = data[subject][studentId];
+
+    barChart.data.datasets[0].data = studentData.bar;
+    barChart.update();
+
+    lineChart.data.datasets[0].data = studentData.line;
+    lineChart.update();
+
+    radarChart.data.datasets[0].data = studentData.radar;
+    radarChart.update();
+  }
+
+  subjectSelect.addEventListener('change', updateStudentOptions);
+  studentSelect.addEventListener('change', updateCharts);
+
+  // Configuración de gráficos
+  const barCtx = document.getElementById('barChartSubject').getContext('2d');
+  const lineCtx = document.getElementById('lineChartSubject').getContext('2d');
+  const radarCtx = document.getElementById('radarChartSubject').getContext('2d');
+
+  const barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: { labels:['Matemáticas','Lenguaje','Ciencias','Historia'], datasets:[{ label:'Promedio', data:[], backgroundColor:'#7c60ba' }] },
+    options:{ responsive:true, maintainAspectRatio:false }
+  });
+
+  const lineChart = new Chart(lineCtx, {
+    type:'line',
+    data:{ labels:['Semana 1','Semana 2','Semana 3','Semana 4'], datasets:[{ label:'Progreso', data:[], borderColor:'#ff69b4', fill:false }] },
+    options:{ responsive:true, maintainAspectRatio:false }
+  });
+
+  const radarChart = new Chart(radarCtx, {
+    type:'radar',
+    data:{ labels:['Matemáticas','Lenguaje','Ciencias','Historia','Arte'], datasets:[{ label:'Habilidades', data:[], backgroundColor:'rgba(124,96,186,0.5)', borderColor:'#7c60ba' }] },
+    options:{ responsive:true, maintainAspectRatio:false }
+  });
+
+  updateStudentOptions();
+
+  // Popup centralizado
+  const popup = document.getElementById('confirmationPopup');
+  document.getElementById('feedbackForm').addEventListener('submit', e => {
+    e.preventDefault();
+    popup.style.display = 'block';
+    setTimeout(() => { popup.style.display = 'none'; }, 2000);
+    document.getElementById('feedback').value = '';
+  });
+</script>
+
+</body>
+</html>

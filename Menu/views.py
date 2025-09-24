@@ -24,4 +24,12 @@ def TestInterestAlumno(request):
 def InformeAlumno(request):
     return render(request, 'Menu/vista_alumno/informe_alumno.html')
 
+# Vistas de docente
+def InicioDocente(request):
+    return render(request, 'Menu/vista_docente/inicio_docente.html')
 
+def PerfilDocente(request):
+    return render(request, 'Menu/vista_docente/perfil_docente.html')
+
+def RetroalimentacionDocente(request):
+    return render(request, 'Menu/vista_docente/retroalimentacion_docente.html')

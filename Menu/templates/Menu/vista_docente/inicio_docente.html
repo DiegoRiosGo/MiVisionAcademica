@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio Docente</title>
+  <link rel="icon" type="image/png" href="{% static 'assets/imagenes/logo1.png' %}">
+  <link rel="stylesheet" href="{% static 'assets/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="profile text-center p-3">
+      <img id="sidebarProfile" src="https://i.pinimg.com/736x/90/84/3c/90843c905d93dcd08ed9e970b194a077.jpg" alt="Perfil">
+      <h5 class="text-white">Kento Nanami</h5>
+    </div>
+    <ul class="nav flex-column">
+      <li><a href="{% url 'InicioDocente' %}" class="nav-link"><i class="fas fa-home me-2"></i>Inicio</a></li>
+      <li><a href="{% url 'PerfilDocente' %}" class="nav-link active"><i class="fas fa-user-tie me-2"></i>Perfil</a></li>
+      <li><a href="{% url 'RetroalimentacionDocente' %}" class="nav-link"><i class="fas fa-comments me-2"></i>Retroalimentación</a></li>
+      <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+    </ul>
+  </nav>
+
+  <!-- Contenido -->
+  <div class="content">
+    <div class="topbar">
+      <h4>Bienvenido Docente</h4>
+    </div>
+    <div class="card p-4 mb-4">
+      <h5>Bienvenido, Kento Nanami</h5>
+      <p>Desde aquí podrás acceder a tu perfil, poder ver el rendimiento por asignatura, 
+        además de los estudiantes, poder enviar retroalimentación y revisar gráficos con rendimiento por estudiantes.</p>
+    </div>
+  </div>
+</body>
+</html>
