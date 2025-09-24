@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gráficos Asignatura</title>
+<link rel="icon" type="image/png" href="{% static 'assets/imagenes/logo1.png' %}">
+<link rel="stylesheet" href="{% static 'assets/style.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="profile text-center p-3">
+      <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
+      <h5 class="text-white">Satoru Gojo</h5>
+    </div>
+    <ul class="nav flex-column">
+      <li><a href="{% url 'inicio_alumno' %}" class="nav-link"><i class="fas fa-home me-2"></i>Inicio</a></li>
+      <li><a href="{% url 'perfil_alumno' %}" class="nav-link"><i class="fas fa-user me-2"></i>Perfil</a></li>
+      <li><a href="{% url 'test_interest_alumno' %}" class="nav-link"><i class="fas fa-list-check me-2"></i>Test de Interés</a></li>
+      <li><a href="{% url 'informe_alumno' %}" class="nav-link"><i class="fas fa-file-alt me-2"></i>Informes</a></li>
+      <li><a href="{% url 'estadisticas_asignatura_alumno' %}" class="nav-link active"><i class="fas fa-chart-bar me-2"></i>Estadísticas Asignatura</a></li>
+      <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+    </ul>
+  </nav>
+
+  <div class="content">
+    <div class="topbar"><h4>Gráficos por Asignatura</h4></div>
+
+    <div class="graphs-container">
+      <div class="card p-4 mb-4">
+        <canvas id="barChartSubject"></canvas>
+      </div>
+      <div class="card p-4 mb-4">
+        <canvas id="lineChartSubject"></canvas>
+      </div>
+      <div class="card p-4 mb-4">
+        <canvas id="radarChartSubject"></canvas>
+      </div>
+    </div>
+  </div>
+
+<script src="{% static 'assets/scripts.js' %}"></script>
+<script>
+const barSubjectCtx = document.getElementById('barChartSubject').getContext('2d');
+new Chart(barSubjectCtx, { type: 'bar', data: { labels: ['Matemáticas','Lenguaje','Ciencias','Historia'], datasets: [{ label:'Promedio', data:[12,16,14,18], backgroundColor:'#7c60ba' }] }, options:{ responsive:true, maintainAspectRatio:false } });
+
+const lineSubjectCtx = document.getElementById('lineChartSubject').getContext('2d');
+new Chart(lineSubjectCtx, { type:'line', data:{ labels:['Semana 1','Semana 2','Semana 3','Semana 4'], datasets:[{ label:'Progreso', data:[13,15,14,17], borderColor:'#ff69b4', fill:false }] }, options:{ responsive:true, maintainAspectRatio:false } });
+
+const radarSubjectCtx = document.getElementById('radarChartSubject').getContext('2d');
+new Chart(radarSubjectCtx, { type:'radar', data:{ labels:['Matemáticas','Lenguaje','Ciencias','Historia','Arte'], datasets:[{ label:'Habilidades', data:[75,70,80,60,65], backgroundColor:'rgba(124,96,186,0.5)', borderColor:'#7c60ba' }] }, options:{ responsive:true, maintainAspectRatio:false } });
+</script>
+</body>
+</html>

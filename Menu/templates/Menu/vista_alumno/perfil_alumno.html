@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil</title>
+  <link rel="icon" type="image/png" href="{% static 'assets/imagenes/logo1.png' %}">
+  <link rel="stylesheet" href="{% static 'assets/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="profile text-center p-3">
+      <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
+      <h5 class="text-white">Satoru Gojo</h5>
+    </div>
+    <ul class="nav flex-column">
+      <li><a href="{% url 'inicio_alumno' %}" class="nav-link"><i class="fas fa-home me-2"></i>Inicio</a></li>
+      <li><a href="{% url 'perfil_alumno' %}" class="nav-link active"><i class="fas fa-user me-2"></i>Perfil</a></li>
+      <li><a href="{% url 'test_interest_alumno' %}" class="nav-link"><i class="fas fa-list-check me-2"></i>Test de Interés</a></li>
+      <li><a href="{% url 'informe_alumno' %}" class="nav-link"><i class="fas fa-file-alt me-2"></i>Informes</a></li>
+      <li><a href="{% url 'estadisticas_asignatura_alumno' %}" class="nav-link"><i class="fas fa-chart-bar me-2"></i>Estadísticas Asignatura</a></li>
+      <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+    </ul>
+  </nav>
+
+  <div class="content">
+    <div class="topbar"><h4>Perfil</h4></div>
+
+    <div class="card p-4 text-center" style="max-width: 400px; margin: 20px auto;">
+      <h5>Información del Estudiante</h5>
+      <img id="profileImg" src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil" class="profile-change-img mb-3">
+      <div class="mb-3">
+        <label for="newProfile" class="btn btn-primary-custom">
+          <i class="fas fa-upload"></i> Cambiar Foto
+        </label>
+        <input type="file" id="newProfile" accept="image/*" style="display:none;">
+      </div>
+      <ul class="list-group list-group-flush text-start mt-3">
+        <li class="list-group-item"><strong>Nombre:</strong> Satoru Gojo</li>
+        <li class="list-group-item"><strong>Correo:</strong> satoru.gojo@email.com</li>
+        <li class="list-group-item"><strong>Curso:</strong> Ingeniería Informática</li>
+        <li class="list-group-item"><strong>Rol:</strong> Estudiante</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="{% static 'assets/scripts.js' %}"></script>
+</body>
+</html>
