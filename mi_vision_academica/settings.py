@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0(rlz_jl*!a1n$nm2x+4)je6j@grdl@p7=(%1e+8g6_&i896pe'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*','.vercel.app']
 
 
 # Application definition
@@ -74,9 +79,18 @@ WSGI_APPLICATION = 'mi_vision_academica.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres",
+        "USER" : "postgres",
+        "HOST" : os.environ.get("SUPABASE_HOST"),
+        "PASSWORD" : os.environ.get("SUPABASE_PASSWORD"),
+        "PORT" : "5432",
+        "OPTIONS" : {
+            "sslmode" : "verify-full",
+            "sslrootcert" : os.path.join(BASE_DIR, 'prod-ca-2021.crt'),
+        }
+
     }
 }
 
