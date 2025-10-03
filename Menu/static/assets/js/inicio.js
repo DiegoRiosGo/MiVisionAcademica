@@ -1,4 +1,6 @@
-// ================= Animacion de inicio / va en inicio.js =================
+
+
+// ================= Animacion de inicio =================
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector(".container");
