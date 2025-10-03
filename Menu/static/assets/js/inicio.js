@@ -1,5 +1,4 @@
 
-
 // ================= Animacion de inicio =================
 
 document.addEventListener('DOMContentLoaded', () => {
