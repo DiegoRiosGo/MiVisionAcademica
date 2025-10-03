@@ -1,4 +1,4 @@
-// ================= Animacion chafa que no funciona =================
+// ================= Animacion de inicio / va en inicio.js =================
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector(".container");
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ================= PDF =================
+// ================= PDF / sirve para subir archivos en pdf para el apartado de inicio_alumno=================
 const uploadPDF = document.getElementById('uploadPDF');
 const viewPDF = document.getElementById('viewPDF');
 const downloadPDF = document.getElementById('downloadPDF');
@@ -43,7 +43,7 @@ if(uploadPDF){
     });
 }
 
-// ================= Foto de Perfil =================
+// ================= Foto de Perfil / va en perfil_docente y perfil_alumno para subir foto de perfil =================
 const newProfile = document.getElementById('newProfile');
 const profileImg = document.getElementById('profileImg');
 const sidebarProfiles = document.querySelectorAll('#sidebarProfile');
@@ -62,7 +62,7 @@ if(newProfile){
     });
 }
 
-// ================= Nav link active ================= 
+// ================= Nav link active / sidebar de todas las paginas menos de inicio ================= 
 document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
