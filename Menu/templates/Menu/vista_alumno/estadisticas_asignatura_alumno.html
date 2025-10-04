@@ -34,16 +34,38 @@
       </nav>
 
 
-  <!-- TITULO GRAFICOS -->
+  <!-- TITULO APARTADO GRAFICOS -->
 
-      <!--clase del contenido dentro de los graficos-->
       <div class="content">
-        <div class="topbar"><h4>Gráficos por Asignatura</h4></div>
+        <!-- Título del apartado -->
+        <div class="topbar">
+          <h4>Gráficos por Asignatura</h4>
+        </div>
+        <p>
+          En este apartado podrás seleccionar tu asignatura y visualizar tus notas representadas gráficamente, 
+          lo que te permitirá analizar tu rendimiento académico de forma clara y dinámica.
+        </p>
 
+  <!-- TITULO SELECTOR DE ASIGNATURA -->
+
+        <!-- Selector de asignatura -->
+        <div class="mb-3">
+          <label for="subjectSelect" class="form-label">Selecciona Asignatura</label>
+          <select class="form-control" id="subjectSelect">
+            <option value="analisis">Análisis y Planificación</option>
+            <option value="calidad">Calidad de Software</option>
+            <option value="gestion">Gestión de Proyectos</option>
+            <option value="programacion">Programación</option>
+            <option value="inteligencia">Inteligencia de Negocios</option>
+            <option value="modelos">Modelos de Datos</option>
+            <option value="arquitectura">Arquitectura de Software</option>
+          </select>
+        </div>
+
+  <!-- TITULO SELECTOR DE GRAFICOS-->
+
+        <!-- Contenedor de gráficos -->
         <div class="graphs-container">
-          <div class="card p-4 mb-4">
-            <canvas id="barChartSubject"></canvas>
-          </div>
           <div class="card p-4 mb-4">
             <canvas id="lineChartSubject"></canvas>
           </div>
@@ -53,19 +75,7 @@
         </div>
       </div>
 
-      <!--script con vista previa de graficos-->
-      <script>
-      const barSubjectCtx = document.getElementById('barChartSubject').getContext('2d');
-      new Chart(barSubjectCtx, { type: 'bar', data: { labels: ['Matemáticas','Lenguaje','Ciencias','Historia'], datasets: [{ label:'Promedio', data:[12,16,14,18], backgroundColor:'#7c60ba' }] }, options:{ responsive:true, maintainAspectRatio:false } });
-
-      const lineSubjectCtx = document.getElementById('lineChartSubject').getContext('2d');
-      new Chart(lineSubjectCtx, { type:'line', data:{ labels:['Semana 1','Semana 2','Semana 3','Semana 4'], datasets:[{ label:'Progreso', data:[13,15,14,17], borderColor:'#ff69b4', fill:false }] }, options:{ responsive:true, maintainAspectRatio:false } });
-
-      const radarSubjectCtx = document.getElementById('radarChartSubject').getContext('2d');
-      new Chart(radarSubjectCtx, { type:'radar', data:{ labels:['Matemáticas','Lenguaje','Ciencias','Historia','Arte'], datasets:[{ label:'Habilidades', data:[75,70,80,60,65], backgroundColor:'rgba(124,96,186,0.5)', borderColor:'#7c60ba' }] }, options:{ responsive:true, maintainAspectRatio:false } });
-      </script>
-
       <!-- llamada al js -->
-    <script src="{% static 'assets/js/estadisticas_asignatura_alumno.js' %}"></script>
+      <script src="{% static 'assets/js/estadisticas_asignatura_alumno.js' %}"></script>
 </body>
 </html>
