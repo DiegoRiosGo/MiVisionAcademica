@@ -20,19 +20,20 @@
         <div class="container">
             <!-- Formulario Iniciar Sesion -->
             <div class="container-form sign-in-form">
-                <form>
+                <form method="POST" action="{% url 'login' %}">
+                     {% csrf_token %}
                     <h2>Iniciar Sesión</h2>
                     <span>Use su correo y contraseña</span>
                     <div class="container-input">
                         <img src="{% static 'assets/imagenes/correo.png' %}" class="icon">
-                        <input type="email" placeholder="Correo Electronico">
+                        <input type="email" name="correo" placeholder="Correo electrónico"">
                     </div>
                     <div class="container-input">
                         <img src="{% static 'assets/imagenes/contra.png' %}" class="icon">
-                        <input type="password" placeholder="Contraseña">
+                        <input type="password" name="contrasena" placeholder="Contraseña">
                     </div>
                     <a href="#" class="link-contra">¿Olvidaste tu contraseña?</a>
-                    <button type="button" class="button">Iniciar Sesión</button>
+                    <button type="submit" class="button">Iniciar Sesión</button>
                 </form>
             </div>
 
@@ -40,27 +41,42 @@
 
             <!-- Formulario Registrarse -->
             <div class="container-form sign-up-form">
-                <form>
+                <form action="{% url 'registro' %}" id="formulario" method="POST">
+                    {% csrf_token %}
                     <h2>Registrarse</h2>
                     <span>Use su correo electronico para registrarse</span>
                     <div class="container-input">
                         <img src="{% static 'assets/imagenes/perfil.png' %}" class="icon">
-                        <input type="text" placeholder="Nombre de Usuario">
+                        <input type="text" placeholder="Nombre" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="container-input">
+                        <img src="{% static 'assets/imagenes/perfil.png' %}" class="icon">
+                        <input type="text" placeholder="Apellido" id="apellido" name="apellido" required>
                     </div>
                     <div class="container-input">
                         <img src="{% static 'assets/imagenes/correo.png' %}" class="icon">
-                        <input type="email" placeholder="Correo Electronico">
+                        <input type="email" placeholder="Correo electrónico" id="correo" name="correo" required>
                     </div>
                     <div class="container-input">
                         <img src="{% static 'assets/imagenes/contra.png' %}" class="icon">
-                        <input type="password" placeholder="Contraseña">
+                        <input type="password" placeholder="Contraseña" id="contrasena_hash" name="contrasena_hash" required>
                     </div>
                     <div class="container-input">
                         <img src="{% static 'assets/imagenes/contra.png' %}" class="icon">
-                        <input type="password" placeholder="Confirmar Contraseña">
+                        <input type="password" placeholder="Confirmar contraseña" id="confirmar_contrasena" name="confirmar_contrasena" required>
                     </div>
-                    <button type="button" class="button">Registrarse</button>
+                    
+                    <button type="submit" class="button">Registrarse</button>
                 </form>
+
+                {% if messages %}
+                    <div class="messages">
+                    {% for message in messages %}
+                        <p class="{{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+                
             </div>
 
     <!--TITULO ANIMACION-->

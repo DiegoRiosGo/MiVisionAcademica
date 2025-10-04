@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import Inicio,InicioAlumno,PerfilAlumno,EstadisticasAsignaturaAlumno,TestInterestAlumno,InformeAlumno,InicioDocente,PerfilDocente,RetroalimentacionDocente
+from . import views
 
 urlpatterns = [
     path('',Inicio,name="Inicio"),
@@ -16,4 +17,8 @@ urlpatterns = [
     path('perfil_docente/', PerfilDocente, name="PerfilDocente"),
     path('retroalimentacion_docente/', RetroalimentacionDocente, name="RetroalimentacionDocente"),
 
+    #URL Programación
+    path("registro/", views.registrar_usuario, name="registro"),
+    path("login/", views.iniciar_sesion, name="login"),
+    path("logout/", views.cerrar_sesion, name="logout"),
 ]
