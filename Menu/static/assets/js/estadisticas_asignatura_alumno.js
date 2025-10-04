@@ -3,7 +3,7 @@
  // TITULO DE BARRA LATERAL //
             
     const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
-    const contentSections = document.querySelectorAll('.card'); // Asegúrate de que tus secciones tengan clase 'card'
+    const contentSections = document.querySelectorAll('.card');
 
     function showSection(id) {
         contentSections.forEach(section => section.style.display = 'none');

@@ -82,3 +82,25 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
+/* GRAFICOS */
+    .graphs-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 250px;
+        gap: 20px;
+        justify-items: center;
+        align-items: start;
+    }
+
+    .graphs-container .graph-card {
+        width: 100%;
+    }
+
+    .graphs-container .card{
+        width: 100%;
+    }
+
+    .graphs-container canvas {
+        width: 100%;
+        height: 100%;
+    }
