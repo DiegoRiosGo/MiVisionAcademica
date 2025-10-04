@@ -39,13 +39,13 @@
 
     // Datos simulados de notas por semestre
     const lineData = {
-        analisis: [12, 14, 13, 15],
-        calidad: [15, 16, 14, 17],
-        gestion: [13, 15, 14, 18],
-        programacion: [14, 13, 15, 16],
-        inteligencia: [16, 17, 15, 18],
-        modelos: [14, 15, 16, 17],
-        arquitectura: [13, 14, 15, 16]
+        analisis: [5.2, 5.5, 5.8, 6.0, 6.2, 6.5, 6.8, 7.0],
+        calidad: [4.8, 5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7],
+        gestion: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
+        programacion: [4.4, 4.9, 5.3, 5.7, 6.1, 6.4, 6.8, 7.0],
+        inteligencia: [4.1, 4.5, 5.0, 5.4, 5.8, 6.2, 6.6, 7.0],
+        modelos: [5.0, 5.3, 5.7, 7.0, 6.1, 6.4, 6.7, 6.9],
+        arquitectura: [7.0, 2.3, 3.0, 7.0, 4.6, 5.4, 6.1, 6.8]
     };
 
     // Datos simulados de certificación por asignatura
@@ -59,13 +59,13 @@
         'Arquitectura de Software'
     ];
 
-    const radarValues = [75, 70, 80, 60, 65, 85, 78];
+    const radarValues = [1, 2, 3, 4, 5, 6, 7];
 
     // Inicializar gráfico de línea
     const lineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
-        labels: ['Semestre 1', 'Semestre 2', 'Semestre 3', 'Semestre 4'],
+        labels: ['Semestre I','II','III','IV','V','VI','VII','VIII'],
         datasets: [{
             label: 'Notas por Semestre',
             data: lineData.analisis,

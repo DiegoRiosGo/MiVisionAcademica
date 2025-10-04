@@ -40,23 +40,43 @@
         // Datos simulados por sección, asignatura y estudiante
         const studentData = {
         "001D": {
-            "Estudiante 1": {
+            "ITadori": {
             programacion: [5.2, 5.5, 5.8, 6.0, 6.2, 6.5, 6.8, 7.0],
-            inteligencia: [4.8, 5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7]
+            inteligencia: [4.8, 5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7],
+            gestion: [5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7, 7.0],
+            calidad: [5.5, 5.7, 5.9, 6.2, 6.4, 6.6, 6.8, 7.0],
+            modelos: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.2],
+            arquitectura: [4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0],
+            analisis: [5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0, 7.2]
             },
-            "Estudiante 2": {
+            "Maki": {
             programacion: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
-            inteligencia: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0]
+            inteligencia: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
+            gestion: [4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9],
+            calidad: [5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0, 7.3],
+            modelos: [4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0],
+            arquitectura: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.2],
+            analisis: [4.7, 5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8]
             }
         },
         "001V": {
-            "Estudiante 3": {
+            "Toji": {
             programacion: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
-            inteligencia: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6]
+            inteligencia: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
+            gestion: [5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0, 7.3],
+            calidad: [4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9],
+            modelos: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.1],
+            arquitectura: [4.6, 4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7],
+            analisis: [5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.1, 7.4]
             },
-            "Estudiante 4": {
+            "Hinata": {
             programacion: [4.2, 4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3],
-            inteligencia: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.2]
+            inteligencia: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.2],
+            gestion: [4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0],
+            calidad: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.1],
+            modelos: [4.7, 5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8],
+            arquitectura: [5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0, 7.3],
+            analisis: [4.6, 4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7]
             }
         }
         };
@@ -80,7 +100,7 @@
         data: {
             labels: ['Semestre I','II','III','IV','V','VI','VII','VIII'],
             datasets: [{
-            label: 'Evolución de Notas',
+            label: 'Notas por Semestre',
             data: [],
             borderColor: '#5d2fb2',
             backgroundColor: '#9c7fdc',
@@ -96,7 +116,7 @@
             labels: radarLabels,
             datasets: [{
             label: 'Certificados',
-            data: [80, 75, 85, 90, 70, 88, 82],
+            data: [1, 2, 3, 4, 5, 6, 7],
             backgroundColor: 'rgba(124,96,186,0.5)',
             borderColor: '#7c60ba'
             }]
