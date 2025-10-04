@@ -12,31 +12,38 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <!-- Sidebar -->
-  <nav class="sidebar">
-    <div class="profile text-center p-3">
-      <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
-      <h5 class="text-white">Satoru Gojo</h5>
-    </div>
-    <ul class="nav flex-column">
-      <li><a href="{% url 'inicio_alumno' %}" class="nav-link"><i class="fas fa-home me-2"></i>Inicio</a></li>
-      <li><a href="{% url 'perfil_alumno' %}" class="nav-link"><i class="fas fa-user me-2"></i>Perfil</a></li>
-      <li><a href="{% url 'test_interest_alumno' %}" class="nav-link active"><i class="fas fa-list-check me-2"></i>Test de Interés</a></li>
-      <li><a href="{% url 'informe_alumno' %}" class="nav-link"><i class="fas fa-file-alt me-2"></i>Informes</a></li>
-      <li><a href="{% url 'estadisticas_asignatura_alumno' %}" class="nav-link"><i class="fas fa-chart-bar me-2"></i>Estadísticas Asignatura</a></li>
-      <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
-    </ul>
-  </nav>
+  <!-- TITULO BARRA LATERAL -->
 
-  <div class="content">
-    <div class="topbar"><h4>Test de Interés</h4></div>
-    <div class="card p-4" style="max-width: 600px; margin: 20px auto;">
-      <h5>Realiza tu Test de Interés</h5>
-      <p>Aquí podrás responder preguntas que evaluarán tus áreas de interés y habilidades.</p>
-    </div>
-  </div>
+      <!--clase de la barra lateral-->
+      <nav class="sidebar">
+        <div class="profile text-center p-3">
+          <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
+          <h5 class="text-white">Satoru Gojo</h5>
+        </div>
+        <ul class="nav flex-column">
+          <li><a href="{% url 'inicio_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'inicio_alumno' %}active{% endif %}"><i class="fas fa-home me-2"></i>Inicio</a></li>
+          <li><a href="{% url 'perfil_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'perfil_alumno' %}active{% endif %}"><i class="fas fa-user me-2"></i>Perfil</a></li>
+          <li><a href="{% url 'test_interest_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'test_interest_alumno' %}active{% endif %}"><i class="fas fa-list-check me-2"></i>Test de Interés</a></li>
+          <li><a href="{% url 'informe_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'informe_alumno' %}active{% endif %}"><i class="fas fa-file-alt me-2"></i>Informes</a></li>
+          <li><a href="{% url 'estadisticas_asignatura_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'estadisticas_asignatura_alumno' %}active{% endif %}"><i class="fas fa-chart-bar me-2"></i>Estadísticas Asignatura</a></li>
+          <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+        </ul>
+      </nav>   
 
-    <!--arreglar el css de este apartado-->
-<script src="{% static 'assets/js/test_interest_alumno.js' %}"></script>
+  <!-- TITULO FORMULARIO  -->
+
+      <div class="content">
+        <div class="topbar">
+          <h4>Test de Interés</h4>
+        </div>
+          <p>Aquí podrás responder preguntas que evaluarán tus áreas de interés y habilidades.</p>
+      </div>
+
+  <!--TITULO FORMULARIO DE INTERES-->
+
+      <!--completar al final-->
+
+      <!--llamado al js de test_interest_alumno-->
+      <script src="{% static 'assets/js/test_interest_alumno.js' %}"></script>
 </body>
 </html>
