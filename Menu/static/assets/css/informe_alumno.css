@@ -75,28 +75,29 @@
         margin-bottom: 20px;
         color: #18233f;
     }   
-    /* Botón VER */
+    
     .btn-view-custom {
-    background-color: #750fa8; /* azul suave */
+    background-color: #5c6bc0; /* azul suave */
     color: #fff;
     border: none;
     padding: 6px 14px;
     font-size: 14px;
     border-radius: 6px;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+    text-align: center;
     }
 
     .btn-view-custom:hover {
-    background-color: #e563f1;
+    background-color: #3f51b5;
     transform: scale(1.03);
     }
 
     .btn-view-custom:active {
-    background-color: #790d91;
+    background-color: #3949ab;
     transform: scale(0.98);
     }
 
-    /* Botón DESCARGAR */
     .btn-primary-custom {
     background-color: #7c60ba; /* violeta principal */
     color: #fff;
@@ -105,6 +106,8 @@
     font-size: 14px;
     border-radius: 6px;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+    text-align: center;
     }
 
     .btn-primary-custom:hover {
