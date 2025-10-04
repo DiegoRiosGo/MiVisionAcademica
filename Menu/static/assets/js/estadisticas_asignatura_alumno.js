@@ -3,7 +3,7 @@
     //SIN CODIGO
 
 
-  // TITULO BARRA LATERAL
+// TITULO BARRA LATERAL
 
     //personalizacion de tabs
     document.addEventListener('DOMContentLoaded', function () {
@@ -26,7 +26,7 @@
     });
     });
 
-// TITULO GRAFICOS 
+// TITULO APARTADO GRAFICOS 
 
     document.addEventListener('DOMContentLoaded', function () {
     const subjectSelect = document.getElementById('subjectSelect');
