@@ -85,7 +85,7 @@
         border-radius: 6px;
     }
     .btn-view-custom:hover {
-        background-color: #b23ad3; 
+        background-color: #b23ad3 !important; 
         transform: scale(1.03); /* efecto de expansión sutil */
         cursor: pointer;
     }
@@ -99,7 +99,7 @@
         border-radius: 6px;
     }
     .btn-primary-custom:hover {
-        background-color: #b23ad3; /* tono más claro de violeta */
+        background-color: #b23ad3 !important; /* tono más claro de violeta */
         transform: scale(1.03); /* efecto de expansión sutil */
         cursor: pointer;
     }
