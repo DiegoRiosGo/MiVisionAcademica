@@ -77,48 +77,22 @@
     }   
     
     .btn-view-custom {
-    background-color: #5c6bc0; /* azul suave */
-    color: #fff;
+    background-color: #5c6bc0 !important;
+    color: #fff !important;
     border: none;
     padding: 6px 14px;
     font-size: 14px;
     border-radius: 6px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: inline-block;
-    text-align: center;
-    }
+  }
 
-    .btn-view-custom:hover {
-    background-color: #3f51b5;
-    transform: scale(1.03);
-    }
-
-    .btn-view-custom:active {
-    background-color: #3949ab;
-    transform: scale(0.98);
-    }
-
-    .btn-primary-custom {
-    background-color: #7c60ba; /* violeta principal */
-    color: #fff;
+  .btn-primary-custom {
+    background-color: #7c60ba !important;
+    color: #fff !important;
     border: none;
     padding: 6px 14px;
     font-size: 14px;
     border-radius: 6px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: inline-block;
-    text-align: center;
-    }
-
-    .btn-primary-custom:hover {
-    background-color: #9c7fdc;
-    transform: scale(1.03);
-    }
-
-    .btn-primary-custom:active {
-    background-color: #6a4fa3;
-    transform: scale(0.98);
-    }
+  }
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
     @media (max-width: 768px) {
