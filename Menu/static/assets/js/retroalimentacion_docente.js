@@ -30,116 +30,116 @@
     });
 
 
-    const sectionSelect = document.getElementById('sectionSelect');
-    const subjectSelect = document.getElementById('subjectSelect');
-    const studentSelect = document.getElementById('studentSelect');
-    const feedbackForm = document.getElementById('feedbackForm');
-    const feedbackInput = document.getElementById('feedback');
-    const popup = document.getElementById('confirmationPopup');
+        const sectionSelect = document.getElementById('sectionSelect');
+        const subjectSelect = document.getElementById('subjectSelect');
+        const studentSelect = document.getElementById('studentSelect');
+        const feedbackForm = document.getElementById('feedbackForm');
+        const feedbackInput = document.getElementById('feedback');
+        const popup = document.getElementById('confirmationPopup');
 
-    // Datos simulados por sección, asignatura y estudiante
-    const studentData = {
-    "001D": {
-        "Estudiante 1": {
-        programacion: [5.2, 5.5, 5.8, 6.0, 6.2, 6.5, 6.8, 7.0],
-        inteligencia: [4.8, 5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7]
+        // Datos simulados por sección, asignatura y estudiante
+        const studentData = {
+        "001D": {
+            "Estudiante 1": {
+            programacion: [5.2, 5.5, 5.8, 6.0, 6.2, 6.5, 6.8, 7.0],
+            inteligencia: [4.8, 5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7]
+            },
+            "Estudiante 2": {
+            programacion: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
+            inteligencia: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0]
+            }
         },
-        "Estudiante 2": {
-        programacion: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
-        inteligencia: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0]
+        "001V": {
+            "Estudiante 3": {
+            programacion: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
+            inteligencia: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6]
+            },
+            "Estudiante 4": {
+            programacion: [4.2, 4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3],
+            inteligencia: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.2]
+            }
         }
-    },
-    "001V": {
-        "Estudiante 3": {
-        programacion: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
-        inteligencia: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6]
+        };
+
+        // Radar fijo por certificados
+        const radarLabels = [
+        'Análisis y Planificación de Requerimientos Informáticos',
+        'Calidad de Software',
+        'Gestión de Proyectos Informáticos',
+        'Programación de Software',
+        'Inteligencia de Negocios',
+        'Modelos de Datos',
+        'Arquitectura de Software'
+        ];
+
+        const lineCtx = document.getElementById('lineChartSubject').getContext('2d');
+        const radarCtx = document.getElementById('radarChartSubject').getContext('2d');
+
+        const lineChart = new Chart(lineCtx, {
+        type: 'line',
+        data: {
+            labels: ['Semestre I','II','III','IV','V','VI','VII','VIII'],
+            datasets: [{
+            label: 'Evolución de Notas',
+            data: [],
+            borderColor: '#5d2fb2',
+            backgroundColor: '#9c7fdc',
+            fill: false
+            }]
         },
-        "Estudiante 4": {
-        programacion: [4.2, 4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3],
-        inteligencia: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.2]
+        options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const radarChart = new Chart(radarCtx, {
+        type: 'radar',
+        data: {
+            labels: radarLabels,
+            datasets: [{
+            label: 'Certificados',
+            data: [80, 75, 85, 90, 70, 88, 82],
+            backgroundColor: 'rgba(124,96,186,0.5)',
+            borderColor: '#7c60ba'
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        function updateStudentOptions() {
+        const section = sectionSelect.value;
+        studentSelect.innerHTML = '';
+        Object.keys(studentData[section]).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            studentSelect.appendChild(opt);
+        });
+        updateCharts();
         }
-    }
-    };
 
-    // Radar fijo por certificados
-    const radarLabels = [
-    'Análisis y Planificación de Requerimientos Informáticos',
-    'Calidad de Software',
-    'Gestión de Proyectos Informáticos',
-    'Programación de Software',
-    'Inteligencia de Negocios',
-    'Modelos de Datos',
-    'Arquitectura de Software'
-    ];
+        function updateCharts() {
+        const section = sectionSelect.value;
+        const student = studentSelect.value;
+        const subject = subjectSelect.value;
 
-    const lineCtx = document.getElementById('lineChartSubject').getContext('2d');
-    const radarCtx = document.getElementById('radarChartSubject').getContext('2d');
+        if (!studentData[section][student] || !studentData[section][student][subject]) return;
 
-    const lineChart = new Chart(lineCtx, {
-    type: 'line',
-    data: {
-        labels: ['Semestre I','II','III','IV','V','VI','VII','VIII'],
-        datasets: [{
-        label: 'Evolución de Notas',
-        data: [],
-        borderColor: '#5d2fb2',
-        backgroundColor: '#9c7fdc',
-        fill: false
-        }]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
-    });
+        const lineData = studentData[section][student][subject];
+        lineChart.data.datasets[0].data = lineData;
+        lineChart.update();
+        }
 
-    const radarChart = new Chart(radarCtx, {
-    type: 'radar',
-    data: {
-        labels: radarLabels,
-        datasets: [{
-        label: 'Certificados',
-        data: [80, 75, 85, 90, 70, 88, 82],
-        backgroundColor: 'rgba(124,96,186,0.5)',
-        borderColor: '#7c60ba'
-        }]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
-    });
+        sectionSelect.addEventListener('change', updateStudentOptions);
+        subjectSelect.addEventListener('change', updateCharts);
+        studentSelect.addEventListener('change', updateCharts);
 
-    function updateStudentOptions() {
-    const section = sectionSelect.value;
-    studentSelect.innerHTML = '';
-    Object.keys(studentData[section]).forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        studentSelect.appendChild(opt);
-    });
-    updateCharts();
-    }
+        feedbackForm.addEventListener('submit', e => {
+        e.preventDefault();
+        popup.style.display = 'block';
+        setTimeout(() => { popup.style.display = 'none'; }, 2000);
+        feedbackInput.value = '';
+        });
 
-    function updateCharts() {
-    const section = sectionSelect.value;
-    const student = studentSelect.value;
-    const subject = subjectSelect.value;
-
-    if (!studentData[section][student] || !studentData[section][student][subject]) return;
-
-    const lineData = studentData[section][student][subject];
-    lineChart.data.datasets[0].data = lineData;
-    lineChart.update();
-    }
-
-    sectionSelect.addEventListener('change', updateStudentOptions);
-    subjectSelect.addEventListener('change', updateCharts);
-    studentSelect.addEventListener('change', updateCharts);
-
-    feedbackForm.addEventListener('submit', e => {
-    e.preventDefault();
-    popup.style.display = 'block';
-    setTimeout(() => { popup.style.display = 'none'; }, 2000);
-    feedbackInput.value = '';
-    });
-
-    updateStudentOptions();
+        updateStudentOptions();
 
 
 
