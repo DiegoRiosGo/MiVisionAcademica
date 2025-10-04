@@ -14,8 +14,7 @@
 <body>
   <!-- TITULO BARRA LATERAL -->
 
-      <!--clase de la barra lateral-->
-      <nav class="sidebar">
+     <nav class="sidebar">
         <div class="profile text-center p-3">
           <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
           <h5 class="text-white">Satoru Gojo</h5>
@@ -28,10 +27,9 @@
           <li><a href="{% url 'estadisticas_asignatura_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'estadisticas_asignatura_alumno' %}active{% endif %}"><i class="fas fa-chart-bar me-2"></i>Estadísticas Asignatura</a></li>
           <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
         </ul>
-      </nav>   
+      </nav>
 
   <!-- TITULO FORMULARIO  -->
-
       <div class="content">
         <div class="topbar">
           <h4>Test de Interés</h4>
@@ -42,6 +40,10 @@
   <!--TITULO FORMULARIO DE INTERES-->
 
       <!--completar al final-->
+
+      <div class="card p-4" style="max-width: 600px; margin: 20px auto;">
+        
+      </div>
 
       <!--llamado al js de test_interest_alumno-->
       <script src="{% static 'assets/js/test_interest_alumno.js' %}"></script>
