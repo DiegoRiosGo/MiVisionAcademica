@@ -34,6 +34,7 @@
     const newProfile = document.getElementById('newProfile');
     const profileImg = document.getElementById('profileImg');
     const sidebarProfiles = document.querySelectorAll('#sidebarProfile');
+    const confirmationPopup = document.getElementById('confirmationPopup');
 
     if(newProfile){
         newProfile.addEventListener('change', () => {
@@ -44,8 +45,14 @@
                     profileImg.src = e.target.result;
                     sidebarProfiles.forEach(img => img.src = e.target.result);
 
-                    // Alerta de confirmación
-                    alert('✅ Foto de perfil actualizada correctamente');
+// TITULO POPUP    
+                    // Mostrar el popup
+                    confirmationPopup.style.display = 'block';
+
+                    // Ocultar después de 3 segundos
+                    setTimeout(() => {
+                    confirmationPopup.style.display = 'none';
+                    }, 3000);
                 };
                 reader.readAsDataURL(file);
             }

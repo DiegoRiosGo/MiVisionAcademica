@@ -110,6 +110,31 @@
         margin: 0 auto 10px auto;
     }
 
+/* TITULO POPUP */
+    #confirmationPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #7c60ba;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 9999;
+    font-size: 16px;
+    text-align: center;
+    animation: fadeOut 3s forwards;
+    }
+
+    /* Animación para ocultar el popup */
+    @keyframes fadeOut {
+    0% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; display: none; }
+    }
+
 /* TITULO INFORMACION PERSONAL */
 
 
