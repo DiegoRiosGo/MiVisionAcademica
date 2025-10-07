@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'mi_vision_academica.wsgi.application'
 
 import os
 from decouple import config
-import dj_database_url
+
 
 
 
@@ -97,9 +97,7 @@ import dj_database_url
 #}
 
 
-MIGRATION_MODULES = {
-    app: None for app in INSTALLED_APPS
-}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
