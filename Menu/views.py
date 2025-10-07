@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-
+from .supabase_client import supabase
 # Create your views here.
 
 from django.http import HttpResponse
@@ -47,15 +47,138 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from .models import Usuario
 from .forms import RegistroForm, LoginForm
+from .supabase_client import supabase  # conexión a Supabase
 
 # ---------------------------------------------------------------------
 # Página principal (vista base con los formularios)
 # ---------------------------------------------------------------------
-
 # ---------------------------------------------------------------------
 # Registro de usuario
 # ---------------------------------------------------------------------
 def registrar_usuario(request):
+    if request.method == 'POST':
+        print(request.POST)  # 👈 esto mostrará los nombres exactos que llegan desde el HTML
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+
+            # Guardar en Supabase
+            nuevo_usuario = {
+                "nombre": data["nombre"],
+                "apellido": data["apellido"],
+                "correo": data["correo"],
+                "contrasena_hash": data["contrasena_hash"],
+                "rol": data["rol"]
+            }
+
+            supabase.table("usuario").insert(nuevo_usuario).execute()
+            messages.success(request, "✅ Registro exitoso. Ya puedes iniciar sesión.")
+            return redirect('Inicio')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+            return redirect('Inicio')
+    else:
+        messages.error(request, "Método no permitido.")
+        return redirect('Inicio')
+
+
+# ---------------------------------------------------------------------
+# Inicio de sesión
+# ---------------------------------------------------------------------
+def iniciar_sesion(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            usuario = form.cleaned_data['usuario']
+
+            # Guardar datos en sesión
+            request.session['usuario_id'] = usuario['usuario_id']
+            request.session['usuario_nombre'] = usuario['nombre']
+            request.session['usuario_rol'] = usuario['rol']
+
+            # Redirección según rol
+            if usuario['rol'] == 1:
+                messages.success(request, f"Bienvenido docente {usuario['nombre']}")
+                return redirect('InicioDocente')
+            elif usuario['rol'] == 2:
+                messages.success(request, f"Bienvenido estudiante {usuario['nombre']}")
+                return redirect('inicio_alumno')
+            else:
+                messages.warning(request, "Rol no identificado. Acceso limitado.")
+                return redirect('Inicio')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+            return redirect('Inicio')
+    else:
+        return redirect('Inicio')
+
+
+# ---------------------------------------------------------------------
+# Cerrar sesión
+# ---------------------------------------------------------------------
+def cerrar_sesion(request):
+    request.session.flush()
+    messages.info(request, "Has cerrado sesión correctamente.")
+    return redirect('Inicio')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------
+# Registro de usuario
+# ---------------------------------------------------------------------
+def registrar_usuario2(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
@@ -73,7 +196,7 @@ def registrar_usuario(request):
 # ---------------------------------------------------------------------
 # Inicio de sesión
 # ---------------------------------------------------------------------
-def iniciar_sesion(request):
+def iniciar_sesion2(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -102,7 +225,7 @@ def iniciar_sesion(request):
 # ---------------------------------------------------------------------
 # Cerrar sesión
 # ---------------------------------------------------------------------
-def cerrar_sesion(request):
+def cerrar_sesion2(request):
     request.session.flush()  # Borra todos los datos de sesión
     messages.info(request, "Has cerrado sesión correctamente.")
     return redirect('Inicio')

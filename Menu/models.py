@@ -22,3 +22,7 @@ class Usuario(models.Model):
     def __str__(self):
         return f"{self.nombre} {self.apellido} ({self.get_rol_display()})"
     
+    class Meta:
+        db_table = 'usuario'
+        managed = False
+    
