@@ -45,7 +45,6 @@ def RetroalimentacionDocente(request):
 # Página de inicio con login y registro
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from .models import Usuario
 from .forms import RegistroForm, LoginForm
 from .supabase_client import supabase  # conexión a Supabase
 
@@ -172,60 +171,3 @@ def cerrar_sesion(request):
 
 
 
-
-
-
-# ---------------------------------------------------------------------
-# Registro de usuario
-# ---------------------------------------------------------------------
-def registrar_usuario2(request):
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "✅ Registro exitoso. Ya puedes iniciar sesión.")
-            return redirect('Inicio')
-        else:
-            for error in form.errors.values():
-                messages.error(request, error)
-            return redirect('Inicio')
-    else:
-        messages.error(request, "Método no permitido.")
-        return redirect('Inicio')
-
-# ---------------------------------------------------------------------
-# Inicio de sesión
-# ---------------------------------------------------------------------
-def iniciar_sesion2(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            usuario = form.cleaned_data['usuario']
-            request.session['usuario_id'] = usuario.id
-            request.session['usuario_nombre'] = usuario.nombre
-            request.session['usuario_rol'] = usuario.rol
-
-            # Redirección según rol
-            if usuario.rol == 1:
-                messages.success(request, f"Bienvenido docente {usuario.nombre}")
-                return redirect('InicioDocente')  # Cambia según tu vista real
-            elif usuario.rol == 2:
-                messages.success(request, f"Bienvenido estudiante {usuario.nombre}")
-                return redirect('inicio_alumno')  # Cambia según tu vista real
-            else:
-                messages.warning(request, "Rol no identificado. Acceso limitado.")
-                return redirect('Inicio')
-        else:
-            for error in form.errors.values():
-                messages.error(request, error)
-            return redirect('Inicio')
-    else:
-        return redirect('Inicio')
-
-# ---------------------------------------------------------------------
-# Cerrar sesión
-# ---------------------------------------------------------------------
-def cerrar_sesion2(request):
-    request.session.flush()  # Borra todos los datos de sesión
-    messages.info(request, "Has cerrado sesión correctamente.")
-    return redirect('Inicio')
