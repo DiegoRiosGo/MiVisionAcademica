@@ -89,13 +89,19 @@ import dj_database_url
 
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=config('SUPABASE_DB_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres",
+        "USER" : "postgres",
+        "HOST" : os.environ.get("SUPABASE_HOST"),
+        "PASSWORD" : os.environ.get("SUPABASE_PASSWORD"),
+        "PORT" : "5432",
+        "OPTIONS" : {
+            "sslmode" : "verify-full",
+            "sslrootcert" : os.path.join(BASE_DIR, 'prod-ca-2021.crt'),
+        }
+    }
 }
-
 
 MIGRATION_MODULES = {
     app: None for app in INSTALLED_APPS
