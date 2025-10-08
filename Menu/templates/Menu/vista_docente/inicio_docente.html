@@ -23,8 +23,12 @@
     
     <nav class="sidebar">
       <div class="profile text-center p-3">
-        <img id="sidebarProfile" src="https://i.pinimg.com/736x/90/84/3c/90843c905d93dcd08ed9e970b194a077.jpg" alt="Perfil">
-        <h5 class="text-white">Kento Nanami</h5>
+        {% if foto %}
+          <img src="{{ foto }}" alt="Perfil">
+        {% else %}
+          <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
+        {% endif %}
+        <h5 class="text-white">{{ nombre }} {{ apellido }}</h5>
       </div>
       <ul class="nav flex-column">
         <li><a href="{% url 'InicioDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'InicioDocente' %}active{% endif %}"><i class="fas fa-home me-2"></i>Inicio</a></li>
@@ -38,7 +42,7 @@
    
       <div class="content">
         <div class="topbar">
-          <h4>Bienvenido, Kento Nanami</h4>
+          <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4>
         </div>
         <div class="card p-4 mb-4">
           <p>Desde aquí podrás acceder a tu perfil, poder ver el rendimiento por asignatura, 

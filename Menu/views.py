@@ -16,7 +16,10 @@ def Inicio(request):
         'login_form': login_form
     })
 
+
+# ---------------------------------------------------------------------
 # Vistas del alumno
+# ---------------------------------------------------------------------
 @login_requerido
 @solo_alumno
 def InicioAlumno(request):
@@ -57,23 +60,40 @@ def PerfilAlumno(request):
         foto_file = request.FILES['foto_perfil']
 
         try:
-            # Subir a Supabase Storage
+            # Leer bytes del archivo
             file_bytes = foto_file.read()
-            file_path = f"fotos_perfil/{usuario_id}_{foto_file.name}"
 
-            supabase.storage.from_("imagenes").upload(file_path, file_bytes)
-            foto_url = f"{supabase.storage.from_('imagenes').get_public_url(file_path)}"
+            # Asegurar nombre limpio (sin espacios ni caracteres conflictivos)
+            import re
+            nombre_archivo = re.sub(r'[^a-zA-Z0-9._-]', '_', foto_file.name)
+            file_path = f"fotos_perfil/{usuario_id}_{nombre_archivo}"
 
-            # Actualizar en la tabla usuario
+            # Determinar MIME Type automáticamente
+            import mimetypes
+            content_type, _ = mimetypes.guess_type(foto_file.name)
+            if not content_type:
+                content_type = "image/jpeg"
+
+            # Subir a Supabase Storage con opciones correctas
+            upload_response = supabase.storage.from_("imagenes").upload(
+                file_path,
+                file_bytes,
+                {"content-type": content_type, "upsert": True}  # ✅ evita errores si ya existe
+            )
+
+            # Obtener URL pública de la imagen subida
+            foto_url = supabase.storage.from_("imagenes").get_public_url(file_path)
+
+            # Guardar en la base de datos
             supabase.table("usuario").update({"foto": foto_url}).eq("usuario_id", usuario_id).execute()
 
             messages.success(request, "Tu foto de perfil fue actualizada correctamente.")
             return redirect('perfil_alumno')
 
         except Exception as e:
-            print("Error al actualizar la foto:", e)
+            print("⚠️ Error al actualizar la foto:", e)
             messages.error(request, "Hubo un problema al actualizar la foto. Intenta nuevamente.")
-
+            
     # 3 Obtener los datos del usuario
     try:
         response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
@@ -118,7 +138,7 @@ def EstadisticasAsignaturaAlumno(request):
             "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
         }
 
-        return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
+        return render(request, 'Menu/vista_alumno/estadisticas_asignatura_alumno.html', contexto)
 
     except Exception as e:
         print("Error al obtener usuario:", e)
@@ -147,7 +167,7 @@ def TestInterestAlumno(request):
             "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
         }
 
-        return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
+        return render(request, 'Menu/vista_alumno/test_interest_alumno.html', contexto)
 
     except Exception as e:
         print("Error al obtener usuario:", e)
@@ -176,18 +196,47 @@ def InformeAlumno(request):
             "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
         }
 
-        return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
+        return render(request, 'Menu/vista_alumno/informe_alumno.html', contexto)
 
     except Exception as e:
         print("Error al obtener usuario:", e)
         messages.error(request, "Hubo un problema al cargar tu información.")
         return redirect('Inicio')
 
+
+# ---------------------------------------------------------------------
 # Vistas de docente
+# ---------------------------------------------------------------------
+
 @login_requerido
 @solo_docente
 def InicioDocente(request):
-    return render(request, 'Menu/vista_docente/inicio_docente.html')
+    # 1 Obtener el ID del usuario desde la sesión
+    usuario_id = request.session.get('usuario_id')
+
+    # 2 Buscar la información completa del usuario en Supabase
+    try:
+        response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
+        if not response.data:
+            messages.error(request, "No se encontró la información del usuario.")
+            return redirect('Inicio')
+
+        usuario = response.data[0]
+
+        # 3 Preparar los datos para el template
+        contexto = {
+            "nombre": usuario.get("nombre", ""),
+            "apellido": usuario.get("apellido", ""),
+            "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
+        }
+
+        return render(request, 'Menu/vista_docente/inicio_docente.html', contexto)
+
+    except Exception as e:
+        print("Error al obtener usuario:", e)
+        messages.error(request, "Hubo un problema al cargar tu información.")
+        return redirect('Inicio')
+
 
 @login_requerido
 @solo_docente
@@ -197,7 +246,31 @@ def PerfilDocente(request):
 @login_requerido
 @solo_docente
 def RetroalimentacionDocente(request):
-    return render(request, 'Menu/vista_docente/retroalimentacion_docente.html')
+    # 1 Obtener el ID del usuario desde la sesión
+    usuario_id = request.session.get('usuario_id')
+
+    # 2 Buscar la información completa del usuario en Supabase
+    try:
+        response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
+        if not response.data:
+            messages.error(request, "No se encontró la información del usuario.")
+            return redirect('Inicio')
+
+        usuario = response.data[0]
+
+        # 3 Preparar los datos para el template
+        contexto = {
+            "nombre": usuario.get("nombre", ""),
+            "apellido": usuario.get("apellido", ""),
+            "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
+        }
+
+        return render(request, 'Menu/vista_docente/retroalimentacion_docente.html', contexto)
+
+    except Exception as e:
+        print("Error al obtener usuario:", e)
+        messages.error(request, "Hubo un problema al cargar tu información.")
+        return redirect('Inicio')
 
 
 #=================================================
