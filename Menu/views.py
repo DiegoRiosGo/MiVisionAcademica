@@ -1,3 +1,4 @@
+import io
 from django.shortcuts import render,redirect
 # Create your views here.
 
@@ -58,40 +59,29 @@ def PerfilAlumno(request):
     # 2 Si viene un archivo (actualización de foto)
     if request.method == 'POST' and 'foto_perfil' in request.FILES:
         foto_file = request.FILES['foto_perfil']
-
         try:
-            # Leer bytes del archivo
+            # Convertir a un objeto tipo archivo
             file_bytes = foto_file.read()
+            file_obj = io.BytesIO(file_bytes)
+            file_path = f"fotos_perfil/{usuario_id}_{foto_file.name}"
 
-            # Asegurar nombre limpio (sin espacios ni caracteres conflictivos)
-            import re
-            nombre_archivo = re.sub(r'[^a-zA-Z0-9._-]', '_', foto_file.name)
-            file_path = f"fotos_perfil/{usuario_id}_{nombre_archivo}"
+            # 🔹 Subir archivo al bucket 'imagenes' (asegúrate de que existe y sea público)
+            response = supabase.storage.from_("imagenes").upload(file_path, file_obj)
 
-            # Determinar MIME Type automáticamente
-            import mimetypes
-            content_type, _ = mimetypes.guess_type(foto_file.name)
-            if not content_type:
-                content_type = "image/jpeg"
-
-            # Subir a Supabase Storage con opciones correctas
-            upload_response = supabase.storage.from_("imagenes").upload(
-                file_path,
-                file_bytes,
-                {"content-type": content_type, "upsert": True}  # ✅ evita errores si ya existe
-            )
-
-            # Obtener URL pública de la imagen subida
+            # 🔹 Obtener URL pública
             foto_url = supabase.storage.from_("imagenes").get_public_url(file_path)
 
-            # Guardar en la base de datos
+            # 🔹 Actualizar en la tabla usuario
             supabase.table("usuario").update({"foto": foto_url}).eq("usuario_id", usuario_id).execute()
 
             messages.success(request, "Tu foto de perfil fue actualizada correctamente.")
             return redirect('perfil_alumno')
 
         except Exception as e:
-            print("⚠️ Error al actualizar la foto:", e)
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f"Error técnico: {e}")
+            print("❌ Error al actualizar la foto:", e)
             messages.error(request, "Hubo un problema al actualizar la foto. Intenta nuevamente.")
             
     # 3 Obtener los datos del usuario
