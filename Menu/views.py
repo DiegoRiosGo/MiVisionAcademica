@@ -2,8 +2,7 @@ from django.shortcuts import render,redirect
 from .supabase_client import supabase
 # Create your views here.
 
-from django.http import HttpResponse
-from django.template import loader
+from .decorators import login_requerido, solo_docente, solo_alumno
 
 def Inicio(request):
     registro_form = RegistroForm()
@@ -14,28 +13,44 @@ def Inicio(request):
     })
 
 # Vistas del alumno
+@login_requerido
+@solo_alumno
 def InicioAlumno(request):
     return render(request, 'Menu/vista_alumno/inicio_alumno.html')
 
+@login_requerido
+@solo_alumno
 def PerfilAlumno(request):
     return render(request, 'Menu/vista_alumno/perfil_alumno.html')
 
+@login_requerido
+@solo_alumno
 def EstadisticasAsignaturaAlumno(request):
     return render(request, 'Menu/vista_alumno/estadisticas_asignatura_alumno.html')
 
+@login_requerido
+@solo_alumno
 def TestInterestAlumno(request):
     return render(request, 'Menu/vista_alumno/test_interest_alumno.html')
 
+@login_requerido
+@solo_alumno
 def InformeAlumno(request):
     return render(request, 'Menu/vista_alumno/informe_alumno.html')
 
 # Vistas de docente
+@login_requerido
+@solo_docente
 def InicioDocente(request):
     return render(request, 'Menu/vista_docente/inicio_docente.html')
 
+@login_requerido
+@solo_docente
 def PerfilDocente(request):
     return render(request, 'Menu/vista_docente/perfil_docente.html')
 
+@login_requerido
+@solo_docente
 def RetroalimentacionDocente(request):
     return render(request, 'Menu/vista_docente/retroalimentacion_docente.html')
 
@@ -44,7 +59,6 @@ def RetroalimentacionDocente(request):
 #Programación inicio
 # Página de inicio con login y registro
 from django.contrib import messages
-from django.contrib.auth import login, logout
 from .forms import RegistroForm, LoginForm
 from .supabase_client import supabase  # conexión a Supabase
 
