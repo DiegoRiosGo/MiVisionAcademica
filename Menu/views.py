@@ -220,7 +220,48 @@ def InicioDocente(request):
 @login_requerido
 @solo_docente
 def PerfilDocente(request):
-    return render(request, 'Menu/vista_docente/perfil_docente.html')
+    # 1 Obtener el ID del usuario desde la sesión
+    usuario_id = request.session.get('usuario_id')
+
+    # 2 Si viene un archivo (actualización de foto)
+    if request.method == 'POST' and 'foto_perfil' in request.FILES:
+        foto_file = request.FILES['foto_perfil']
+        try:
+            # Leer bytes y convertir a base64
+            file_bytes = foto_file.read()
+            foto_base64 = base64.b64encode(file_bytes).decode('utf-8')
+
+            # Guardar en Supabase (en columna foto)
+            supabase.table("usuario").update({"foto": foto_base64}).eq("usuario_id", usuario_id).execute()
+
+            messages.success(request, "Tu foto de perfil fue actualizada correctamente.")
+            return redirect('perfil_alumno')
+
+        except Exception as e:
+            print("❌ Error al guardar la foto:", e)
+            messages.error(request, "Hubo un problema al actualizar la foto. Intenta nuevamente.")
+            
+    # 3 Obtener los datos del usuario
+    try:
+        response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
+        if not response.data:
+            messages.error(request, "No se encontró la información del usuario.")
+            return redirect('Inicio')
+
+        usuario = response.data[0]
+
+        contexto = {
+            "nombre": usuario.get("nombre", ""),
+            "apellido": usuario.get("apellido", ""),
+            "correo": usuario.get("correo", ""),
+            "foto": usuario.get("foto", None),
+        }
+        return render(request, 'Menu/vista_docente/perfil_docente.html', contexto)
+    
+    except Exception as e:
+        print("Error al obtener usuario:", e)
+        messages.error(request, "Hubo un error al cargar tu perfil.")
+        return redirect('Inicio')
 
 @login_requerido
 @solo_docente

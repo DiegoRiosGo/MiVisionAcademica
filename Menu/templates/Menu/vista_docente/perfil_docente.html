@@ -22,8 +22,12 @@
       
         <nav class="sidebar">
           <div class="profile text-center p-3">
-            <img id="sidebarProfile" src="https://i.pinimg.com/736x/90/84/3c/90843c905d93dcd08ed9e970b194a077.jpg" alt="Perfil">
-            <h5 class="text-white">Kento Nanami</h5>
+            {% if foto %}
+              <img src="data:image/jpeg;base64,{{ foto }}" alt="Perfil">
+            {% else %}
+              <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
+            {% endif %}
+            <h5 class="text-white">{{ nombre }} {{ apellido }}</h5>
           </div>
           <ul class="nav flex-column">
             <li><a href="{% url 'InicioDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'InicioDocente' %}active{% endif %}"><i class="fas fa-home me-2"></i>Inicio</a></li>
@@ -40,22 +44,29 @@
 
           <div class="card p-4 text-center" style="max-width: 400px; margin: 20px auto;">
             <h5>Información del Docente</h5>
-            <img id="profileImg" src="https://i.pinimg.com/736x/90/84/3c/90843c905d93dcd08ed9e970b194a077.jpg" 
-                alt="Perfil" class="profile-change-img mb-3">
+             <!-- FOTO ACTUAL DEL PERFIL -->
+            {% if foto %}
+              <img src="data:image/jpeg;base64,{{ foto }}" alt="Perfil" id="profileImg" class="profile-change-img mb-3">
+            {% else %}
+              <img id="profileImg" src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil" class="profile-change-img mb-3">
+            {% endif %}
 
     <!--TITULO FOTO DE PERFIL-->
+            <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
             <div class="mb-3">
-              <label for="newProfile" class="btn btn-primary-custom">
+              <label for="fotoPerfilInput" class="btn btn-primary-custom">
                 <i class="fas fa-upload"></i> Cambiar Foto
               </label>
-              <input type="file" id="newProfile" accept="image/*" style="display:none;">
+              <input type="file" id="fotoPerfilInput" name="foto_perfil" accept="image/*" style="display:none;" onchange="this.form.submit()">
             </div>
+          </form>
 
     <!--TITULO INFORMACION PERSONAL-->
 
             <ul class="list-group list-group-flush text-start mt-3">
-              <li class="list-group-item"><strong>Nombre:</strong> Kento Nanami</li>
-              <li class="list-group-item"><strong>Correo:</strong> ken.nanami@email.com</li>
+              <li class="list-group-item"><strong>Nombre:</strong> {{ nombre }} {{ apellido }}</li>
+              <li class="list-group-item"><strong>Correo:</strong> {{ correo }}</li>
               <li class="list-group-item"><strong>Departamento:</strong> Ciberseguridad</li>
               <li class="list-group-item"><strong>Rol:</strong> Docente</li>
             </ul>
