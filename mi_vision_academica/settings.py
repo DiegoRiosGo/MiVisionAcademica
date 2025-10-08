@@ -84,28 +84,23 @@ WSGI_APPLICATION = 'mi_vision_academica.wsgi.application'
 
 import os
 from decouple import config
-import dj_database_url
 
 
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.dummy',
+#    }
+#}
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER" : "postgres",
-        "HOST" : os.environ.get("SUPABASE_HOST"),
-        "PASSWORD" : os.environ.get("SUPABASE_PASSWORD"),
-        "PORT" : "5432",
-        "OPTIONS" : {
-            "sslmode" : "verify-full",
-            "sslrootcert" : os.path.join(BASE_DIR, 'prod-ca-2021.crt'),
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',  # 👈 evita el error de "readonly"
     }
 }
 
-MIGRATION_MODULES = {
-    app: None for app in INSTALLED_APPS
-}
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
