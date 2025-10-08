@@ -4,7 +4,12 @@ from .supabase_client import supabase
 
 from .decorators import login_requerido, solo_docente, solo_alumno
 
+
 def Inicio(request):
+    # Si existe sesión previa, se limpia
+    if 'usuario_id' in request.session:
+        request.session.flush()
+
     registro_form = RegistroForm()
     login_form = LoginForm()
     return render(request, 'Menu/Inicio.html', {
