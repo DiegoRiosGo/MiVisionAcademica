@@ -21,6 +21,60 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+// ================================
+// Medidor de fuerza de contraseña
+// ================================
+document.addEventListener("DOMContentLoaded", () => {
+    const passwordInput = document.getElementById("contrasena");
+    const strengthBar = document.getElementById("strength-bar");
+    const strengthText = document.getElementById("strength-text");
+
+    if (passwordInput) {
+        passwordInput.addEventListener("input", () => {
+            const value = passwordInput.value;
+            let strength = 0;
+
+            // Reglas de validación
+            if (value.length >= 8) strength++;
+            if (/[A-Z]/.test(value)) strength++;
+            if (/[a-z]/.test(value)) strength++;
+            if (/[0-9]/.test(value)) strength++;
+            if (/[!@#$%^&*(),.?\":{}|<>-_]/.test(value)) strength++;
+
+            // Determinar nivel de seguridad
+            let color = "";
+            let text = "";
+
+            switch (strength) {
+                case 0:
+                case 1:
+                    color = "#ff4b5c";
+                    text = "Muy débil";
+                    break;
+                case 2:
+                    color = "#ffa534";
+                    text = "Débil";
+                    break;
+                case 3:
+                    color = "#ffd234";
+                    text = "Media";
+                    break;
+                case 4:
+                    color = "#9acd32";
+                    text = "Fuerte";
+                    break;
+                case 5:
+                    color = "#00c851";
+                    text = "Muy fuerte";
+                    break;
+            }
+
+            strengthBar.style.width = (strength * 20) + "%";
+            strengthBar.style.backgroundColor = color;
+            strengthText.textContent = text;
+        });
+    }
+});
 /* --------------------------------------------------------------------------------------------------------------
    ---------------------------------------- FIN inicio .JS ------------------------------------------------------
    -------------------------------------------------------------------------------------------------------------- */
