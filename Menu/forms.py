@@ -39,9 +39,9 @@ class RegistroForm(forms.Form):
         if not re.search(r"[0-9]", contrasena):
             raise forms.ValidationError("La contraseña debe contener al menos un número.")
 
-        # Debe contener al menos un carácter especial
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>-_]", contrasena):
-            raise forms.ValidationError("La contraseña debe contener al menos un carácter especial (por ejemplo, @, #, $, %, !, ?,-).")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=/;~]", contrasena):
+            raise forms.ValidationError(
+                "La contraseña debe contener al menos un carácter especial (por ejemplo, @, #, $, %, !, ? o -).")
         
         # Validar correo institucional
         if correo.endswith('@profesor.duoc.cl'):
