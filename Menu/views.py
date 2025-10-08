@@ -1,5 +1,4 @@
 from django.shortcuts import render,redirect
-from .supabase_client import supabase
 # Create your views here.
 
 from .decorators import login_requerido, solo_docente, solo_alumno
@@ -21,7 +20,31 @@ def Inicio(request):
 @login_requerido
 @solo_alumno
 def InicioAlumno(request):
-    return render(request, 'Menu/vista_alumno/inicio_alumno.html')
+    # 1 Obtener el ID del usuario desde la sesión
+    usuario_id = request.session.get('usuario_id')
+
+    # 2 Buscar la información completa del usuario en Supabase
+    try:
+        response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
+        if not response.data:
+            messages.error(request, "No se encontró la información del usuario.")
+            return redirect('Inicio')
+
+        usuario = response.data[0]
+
+        # 5️⃣ Preparar los datos para el template
+        contexto = {
+            "nombre": usuario.get("nombre", ""),
+            "apellido": usuario.get("apellido", ""),
+            "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
+        }
+
+        return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
+
+    except Exception as e:
+        print("Error al obtener usuario:", e)
+        messages.error(request, "Hubo un problema al cargar tu información.")
+        return redirect('Inicio')
 
 @login_requerido
 @solo_alumno

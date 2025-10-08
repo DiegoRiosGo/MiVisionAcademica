@@ -22,8 +22,12 @@
       <!--clase de la barra lateral-->
       <nav class="sidebar">
         <div class="profile text-center p-3">
-          <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
-          <h5 class="text-white">Satoru Gojo</h5>
+          {% if foto %}
+            <img src="{{ foto }}" alt="Perfil">
+          {% else %}
+            <img src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil">
+          {% endif %}
+          <h5 class="text-white">{{ nombre }} {{ apellido }}</h5>
         </div>
         <ul class="nav flex-column">
           <li><a href="{% url 'inicio_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'inicio_alumno' %}active{% endif %}"><i class="fas fa-home me-2"></i>Inicio</a></li>
@@ -39,7 +43,7 @@
 
       <div class="content">
         <div class="topbar">
-          <h4>Bienvenido, Satoru Gojo</h4> <!--cambiar por codigo para que se cambie el nombre por el guardado-->
+          <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4> <!--cambiar por codigo para que se cambie el nombre por el guardado-->
         </div>
           <p>Este es tu panel principal. Desde aquí puedes subir tu informe de notas para poder visualizar tus estadísticas, 
             además de poder realizar un test de interés personal y mucho más.</p>
@@ -77,7 +81,7 @@
       </script>
       {% endfor %}
     {% endif %}
-    
+
 </body>
 </html>
 <!-- ------------------------------------------------------------------------------------------------------------
