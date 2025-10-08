@@ -1,7 +1,6 @@
-import io
 from django.shortcuts import render,redirect
 # Create your views here.
-
+import base64
 from .decorators import login_requerido, solo_docente, solo_alumno
 
 
@@ -60,28 +59,18 @@ def PerfilAlumno(request):
     if request.method == 'POST' and 'foto_perfil' in request.FILES:
         foto_file = request.FILES['foto_perfil']
         try:
-            # Convertir a un objeto tipo archivo
+            # Leer bytes y convertir a base64
             file_bytes = foto_file.read()
-            file_obj = io.BytesIO(file_bytes)
-            file_path = f"fotos_perfil/{usuario_id}_{foto_file.name}"
+            foto_base64 = base64.b64encode(file_bytes).decode('utf-8')
 
-            # 🔹 Subir archivo al bucket 'imagenes' (asegúrate de que existe y sea público)
-            response = supabase.storage.from_("imagenes").upload(file_path, file_obj)
-
-            # 🔹 Obtener URL pública
-            foto_url = supabase.storage.from_("imagenes").get_public_url(file_path)
-
-            # 🔹 Actualizar en la tabla usuario
-            supabase.table("usuario").update({"foto": foto_url}).eq("usuario_id", usuario_id).execute()
+            # Guardar en Supabase (en columna foto)
+            supabase.table("usuario").update({"foto": foto_base64}).eq("usuario_id", usuario_id).execute()
 
             messages.success(request, "Tu foto de perfil fue actualizada correctamente.")
             return redirect('perfil_alumno')
 
         except Exception as e:
-            import traceback
-            traceback.print_exc()
-            messages.error(request, f"Error técnico: {e}")
-            print("❌ Error al actualizar la foto:", e)
+            print("❌ Error al guardar la foto:", e)
             messages.error(request, "Hubo un problema al actualizar la foto. Intenta nuevamente.")
             
     # 3 Obtener los datos del usuario

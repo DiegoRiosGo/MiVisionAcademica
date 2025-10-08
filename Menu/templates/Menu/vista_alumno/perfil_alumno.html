@@ -51,7 +51,11 @@
           <h5>Información del Estudiante</h5>
           <!-- FOTO ACTUAL DEL PERFIL -->
           {% if foto %}
-            <img id="profileImg" src="{{ foto }}" alt="Perfil" class="profile-change-img mb-3">
+             {% if foto|slice:":4" == "http" %}
+                <img src="{{ foto }}" alt="Foto de perfil" class="rounded-circle" width="150">
+            {% else %}
+                <img src="data:image/jpeg;base64,{{ foto }}" alt="Foto de perfil" class="rounded-circle" width="150">
+            {% endif %}
           {% else %}
             <img id="profileImg" src="https://i.pinimg.com/1200x/71/e0/ee/71e0ee7eb86896b2d21afa6f3a8c8a36.jpg" alt="Perfil" class="profile-change-img mb-3">
           {% endif %}
