@@ -61,6 +61,40 @@
             <button type="submit" class="btn btn-primary-custom"><i class="fas fa-upload"></i> Subir</button>
           </form>
         </div>
+
+        <!-- TITULO LISTA DE INFORMES -->
+        <div class="card p-4 mt-4">
+          <h5>Mis Informes Subidos</h5>
+
+          {% if pdfs %}
+          <table class="table table-striped mt-3">
+            <thead>
+              <tr>
+                <th>Nombre del Archivo</th>
+                <th>Fecha de Subida</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pdf in pdfs %}
+              <tr>
+                <td>{{ pdf.ruta_archivo|basename }}</td>
+                <td>{{ pdf.fecha_subida }}</td>
+                <td>
+                  <a href="{{ MEDIA_URL }}{{ pdf.ruta_archivo }}" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> Ver
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p class="text-muted mt-3">No has subido ningún informe aún.</p>
+          {% endif %}
+        </div>
+
+        
       </div>
 
     <!--llamado al js de inicio_alumno-->

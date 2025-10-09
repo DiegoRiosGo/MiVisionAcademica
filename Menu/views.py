@@ -1,6 +1,9 @@
 from django.shortcuts import render,redirect
 # Create your views here.
 import base64
+import os
+from datetime import datetime
+from django.conf import settings
 from .decorators import login_requerido, solo_docente, solo_alumno
 
 
@@ -35,17 +38,57 @@ def InicioAlumno(request):
 
         usuario = response.data[0]
 
-        # 3 Preparar los datos para el template
+        # ======== SUBIR ARCHIVO PDF ========
+        if request.method == "POST" and 'pdfFile' in request.FILES:
+            pdf_file = request.FILES['pdfFile']
+
+            # Validar extensión del archivo
+            if not pdf_file.name.lower().endswith('.pdf'):
+                messages.error(request, "Solo se permiten archivos en formato PDF.")
+                return redirect('inicio_alumno')
+
+            # Crear carpeta local de subida (si no existe)
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'pdf_notas')
+            os.makedirs(upload_dir, exist_ok=True)
+
+            # Crear nombre único con timestamp
+            filename = f"{usuario_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+            file_path = os.path.join(upload_dir, filename)
+
+            # Guardar archivo localmente
+            with open(file_path, 'wb+') as destination:
+                for chunk in pdf_file.chunks():
+                    destination.write(chunk)
+
+            # Guardar en Supabase
+            ruta_guardada = f"pdf_notas/{filename}"
+            fecha_subida = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            supabase.table("pdf_notas").insert({
+                "estudiante_id": usuario_id,
+                "ruta_archivo": ruta_guardada,
+                "fecha_subida": fecha_subida
+            }).execute()
+
+            messages.success(request, "Archivo PDF subido correctamente.")
+            return redirect('inicio_alumno')
+
+        # ======== CONSULTAR ARCHIVOS EXISTENTES ========
+        pdfs_response = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).execute()
+        pdfs = pdfs_response.data if pdfs_response.data else []
+
+        # ======== CONTEXTO ========
         contexto = {
             "nombre": usuario.get("nombre", ""),
             "apellido": usuario.get("apellido", ""),
-            "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
+            "foto": usuario.get("foto", None),
+            "pdfs": pdfs,
         }
 
         return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
 
     except Exception as e:
-        print("Error al obtener usuario:", e)
+        print("Error al cargar InicioAlumno:", e)
         messages.error(request, "Hubo un problema al cargar tu información.")
         return redirect('Inicio')
 
