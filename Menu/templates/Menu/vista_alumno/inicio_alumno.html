@@ -72,10 +72,14 @@
             <ul class="list-group mt-3">
               {% for pdf in pdfs %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <a href="/media/{{ pdf.ruta_archivo }}" target="_blank">
-                    <i class="fas fa-file-pdf text-danger me-2"></i>{{ pdf.ruta_archivo|slice:"12:" }}
-                  </a>
-                  <small class="text-muted">{{ pdf.fecha_subida|date:"d/m/Y H:i" }}</small>
+                  <span><i class="fas fa-file-pdf text-danger me-2"></i>Informe {{ forloop.counter }}</span>
+                  <div>
+                    <button class="btn btn-sm btn-outline-primary"
+                            onclick="descargarPDF('{{ pdf.ruta_archivo }}', 'informe_{{ forloop.counter }}.pdf')">
+                      <i class="fas fa-download"></i> Descargar
+                    </button>
+                    <small class="text-muted ms-2">{{ pdf.fecha_subida|date:"d/m/Y H:i" }}</small>
+                  </div>
                 </li>
               {% endfor %}
             </ul>
@@ -89,6 +93,16 @@
 
     <!--llamado al js de inicio_alumno-->
     <script src="{% static 'assets/js/inicio_alumno.js' %}"></script>
+    
+        <!-- Script para descargar PDF desde Base64 -->
+    <script>
+    function descargarPDF(base64Data, nombreArchivo) {
+        const link = document.createElement('a');
+        link.href = 'data:application/pdf;base64,' + base64Data;
+        link.download = nombreArchivo;
+        link.click();
+    }
+    </script>
 
     <!--mensajes emergentes-->
     {% if messages %}

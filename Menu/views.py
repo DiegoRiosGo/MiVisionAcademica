@@ -43,34 +43,23 @@ def InicioAlumno(request):
         messages.error(request, "Hubo un problema al cargar tu información.")
         return redirect('Inicio')
 
-        # 2️⃣ Si se envió un archivo
+    # 3 Si se subió un archivo PDF
     if request.method == "POST" and 'pdfFile' in request.FILES:
         archivo = request.FILES['pdfFile']
 
-        # Validar tipo de archivo
         if not archivo.name.lower().endswith('.pdf'):
-            messages.error(request, "Solo se permiten archivos en formato PDF.")
+            messages.error(request, "Solo se permiten archivos PDF.")
             return redirect('inicio_alumno')
 
         try:
-            # Crear carpeta si no existe
-            ruta_carpeta = os.path.join(settings.MEDIA_ROOT, 'pdf_notas')
-            os.makedirs(ruta_carpeta, exist_ok=True)
+            # Leer archivo y convertir a base64
+            contenido = archivo.read()
+            contenido_base64 = base64.b64encode(contenido).decode('utf-8')
 
-            # Crear nombre único
-            nombre_archivo = f"{usuario_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo.name}"
-            ruta_guardado = os.path.join(ruta_carpeta, nombre_archivo)
-
-            # Guardar archivo localmente
-            with open(ruta_guardado, 'wb+') as destino:
-                for chunk in archivo.chunks():
-                    destino.write(chunk)
-
-            # Guardar en base de datos (Supabase)
-            ruta_relativa = f"pdf_notas/{nombre_archivo}"
+            # Insertar en Supabase
             supabase.table("pdf_notas").insert({
                 "estudiante_id": usuario_id,
-                "ruta_archivo": ruta_relativa,
+                "ruta_archivo": contenido_base64,  # guardamos el contenido del PDF codificado
                 "fecha_subida": now().isoformat()
             }).execute()
 
@@ -80,8 +69,8 @@ def InicioAlumno(request):
             print("Error al subir archivo:", e)
             messages.error(request, "Ocurrió un error al subir el archivo.")
             return redirect('inicio_alumno')
-
-    # 3️⃣ Obtener lista de archivos del usuario
+        
+    # 4 Obtener lista de archivos del usuario
     try:
         pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).execute()
         lista_pdfs = pdfs.data
@@ -89,7 +78,7 @@ def InicioAlumno(request):
         print("Error al obtener archivos:", e)
         lista_pdfs = []
 
-    # 4️⃣ Renderizar plantilla
+    # 5 Renderizar plantilla
     contexto = {
         "nombre": usuario.get("nombre", ""),
         "apellido": usuario.get("apellido", ""),
