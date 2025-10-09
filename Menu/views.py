@@ -1,9 +1,6 @@
 from django.shortcuts import render,redirect
 # Create your views here.
 import base64
-import os
-from datetime import datetime
-from django.conf import settings
 from .decorators import login_requerido, solo_docente, solo_alumno
 from django.utils.timezone import now
 
@@ -43,7 +40,20 @@ def InicioAlumno(request):
         messages.error(request, "Hubo un problema al cargar tu información.")
         return redirect('Inicio')
 
-    # 3 Si se subió un archivo PDF
+    # 3 Verificar que exista el estudiante correspondiente
+    try:
+        estudiante_resp = supabase.table("estudiante").select("*").eq("usuario_id", usuario_id).execute()
+        if not estudiante_resp.data:
+            # Crear el estudiante si no existe
+            supabase.table("estudiante").insert({
+                "usuario_id": usuario_id,
+                "semestre_actual": None  # Puedes cambiarlo por un valor si lo tienes
+            }).execute()
+            print(f"Estudiante con usuario_id={usuario_id} creado automáticamente.")
+    except Exception as e:
+        print("Error al verificar/crear estudiante:", e)
+
+    # 4 Si se subió un archivo PDF
     if request.method == "POST" and 'pdfFile' in request.FILES:
         archivo = request.FILES['pdfFile']
 
@@ -70,7 +80,7 @@ def InicioAlumno(request):
             messages.error(request, "Ocurrió un error al subir el archivo.")
             return redirect('inicio_alumno')
         
-    # 4 Obtener lista de archivos del usuario
+    # 5 Obtener lista de archivos del usuario
     try:
         pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).execute()
         lista_pdfs = pdfs.data
@@ -78,7 +88,7 @@ def InicioAlumno(request):
         print("Error al obtener archivos:", e)
         lista_pdfs = []
 
-    # 5 Renderizar plantilla
+    # 6 Renderizar plantilla
     contexto = {
         "nombre": usuario.get("nombre", ""),
         "apellido": usuario.get("apellido", ""),

@@ -1,8 +1,6 @@
 from django.urls import path
 from .views import Inicio,InicioAlumno,PerfilAlumno,EstadisticasAsignaturaAlumno,TestInterestAlumno,InformeAlumno,InicioDocente,PerfilDocente,RetroalimentacionDocente
 from . import views
-from django.conf import settings
-from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -24,4 +22,4 @@ urlpatterns = [
     path("registro/", views.registrar_usuario, name="registro"),
     path("login/", views.iniciar_sesion, name="login"),
     path("logout/", views.cerrar_sesion, name="logout"),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] 
