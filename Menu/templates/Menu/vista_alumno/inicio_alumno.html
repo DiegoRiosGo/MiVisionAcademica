@@ -81,7 +81,7 @@
                 {% for pdf in pdfs %}
                   <tr>
                     <td>{{ pdf.nombre_archivo|default:"Informe.pdf" }}</td>
-                    <td>{{ pdf.fecha_subida|date:"d/m/Y H:i" }}</td>
+                    <td>{{ pdf.fecha_subida}}</td>
                     <td>
                       <!-- Botón para visualizar -->
                       <button class="btn btn-outline-primary btn-sm ver-pdf-btn" 
@@ -135,6 +135,30 @@
         link.download = nombreArchivo;
         link.click();
     }
+    </script>
+
+    <script>
+      // Modal para visualizar PDF
+      document.addEventListener("DOMContentLoaded", function () {
+        const verBtns = document.querySelectorAll(".ver-pdf-btn");
+        const pdfViewer = document.getElementById("pdfViewer");
+
+        if (!pdfViewer) return; // Previene error si no existe
+
+        verBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            const base64Data = btn.getAttribute("data-base64");
+            const nombreArchivo = btn.getAttribute("data-nombre") || "Informe.pdf";
+            const pdfUrl = `data:application/pdf;base64,${base64Data}`;
+
+            pdfViewer.src = pdfUrl;
+            document.getElementById("verPdfModalLabel").innerText = nombreArchivo;
+
+            const modal = new bootstrap.Modal(document.getElementById("verPdfModal"));
+            modal.show();
+          });
+        });
+      });
     </script>
 
     <!--mensajes emergentes-->
