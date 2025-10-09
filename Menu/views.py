@@ -3,6 +3,7 @@ from django.shortcuts import render,redirect
 import base64
 from .decorators import login_requerido, solo_docente, solo_alumno
 from django.utils.timezone import now
+import uuid  # 👈 para nombres únicos
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -66,14 +67,19 @@ def InicioAlumno(request):
             contenido = archivo.read()
             contenido_base64 = base64.b64encode(contenido).decode('utf-8')
 
+            # 🔹 Crear nombre único
+            nombre_unico = f"informe_{usuario_id}_{uuid.uuid4().hex[:8]}.pdf"
+
             # Insertar en Supabase
             supabase.table("pdf_notas").insert({
                 "estudiante_id": usuario_id,
                 "ruta_archivo": contenido_base64,  # guardamos el contenido del PDF codificado
-                "fecha_subida": now().isoformat()
+                "fecha_subida": now().isoformat(),
+                "nombre_archivo": nombre_unico
             }).execute()
 
             messages.success(request, "Archivo subido correctamente.")
+            return redirect('inicio_alumno')  # ✅ Soluciona el error de reenvío POST
 
         except Exception as e:
             print("Error al subir archivo:", e)
@@ -83,7 +89,7 @@ def InicioAlumno(request):
     # 5 Obtener lista de archivos del usuario
     try:
         pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).execute()
-        lista_pdfs = pdfs.data
+        lista_pdfs = pdfs.data or []
     except Exception as e:
         print("Error al obtener archivos:", e)
         lista_pdfs = []

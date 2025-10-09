@@ -61,25 +61,27 @@
     }
 
 
-//  Modal para visualizar PDF 
-    document.addEventListener("DOMContentLoaded", function () {
-    const verBtns = document.querySelectorAll(".ver-pdf-btn");
-    const pdfViewer = document.getElementById("pdfViewer");
+// Modal para visualizar PDF
+document.addEventListener("DOMContentLoaded", function () {
+  const verBtns = document.querySelectorAll(".ver-pdf-btn");
+  const pdfViewer = document.getElementById("pdfViewer");
 
-    verBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const base64Data = btn.getAttribute("data-base64");
-        const nombreArchivo = btn.getAttribute("data-nombre");
-        const pdfUrl = `data:application/pdf;base64,${base64Data}`;
+  if (!pdfViewer) return; // Previene error si no existe
 
-        pdfViewer.src = pdfUrl;
-        document.getElementById("verPdfModalLabel").innerText = nombreArchivo;
+  verBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const base64Data = btn.getAttribute("data-base64");
+      const nombreArchivo = btn.getAttribute("data-nombre") || "Informe.pdf";
+      const pdfUrl = `data:application/pdf;base64,${base64Data}`;
 
-        const modal = new bootstrap.Modal(document.getElementById("verPdfModal"));
-        modal.show();
-      });
+      pdfViewer.src = pdfUrl;
+      document.getElementById("verPdfModalLabel").innerText = nombreArchivo;
+
+      const modal = new bootstrap.Modal(document.getElementById("verPdfModal"));
+      modal.show();
     });
   });
+});
 /* --------------------------------------------------------------------------------------------------------------
    ---------------------------------------- FIN inicio_alumno .JS -----------------------------------------------
    -------------------------------------------------------------------------------------------------------------- */    
