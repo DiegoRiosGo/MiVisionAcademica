@@ -65,31 +65,46 @@
         </div>
 
         <!-- TITULO LISTA DE INFORMES -->
-        <div class="card p-4">
+        <div class="card mt-4 p-4">
           <h5>Informes Subidos</h5>
 
           {% if pdfs %}
-            <ul class="list-group mt-3">
-              {% for pdf in pdfs %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><i class="fas fa-file-pdf text-danger me-2"></i>Informe {{ forloop.counter }}</span>
-                  <div>
-                    <button class="btn btn-sm btn-outline-primary"
-                            onclick="descargarPDF('{{ pdf.ruta_archivo }}', 'informe_{{ forloop.counter }}.pdf')">
-                      <i class="fas fa-download"></i> Descargar
-                    </button>
-                    <small class="text-muted ms-2">{{ pdf.fecha_subida|date:"d/m/Y H:i" }}</small>
-                  </div>
-                </li>
-              {% endfor %}
-            </ul>
+            <table class="table table-striped mt-3 align-middle text-center">
+              <thead class="table-primary">
+                <tr>
+                  <th>Nombre del Archivo</th>
+                  <th>Fecha de Subida</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pdf in pdfs %}
+                  <tr>
+                    <td>{{ pdf.nombre_archivo|default:"Informe.pdf" }}</td>
+                    <td>{{ pdf.fecha_subida|date:"d/m/Y H:i" }}</td>
+                    <td>
+                      <!-- Botón para visualizar -->
+                      <button class="btn btn-outline-primary btn-sm ver-pdf-btn" 
+                              data-base64="{{ pdf.ruta_archivo }}" 
+                              data-nombre="{{ pdf.nombre_archivo|default:'Informe.pdf' }}">
+                        <i class="fas fa-eye"></i> Ver
+                      </button>
+
+                      <!-- Botón para descargar -->
+                      <a href="data:application/pdf;base64,{{ pdf.ruta_archivo }}" 
+                        download="{{ pdf.nombre_archivo|default:'Informe.pdf' }}" 
+                        class="btn btn-outline-success btn-sm ms-2">
+                        <i class="fas fa-download"></i> Descargar
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           {% else %}
-            <p class="text-muted mt-3">Aún no has subido ningún informe.</p>
+            <p class="text-muted mt-2">Aún no has subido ningún informe.</p>
           {% endif %}
         </div>
-
-
-      </div>
 
     <!--llamado al js de inicio_alumno-->
     <script src="{% static 'assets/js/inicio_alumno.js' %}"></script>
