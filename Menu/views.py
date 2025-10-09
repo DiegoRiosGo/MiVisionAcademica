@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from django.conf import settings
 from .decorators import login_requerido, solo_docente, solo_alumno
-
+from django.utils.timezone import now
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -38,59 +38,66 @@ def InicioAlumno(request):
 
         usuario = response.data[0]
 
-        # ======== SUBIR ARCHIVO PDF ========
-        if request.method == "POST" and 'pdfFile' in request.FILES:
-            pdf_file = request.FILES['pdfFile']
-
-            # Validar extensión del archivo
-            if not pdf_file.name.lower().endswith('.pdf'):
-                messages.error(request, "Solo se permiten archivos en formato PDF.")
-                return redirect('inicio_alumno')
-
-            # Crear carpeta local de subida (si no existe)
-            upload_dir = os.path.join(settings.MEDIA_ROOT, 'pdf_notas')
-            os.makedirs(upload_dir, exist_ok=True)
-
-            # Crear nombre único con timestamp
-            filename = f"{usuario_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-            file_path = os.path.join(upload_dir, filename)
-
-            # Guardar archivo localmente
-            with open(file_path, 'wb+') as destination:
-                for chunk in pdf_file.chunks():
-                    destination.write(chunk)
-
-            # Guardar en Supabase
-            ruta_guardada = f"pdf_notas/{filename}"
-            fecha_subida = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-            supabase.table("pdf_notas").insert({
-                "estudiante_id": usuario_id,
-                "ruta_archivo": ruta_guardada,
-                "fecha_subida": fecha_subida
-            }).execute()
-
-            messages.success(request, "Archivo PDF subido correctamente.")
-            return redirect('inicio_alumno')
-
-        # ======== CONSULTAR ARCHIVOS EXISTENTES ========
-        pdfs_response = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).execute()
-        pdfs = pdfs_response.data if pdfs_response.data else []
-
-        # ======== CONTEXTO ========
-        contexto = {
-            "nombre": usuario.get("nombre", ""),
-            "apellido": usuario.get("apellido", ""),
-            "foto": usuario.get("foto", None),
-            "pdfs": pdfs,
-        }
-
-        return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
-
     except Exception as e:
-        print("Error al cargar InicioAlumno:", e)
+        print("Error al obtener usuario:", e)
         messages.error(request, "Hubo un problema al cargar tu información.")
         return redirect('Inicio')
+
+        # 2️⃣ Si se envió un archivo
+    if request.method == "POST" and 'pdfFile' in request.FILES:
+        archivo = request.FILES['pdfFile']
+
+        # Validar tipo de archivo
+        if not archivo.name.lower().endswith('.pdf'):
+            messages.error(request, "Solo se permiten archivos en formato PDF.")
+            return redirect('inicio_alumno')
+
+        try:
+            # Crear carpeta si no existe
+            ruta_carpeta = os.path.join(settings.MEDIA_ROOT, 'pdf_notas')
+            os.makedirs(ruta_carpeta, exist_ok=True)
+
+            # Crear nombre único
+            nombre_archivo = f"{usuario_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo.name}"
+            ruta_guardado = os.path.join(ruta_carpeta, nombre_archivo)
+
+            # Guardar archivo localmente
+            with open(ruta_guardado, 'wb+') as destino:
+                for chunk in archivo.chunks():
+                    destino.write(chunk)
+
+            # Guardar en base de datos (Supabase)
+            ruta_relativa = f"pdf_notas/{nombre_archivo}"
+            supabase.table("pdf_notas").insert({
+                "estudiante_id": usuario_id,
+                "ruta_archivo": ruta_relativa,
+                "fecha_subida": now().isoformat()
+            }).execute()
+
+            messages.success(request, "Archivo subido correctamente.")
+
+        except Exception as e:
+            print("Error al subir archivo:", e)
+            messages.error(request, "Ocurrió un error al subir el archivo.")
+            return redirect('inicio_alumno')
+
+    # 3️⃣ Obtener lista de archivos del usuario
+    try:
+        pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).execute()
+        lista_pdfs = pdfs.data
+    except Exception as e:
+        print("Error al obtener archivos:", e)
+        lista_pdfs = []
+
+    # 4️⃣ Renderizar plantilla
+    contexto = {
+        "nombre": usuario.get("nombre", ""),
+        "apellido": usuario.get("apellido", ""),
+        "foto": usuario.get("foto", None),
+        "pdfs": lista_pdfs,
+    }
+
+    return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
 
 @login_requerido
 @solo_alumno

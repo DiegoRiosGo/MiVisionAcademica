@@ -58,43 +58,33 @@
               <label for="pdfFile" class="form-label">Selecciona un archivo PDF:</label>
               <input type="file" class="form-control" id="pdfFile" name="pdfFile" accept="application/pdf">
             </div>
-            <button type="submit" class="btn btn-primary-custom"><i class="fas fa-upload"></i> Subir</button>
+            <button type="submit" class="btn btn-primary-custom">
+              <i class="fas fa-upload"></i> Subir
+            </button>
           </form>
         </div>
 
         <!-- TITULO LISTA DE INFORMES -->
-        <div class="card p-4 mt-4">
-          <h5>Mis Informes Subidos</h5>
+        <div class="card p-4">
+          <h5>Informes Subidos</h5>
 
           {% if pdfs %}
-          <table class="table table-striped mt-3">
-            <thead>
-              <tr>
-                <th>Nombre del Archivo</th>
-                <th>Fecha de Subida</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
+            <ul class="list-group mt-3">
               {% for pdf in pdfs %}
-              <tr>
-                <td>{{ pdf.ruta_archivo|basename }}</td>
-                <td>{{ pdf.fecha_subida }}</td>
-                <td>
-                  <a href="{{ MEDIA_URL }}{{ pdf.ruta_archivo }}" target="_blank" class="btn btn-sm btn-primary">
-                    <i class="fas fa-eye"></i> Ver
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <a href="/media/{{ pdf.ruta_archivo }}" target="_blank">
+                    <i class="fas fa-file-pdf text-danger me-2"></i>{{ pdf.ruta_archivo|slice:"12:" }}
                   </a>
-                </td>
-              </tr>
+                  <small class="text-muted">{{ pdf.fecha_subida|date:"d/m/Y H:i" }}</small>
+                </li>
               {% endfor %}
-            </tbody>
-          </table>
+            </ul>
           {% else %}
-          <p class="text-muted mt-3">No has subido ningún informe aún.</p>
+            <p class="text-muted mt-3">Aún no has subido ningún informe.</p>
           {% endif %}
         </div>
 
-        
+
       </div>
 
     <!--llamado al js de inicio_alumno-->
