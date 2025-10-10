@@ -43,7 +43,7 @@
 
       <div class="content">
         <div class="topbar">
-          <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4> <!--cambiar por codigo para que se cambie el nombre por el guardado-->
+          <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4> 
         </div>
           <p>Este es tu panel principal. Desde aquí puedes subir tu informe de notas para poder visualizar tus estadísticas, 
             además de poder realizar un test de interés personal y mucho más.</p>
@@ -137,6 +137,10 @@
     }
     </script>
 
+     <!-- 1) Cargar Bootstrap JS (IMPORTANTE - antes del script que lo usa) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+     <!-- 2) Tu script que utiliza `bootstrap` -->
     <script>
       // Modal para visualizar PDF
       document.addEventListener("DOMContentLoaded", function () {

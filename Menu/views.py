@@ -4,6 +4,8 @@ import base64
 from .decorators import login_requerido, solo_docente, solo_alumno
 from django.utils.timezone import now
 import uuid  # 👈 para nombres únicos
+import hashlib
+from pathlib import Path
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -63,23 +65,32 @@ def InicioAlumno(request):
             return redirect('inicio_alumno')
 
         try:
-            # Leer archivo y convertir a base64
-            contenido = archivo.read()
+            contenido = archivo.read()  # bytes
+            # calcular hash (SHA-256) para detectar duplicados
+            file_hash = hashlib.sha256(contenido).hexdigest()
+
+            # buscar si ya existe ese hash
+            existing = supabase.table("pdf_notas").select("pdf_id").eq("file_hash", file_hash).execute()
+            if existing.data:
+                messages.info(request, "Este archivo ya fue subido anteriormente.")
+                return redirect('inicio_alumno')
+
+            # crear nombre único pero legible (usa el nombre original sin extensión + id + uuid)
+            original_stem = Path(archivo.name).stem
+            nombre_unico = f"{original_stem}_{usuario_id}_{uuid.uuid4().hex[:8]}.pdf"
+
             contenido_base64 = base64.b64encode(contenido).decode('utf-8')
 
-            # 🔹 Crear nombre único
-            nombre_unico = f"informe_{usuario_id}_{uuid.uuid4().hex[:8]}.pdf"
-
-            # Insertar en Supabase
             supabase.table("pdf_notas").insert({
                 "estudiante_id": usuario_id,
-                "ruta_archivo": contenido_base64,  # guardamos el contenido del PDF codificado
+                "ruta_archivo": contenido_base64,
                 "fecha_subida": now().isoformat(),
-                "nombre_archivo": nombre_unico
+                "nombre_archivo": nombre_unico,
+                "file_hash": file_hash
             }).execute()
 
             messages.success(request, "Archivo subido correctamente.")
-            return redirect('inicio_alumno')  # ✅ Soluciona el error de reenvío POST
+            return redirect('inicio_alumno')
 
         except Exception as e:
             print("Error al subir archivo:", e)
