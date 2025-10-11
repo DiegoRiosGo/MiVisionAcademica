@@ -460,6 +460,14 @@ def extraer_datos_certificado(pdf_bytes):
     """Extrae los datos clave del certificado de notas a partir de un PDF en bytes."""
     try:
         texto = ""
+        for page in pdf_document:
+            texto += page.get_text("text")
+
+        # 👇 Añadir esta línea temporal para depurar
+        print("==== TEXTO EXTRAÍDO DEL PDF ====")
+        print(texto)
+        print("=================================")
+        
         with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
             for page in doc:
                 texto += page.get_text()
