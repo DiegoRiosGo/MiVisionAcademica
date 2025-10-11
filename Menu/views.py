@@ -6,6 +6,10 @@ from django.utils.timezone import now
 import uuid  # 👈 para nombres únicos
 import hashlib
 from pathlib import Path
+import fitz  # PyMuPDF
+import re
+from django.shortcuts import render
+
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -43,7 +47,7 @@ def InicioAlumno(request):
         messages.error(request, "Hubo un problema al cargar tu información.")
         return redirect('Inicio')
 
-    # 3 Verificar que exista el estudiante correspondiente
+    # 3 Verificar que exista el estudiante  
     try:
         estudiante_resp = supabase.table("estudiante").select("*").eq("usuario_id", usuario_id).execute()
         if not estudiante_resp.data:
@@ -75,9 +79,8 @@ def InicioAlumno(request):
                 messages.info(request, "Este archivo ya fue subido anteriormente.")
                 return redirect('inicio_alumno')
 
-            # crear nombre único pero legible (usa el nombre original sin extensión + id + uuid)
-            original_stem = Path(archivo.name).stem
-            nombre_unico = f"{original_stem}_{usuario_id}_{uuid.uuid4().hex[:8]}.pdf"
+            # crear nombre único pero legible 
+            nombre_unico = f"informe_{usuario_id}_{uuid.uuid4().hex[:8]}.pdf"
 
             contenido_base64 = base64.b64encode(contenido).decode('utf-8')
 
@@ -91,12 +94,65 @@ def InicioAlumno(request):
 
             messages.success(request, "Archivo subido correctamente.")
             return redirect('inicio_alumno')
-
+            
         except Exception as e:
             print("Error al subir archivo:", e)
             messages.error(request, "Ocurrió un error al subir el archivo.")
             return redirect('inicio_alumno')
-        
+    
+    
+
+    tabla_datos = None  # <-- Variable que enviaremos a la vista
+    try:
+        contenido = archivo.read()
+        # Extraer texto del PDF
+        with fitz.open(stream=contenido, filetype="pdf") as pdf:
+            texto = ""
+            for pagina in pdf:
+                texto += pagina.get_text()
+
+        # --------------------------------------------------------
+        #  EJEMPLO: detección simple con expresiones regulares
+        # --------------------------------------------------------
+
+        # Nombre, carrera y RUT
+        nombre = re.search(r"Nombre[:\s]+([A-ZÁÉÍÓÚÑ\s]+)", texto)
+        carrera = re.search(r"Carrera[:\s]+(.+)", texto)
+        rut = re.search(r"RUT[:\s]+([\d\.-]+-[\dkK])", texto)
+
+        # Asignaturas: ejemplo genérico (ajústalo según formato del certificado)
+        # Busca líneas con formato "SIGLA - NOMBRE ASIGNATURA - NOTA - SEMESTRE - AÑO"
+        asignaturas = re.findall(
+            r"([A-Z]{3,}\d{2,})\s+([A-Za-zÁÉÍÓÚÑ\s]+)\s+(\d,\d|\d\.\d)\s+Semestre\s+(\d+)\s+(\d{4})",
+            texto
+        )
+
+        # Estructurar los datos
+        tabla_datos = {
+            "nombre": nombre.group(1).title() if nombre else "No encontrado",
+            "rut": rut.group(1) if rut else "No encontrado",
+            "carrera": carrera.group(1) if carrera else "No encontrado",
+            "asignaturas": [
+                {
+                    "sigla": a[0],
+                    "nombre": a[1].title(),
+                    "nota": a[2],
+                    "semestre": a[3],
+                    "anio": a[4],
+                }
+                for a in asignaturas
+            ]
+        }
+
+        messages.success(request, "Archivo leído correctamente. Datos extraídos listos para mostrar.")
+
+    except Exception as e:
+        print("Error al leer PDF:", e)
+        messages.error(request, "No se pudo leer el PDF.")
+        return redirect('inicio_alumno')
+
+
+
     # 5 Obtener lista de archivos del usuario
     try:
         pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).execute()
@@ -111,6 +167,7 @@ def InicioAlumno(request):
         "apellido": usuario.get("apellido", ""),
         "foto": usuario.get("foto", None),
         "pdfs": lista_pdfs,
+        "tabla_datos": tabla_datos,  # Enviamos la tabla a la plantilla
     }
 
     return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
