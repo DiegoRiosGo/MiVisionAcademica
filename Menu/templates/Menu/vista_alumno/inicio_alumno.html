@@ -124,38 +124,32 @@
           </div>
         </div>
       
-        
-        {% if tabla_datos %}
-        <div class="card mt-4 p-4">
-          <h5>Datos Extraídos del Certificado</h5>
-          <p><strong>Nombre:</strong> {{ tabla_datos.nombre }}</p>
-          <p><strong>RUT:</strong> {{ tabla_datos.rut }}</p>
-          <p><strong>Carrera:</strong> {{ tabla_datos.carrera }}</p>
-
-          <table class="table table-striped mt-3 text-center">
-            <thead class="table-primary">
-              <tr>
-                <th>Sigla</th>
-                <th>Asignatura</th>
-                <th>Nota</th>
-                <th>Semestre</th>
-                <th>Año</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for a in tabla_datos.asignaturas %}
-                <tr>
-                  <td>{{ a.sigla }}</td>
-                  <td>{{ a.nombre }}</td>
-                  <td>{{ a.nota }}</td>
-                  <td>{{ a.semestre }}</td>
-                  <td>{{ a.anio }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% endif %}
+      {% if datos_pdf %}
+      <div class="card mt-4 p-4">
+        <h5>Datos extraídos del PDF</h5>
+        <p><strong>Nombre:</strong> {{ datos_pdf.nombre }}</p>
+        <p><strong>RUT:</strong> {{ datos_pdf.rut }}</p>
+        <p><strong>Carrera:</strong> {{ datos_pdf.carrera }}</p>
+        <table class="table mt-3 text-center">
+          <thead>
+            <tr>
+              <th>Sigla</th>
+              <th>Asignatura</th>
+              <th>Nota</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ramo in datos_pdf.ramos %}
+            <tr>
+              <td>{{ ramo.sigla }}</td>
+              <td>{{ ramo.asignatura }}</td>
+              <td>{{ ramo.nota }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
 
 
     <!--llamado al js de inicio_alumno-->

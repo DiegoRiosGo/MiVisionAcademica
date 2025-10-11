@@ -92,6 +92,12 @@ def InicioAlumno(request):
                 "file_hash": file_hash
             }).execute()
 
+            # --- NUEVO: Extraer datos del PDF recién subido ---
+            datos_pdf = extraer_datos_certificado(contenido)
+            if datos_pdf:
+                # Puedes imprimirlos en consola o guardarlos en contexto para mostrarlos
+                print("Datos extraídos del PDF:", datos_pdf)
+
             messages.success(request, "Archivo subido correctamente.")
             return redirect('inicio_alumno')
             
@@ -99,58 +105,7 @@ def InicioAlumno(request):
             print("Error al subir archivo:", e)
             messages.error(request, "Ocurrió un error al subir el archivo.")
             return redirect('inicio_alumno')
-    
-    
-
-    tabla_datos = None  # <-- Variable que enviaremos a la vista
-    try:
-        contenido = archivo.read()
-        # Extraer texto del PDF
-        with fitz.open(stream=contenido, filetype="pdf") as pdf:
-            texto = ""
-            for pagina in pdf:
-                texto += pagina.get_text()
-
-        # --------------------------------------------------------
-        #  EJEMPLO: detección simple con expresiones regulares
-        # --------------------------------------------------------
-
-        # Nombre, carrera y RUT
-        nombre = re.search(r"Nombre[:\s]+([A-ZÁÉÍÓÚÑ\s]+)", texto)
-        carrera = re.search(r"Carrera[:\s]+(.+)", texto)
-        rut = re.search(r"RUT[:\s]+([\d\.-]+-[\dkK])", texto)
-
-        # Asignaturas: ejemplo genérico (ajústalo según formato del certificado)
-        # Busca líneas con formato "SIGLA - NOMBRE ASIGNATURA - NOTA - SEMESTRE - AÑO"
-        asignaturas = re.findall(
-            r"([A-Z]{3,}\d{2,})\s+([A-Za-zÁÉÍÓÚÑ\s]+)\s+(\d,\d|\d\.\d)\s+Semestre\s+(\d+)\s+(\d{4})",
-            texto
-        )
-
-        # Estructurar los datos
-        tabla_datos = {
-            "nombre": nombre.group(1).title() if nombre else "No encontrado",
-            "rut": rut.group(1) if rut else "No encontrado",
-            "carrera": carrera.group(1) if carrera else "No encontrado",
-            "asignaturas": [
-                {
-                    "sigla": a[0],
-                    "nombre": a[1].title(),
-                    "nota": a[2],
-                    "semestre": a[3],
-                    "anio": a[4],
-                }
-                for a in asignaturas
-            ]
-        }
-
-        messages.success(request, "Archivo leído correctamente. Datos extraídos listos para mostrar.")
-
-    except Exception as e:
-        print("Error al leer PDF:", e)
-        messages.error(request, "No se pudo leer el PDF.")
-        return redirect('inicio_alumno')
-
+   
 
 
     # 5 Obtener lista de archivos del usuario
@@ -167,7 +122,7 @@ def InicioAlumno(request):
         "apellido": usuario.get("apellido", ""),
         "foto": usuario.get("foto", None),
         "pdfs": lista_pdfs,
-        "tabla_datos": tabla_datos,  # Enviamos la tabla a la plantilla
+        "datos_pdf": datos_pdf if request.method == "POST" else None
     }
 
     return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
@@ -498,7 +453,52 @@ def cerrar_sesion(request):
     return redirect('Inicio')
 
 
+# ---------------------------------------------------------------------
+# extraer pdf
+# ---------------------------------------------------------------------
+def extraer_datos_certificado(pdf_bytes):
+    """Extrae los datos clave del certificado de notas a partir de un PDF en bytes."""
+    try:
+        texto = ""
+        with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
+            for page in doc:
+                texto += page.get_text()
 
+        # 🔍 Aquí puedes personalizar el parseo según el formato real del PDF.
+        # Ejemplo básico con expresiones regulares:
+        import re
+
+        nombre = re.search(r"Nombre\s*:\s*(.+)", texto)
+        rut = re.search(r"RUT\s*:\s*(\d{1,2}\.\d{3}\.\d{3}-[\dkK])", texto)
+        carrera = re.search(r"Carrera\s*:\s*(.+)", texto)
+        semestre = re.search(r"Semestre\s*:\s*(\d+)", texto)
+        año = re.search(r"Año\s*:\s*(\d{4})", texto)
+
+        # Ejemplo para asignaturas:
+        # "SIGLA: INF1234  ASIGNATURA: Programación I  NOTA: 6.5"
+        ramos = re.findall(
+            r"SIGLA\s*[:\-]?\s*([A-Z]{3,4}\d{3,4}).*?ASIGNATURA\s*[:\-]?\s*([A-Za-zÁÉÍÓÚÑáéíóú ]+).*?NOTA\s*[:\-]?\s*([\d,\.]+)",
+            texto,
+            re.DOTALL
+        )
+
+        resultados = {
+            "nombre": nombre.group(1).strip() if nombre else None,
+            "rut": rut.group(1) if rut else None,
+            "carrera": carrera.group(1).strip() if carrera else None,
+            "semestre": semestre.group(1) if semestre else None,
+            "año": año.group(1) if año else None,
+            "ramos": [
+                {"sigla": sigla.strip(), "asignatura": asignatura.strip(), "nota": nota.replace(',', '.')}
+                for sigla, asignatura, nota in ramos
+            ]
+        }
+
+        return resultados
+
+    except Exception as e:
+        print("Error al leer PDF:", e)
+        return None
 
 
 
