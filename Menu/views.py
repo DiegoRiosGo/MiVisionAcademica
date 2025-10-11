@@ -5,11 +5,6 @@ from .decorators import login_requerido, solo_docente, solo_alumno
 from django.utils.timezone import now
 import uuid  # 👈 para nombres únicos
 import hashlib
-from pathlib import Path
-import fitz  # PyMuPDF
-import re
-from django.shortcuts import render
-
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -91,12 +86,6 @@ def InicioAlumno(request):
                 "nombre_archivo": nombre_unico,
                 "file_hash": file_hash
             }).execute()
-
-            # --- NUEVO: Extraer datos del PDF recién subido ---
-            datos_pdf = extraer_datos_certificado(contenido)
-            if datos_pdf:
-                # Puedes imprimirlos en consola o guardarlos en contexto para mostrarlos
-                print("Datos extraídos del PDF:", datos_pdf)
 
             messages.success(request, "Archivo subido correctamente.")
             return redirect('inicio_alumno')
@@ -451,62 +440,6 @@ def cerrar_sesion(request):
     request.session.flush()
     messages.info(request, "Has cerrado sesión correctamente.")
     return redirect('Inicio')
-
-
-# ---------------------------------------------------------------------
-# extraer pdf
-# ---------------------------------------------------------------------
-def extraer_datos_certificado(pdf_bytes):
-    """Extrae los datos clave del certificado de notas a partir de un PDF en bytes."""
-    try:
-        texto = ""
-        for page in pdf_document:
-            texto += page.get_text("text")
-
-        # 👇 Añadir esta línea temporal para depurar
-        print("==== TEXTO EXTRAÍDO DEL PDF ====")
-        print(texto)
-        print("=================================")
-        
-        with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
-            for page in doc:
-                texto += page.get_text()
-
-        # 🔍 Aquí puedes personalizar el parseo según el formato real del PDF.
-        # Ejemplo básico con expresiones regulares:
-        import re
-
-        nombre = re.search(r"Nombre\s*:\s*(.+)", texto)
-        rut = re.search(r"RUT\s*:\s*(\d{1,2}\.\d{3}\.\d{3}-[\dkK])", texto)
-        carrera = re.search(r"Carrera\s*:\s*(.+)", texto)
-        semestre = re.search(r"Semestre\s*:\s*(\d+)", texto)
-        año = re.search(r"Año\s*:\s*(\d{4})", texto)
-
-        # Ejemplo para asignaturas:
-        # "SIGLA: INF1234  ASIGNATURA: Programación I  NOTA: 6.5"
-        ramos = re.findall(
-            r"SIGLA\s*[:\-]?\s*([A-Z]{3,4}\d{3,4}).*?ASIGNATURA\s*[:\-]?\s*([A-Za-zÁÉÍÓÚÑáéíóú ]+).*?NOTA\s*[:\-]?\s*([\d,\.]+)",
-            texto,
-            re.DOTALL
-        )
-
-        resultados = {
-            "nombre": nombre.group(1).strip() if nombre else None,
-            "rut": rut.group(1) if rut else None,
-            "carrera": carrera.group(1).strip() if carrera else None,
-            "semestre": semestre.group(1) if semestre else None,
-            "año": año.group(1) if año else None,
-            "ramos": [
-                {"sigla": sigla.strip(), "asignatura": asignatura.strip(), "nota": nota.replace(',', '.')}
-                for sigla, asignatura, nota in ramos
-            ]
-        }
-
-        return resultados
-
-    except Exception as e:
-        print("Error al leer PDF:", e)
-        return None
 
 
 
