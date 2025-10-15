@@ -15,6 +15,8 @@ from .supabase_client import supabase
 import fitz  # PyMuPDF
 from django.http import JsonResponse
 import re
+from datetime import datetime
+
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -531,14 +533,83 @@ def procesar_pdf(request):
         return JsonResponse({"error": "Ocurrió un error al procesar el PDF."}, status=500)
 
 
+def guardar_resultados_pdf(estudiante_id, resultados):
+    """
+    Guarda los resultados extraídos del PDF en las tablas:
+    - asignatura
+    - nota
+    """
+    for r in resultados:
+        nombre_asignatura = r.get("nombre_asignatura")
+        sigla = r.get("sigla")
+        calificacion = r.get("calificacion")
+        semestre = r.get("semestre")
+        acno = r.get("acno")
+
+        # Paso 1: Verificar si la asignatura ya existe
+        existing = supabase.table("asignatura").select("asignatura_id").eq("nombre_asignatura", nombre_asignatura).execute()
+
+        if existing.data:
+            asignatura_id = existing.data[0]["asignatura_id"]
+        else:
+            # Crear la asignatura (campo 'area' vacío por ahora)
+            new_asig = supabase.table("asignatura").insert({
+                "nombre_asignatura": nombre_asignatura,
+                "area": None
+            }).execute()
+
+            asignatura_id = new_asig.data[0]["asignatura_id"]
+
+        # Paso 2: Insertar la nota vinculada
+        supabase.table("nota").insert({
+            "estudiante_id": estudiante_id,
+            "asignatura_id": asignatura_id,
+            "semestre": semestre,
+            "calificacion": calificacion,
+            "fecha_registro": datetime.now().isoformat(),
+            "acno": acno,
+            "sigla": sigla
+        }).execute()
+
+    print("✅ Resultados guardados exitosamente en Supabase.")
 
 
+@login_requerido
+@solo_alumno
+def guardar_notas_pdf(request):
+    """
+    Guarda en Supabase los resultados extraídos del PDF (en tablas asignatura y nota)
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Método no permitido."}, status=405)
 
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return JsonResponse({"error": "Sesión inválida."}, status=403)
 
+    try:
+        import json
+        data = json.loads(request.body)
+        resultados = data.get("resultados", [])
 
+        if not resultados:
+            return JsonResponse({"error": "No se recibieron datos para guardar."}, status=400)
 
+        # Ajustamos claves a las esperadas por la función
+        for r in resultados:
+            # Asegurar compatibilidad de nombres de campo
+            if "nota" in r:
+                r["calificacion"] = r.pop("nota")
+            if "anio" in r:
+                r["acno"] = r.pop("anio")
 
+        guardar_resultados_pdf(estudiante_id=usuario_id, resultados=resultados)
 
+        return JsonResponse({"success": True, "mensaje": "Notas guardadas exitosamente en Supabase."})
+
+    except Exception as e:
+        print("❌ Error al guardar notas:", e)
+        return JsonResponse({"error": "Ocurrió un error al guardar los resultados."}, status=500)
 
 
 
