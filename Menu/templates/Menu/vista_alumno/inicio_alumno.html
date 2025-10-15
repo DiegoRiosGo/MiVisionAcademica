@@ -139,6 +139,12 @@
         <button id="procesarPdfBtn" class="btn btn-success">🧠 Analizar Certificado</button>
       </div>
 
+      <button id="guardarResultadosBtn" class="btn btn-success mt-3" style="display:none;">
+        Guardar resultados en la base de datos
+      </button>
+
+      <div id="resultadoMensaje" class="mt-3"></div>
+
       <div class="mt-3">
         <h5>Asignaturas detectadas:</h5>
         <table class="table table-bordered mt-2">
@@ -155,12 +161,7 @@
         </table>
       </div>
 
-      <button id="guardarResultadosBtn" class="btn btn-success mt-3" style="display:none;">
-        Guardar resultados en la base de datos
-      </button>
-
-      <div id="resultadoMensaje" class="mt-3"></div>
-
+      
       <script>
       let resultadosExtraidos = []; // almacenará los resultados del PDF
 
@@ -171,6 +172,7 @@
             if (data.data) {
               resultadosExtraidos = data.data;
               mostrarResultadosEnTabla(data.data);
+              console.log("Mostrando botón guardar...");
               document.getElementById("guardarResultadosBtn").style.display = "block";
             } else {
               alert("No se pudieron procesar los datos del PDF.");
