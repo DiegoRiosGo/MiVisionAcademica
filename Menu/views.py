@@ -16,7 +16,7 @@ import fitz  # PyMuPDF
 from django.http import JsonResponse
 import re
 from datetime import datetime
-
+import json
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -577,38 +577,85 @@ def guardar_resultados_pdf(estudiante_id, resultados):
 @login_requerido
 @solo_alumno
 def guardar_notas_pdf(request):
-    """
-    Guarda en Supabase los resultados extraídos del PDF (en tablas asignatura y nota)
-    """
-    if request.method != "POST":
-        return JsonResponse({"error": "Método no permitido."}, status=405)
-
-    usuario_id = request.session.get('usuario_id')
-    if not usuario_id:
-        return JsonResponse({"error": "Sesión inválida."}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
 
     try:
-        import json
-        data = json.loads(request.body)
-        resultados = data.get("resultados", [])
+        body = json.loads(request.body)
+        resultados = body.get('resultados', [])
+        estudiante_id = request.user.id  # o el id del estudiante autenticado
 
         if not resultados:
-            return JsonResponse({"error": "No se recibieron datos para guardar."}, status=400)
+            return JsonResponse({'error': 'No se recibieron resultados'}, status=400)
 
-        # Ajustamos claves a las esperadas por la función
+        print(f"Recibidos {len(resultados)} resultados para guardar...")
+
+        guardados = 0
+        ya_existian = 0
+        errores = []
+
         for r in resultados:
-            # Asegurar compatibilidad de nombres de campo
-            if "nota" in r:
-                r["calificacion"] = r.pop("nota")
-            if "anio" in r:
-                r["acno"] = r.pop("anio")
+            nombre_asig = r.get('nombre_asignatura', '').strip()
+            sigla = r.get('sigla', '').strip()
+            nota = r.get('nota')
+            semestre = r.get('semestre')
+            anio = r.get('anio')
 
-        guardar_resultados_pdf(estudiante_id=usuario_id, resultados=resultados)
+            # Validación mínima
+            if not nombre_asig or nota is None:
+                errores.append(f"Datos incompletos para {nombre_asig}")
+                continue
 
-        return JsonResponse({"success": True, "mensaje": "Notas guardadas exitosamente en Supabase."})
+            # 1️⃣ Verificar si la asignatura ya existe
+            asignatura_resp = supabase.table("asignatura").select("*").eq("nombre_asignatura", nombre_asig).execute()
+
+            if asignatura_resp.data:
+                asignatura_id = asignatura_resp.data[0]['asignatura_id']
+                ya_existian += 1
+            else:
+                nueva_asig = {
+                    "nombre_asignatura": nombre_asig,
+                    "area": None
+                }
+                nueva = supabase.table("asignatura").insert(nueva_asig).execute()
+                asignatura_id = nueva.data[0]['asignatura_id']
+
+            # 2️⃣ Insertar la nota si no existe
+            existe_nota = supabase.table("nota").select("*").eq("estudiante_id", estudiante_id)\
+                .eq("asignatura_id", asignatura_id)\
+                .eq("semestre", semestre)\
+                .eq("acno", anio).execute()
+
+            if existe_nota.data:
+                ya_existian += 1
+                continue
+
+            nueva_nota = {
+                "estudiante_id": estudiante_id,
+                "asignatura_id": asignatura_id,
+                "semestre": semestre,
+                "acno": anio,
+                "calificacion": nota,
+                "sigla": sigla,
+                "fecha_registro": datetime.now().isoformat()
+            }
+
+            resultado_nota = supabase.table("nota").insert(nueva_nota).execute()
+
+            if resultado_nota.data:
+                guardados += 1
+            else:
+                errores.append(f"No se pudo guardar nota de {nombre_asig}")
+
+        mensaje = f"✅ Guardados {guardados} registros nuevos. ⚠️ {ya_existian} ya existían."
+        if errores:
+            mensaje += f" ❌ {len(errores)} con error."
+
+        return JsonResponse({"success": True, "mensaje": mensaje, "errores": errores})
 
     except Exception as e:
-        print("❌ Error al guardar notas:", e)
+        import traceback
+        print("ERROR al guardar_notas_pdf:", traceback.format_exc())
         return JsonResponse({"error": "Ocurrió un error al guardar los resultados."}, status=500)
 
 
