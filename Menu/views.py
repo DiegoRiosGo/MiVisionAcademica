@@ -6,6 +6,14 @@ from django.utils.timezone import now
 import uuid  # 👈 para nombres únicos
 import hashlib
 
+from django.contrib import messages
+from .forms import RegistroForm, LoginForm
+from .supabase_client import supabase  # conexión a Supabase
+
+import fitz  # PyMuPDF
+from django.http import JsonResponse
+
+
 def Inicio(request):
     # Si existe sesión previa, se limpia
     if 'usuario_id' in request.session:
@@ -94,8 +102,6 @@ def InicioAlumno(request):
             print("Error al subir archivo:", e)
             messages.error(request, "Ocurrió un error al subir el archivo.")
             return redirect('inicio_alumno')
-   
-
 
     # 5 Obtener lista de archivos del usuario
     try:
@@ -111,7 +117,6 @@ def InicioAlumno(request):
         "apellido": usuario.get("apellido", ""),
         "foto": usuario.get("foto", None),
         "pdfs": lista_pdfs,
-        "datos_pdf": datos_pdf if request.method == "POST" else None
     }
 
     return render(request, 'Menu/vista_alumno/inicio_alumno.html', contexto)
@@ -363,9 +368,7 @@ def RetroalimentacionDocente(request):
 #=================================================
 #Programación inicio
 # Página de inicio con login y registro
-from django.contrib import messages
-from .forms import RegistroForm, LoginForm
-from .supabase_client import supabase  # conexión a Supabase
+
 
 # ---------------------------------------------------------------------
 # Página principal (vista base con los formularios)
@@ -442,6 +445,33 @@ def cerrar_sesion(request):
     return redirect('Inicio')
 
 
+@login_requerido
+@solo_alumno
+def leer_pdf(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return JsonResponse({"error": "Sesión inválida."}, status=403)
+
+    try:
+        # Obtener el último PDF subido por el estudiante
+        pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).limit(1).execute()
+        if not pdfs.data:
+            return JsonResponse({"error": "No se encontró ningún PDF."}, status=404)
+
+        pdf_data = pdfs.data[0]["ruta_archivo"]  # Base64
+        pdf_bytes = base64.b64decode(pdf_data)
+
+        # Leer contenido del PDF
+        text = ""
+        with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
+            for page in doc:
+                text += page.get_text("text")
+
+        return JsonResponse({"texto": text})
+
+    except Exception as e:
+        print("Error al leer PDF:", e)
+        return JsonResponse({"error": "Ocurrió un problema al leer el PDF."}, status=500)
 
 
 

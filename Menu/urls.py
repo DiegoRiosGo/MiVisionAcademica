@@ -22,4 +22,5 @@ urlpatterns = [
     path("registro/", views.registrar_usuario, name="registro"),
     path("login/", views.iniciar_sesion, name="login"),
     path("logout/", views.cerrar_sesion, name="logout"),
+    path('leer_pdf/', views.leer_pdf, name='leer_pdf'),
 ] 

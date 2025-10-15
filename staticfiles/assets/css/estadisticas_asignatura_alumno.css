@@ -1,0 +1,144 @@
+/* -------------------------------------------------------------------------------------------------------------
+   ---------------------------------- INICIO estadisticas_asignatura_alumno .CSS -------------------------------
+   ------------------------------------------------------------------------------------------------------------- */    
+    
+/* fuente de letra */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* TITULO BODY */
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+    }
+    body {
+        margin: 0;
+        background-color: #f4f6f8;
+    }
+
+
+/* TITULO BARRA LATERAL  */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 220px;
+        height: 100%;
+        background-color: #7c60ba;
+        padding-top: 20px;
+        overflow-y: auto;
+    }
+
+    .sidebar .profile img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+    }
+
+    .sidebar .profile h5 {
+        color: white;
+        margin: 0;
+    }
+
+    .sidebar .nav {
+        margin-top: 20px;
+    }
+
+    .sidebar .nav-link {
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+        background-color: #9c7fdc;
+        color: white;
+        border-radius: 5px;
+    }
+
+    .sidebar .nav-link.active i {
+        color: white;
+    }
+
+    
+/* TITULO APARTADO GRAFICOS*/
+    .content {
+        margin-left: 220px;
+        padding: 50px;
+        background-color: #f4f6f8;
+    }
+
+    /* Título del apartado */
+    .topbar h4 {
+        margin-bottom: 10px;
+        color: #18233f;
+        font-weight: 600;
+    }
+
+    /* Mensaje explicativo */
+    .content p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+/* TITULO SELECTOR DE ASIGNATURA */  
+    #subjectSelect {
+        max-width: 400px;
+        margin-bottom: 30px;
+    }
+
+/* TITULO SELECTOR DE GRAFICOS */
+    .graphs-container { /* Contenedor de gráficos */
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    /* Tarjetas de gráfico */
+    .graphs-container .card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Canvas dentro de las tarjetas */
+    .graphs-container canvas {
+        width: 100%;
+        height: 250px;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+/* TITULO DISEÑO RESPONSIVE PARA MOVILES */
+    @media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .graphs-container {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+    }
+
+/* -------------------------------------------------------------------------------------------------------------
+   ---------------------------------- FIN estadisticas_asignatura_alumno .CSS ----------------------------------
+   ------------------------------------------------------------------------------------------------------------- */        

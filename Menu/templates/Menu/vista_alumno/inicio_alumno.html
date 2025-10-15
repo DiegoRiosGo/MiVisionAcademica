@@ -123,6 +123,29 @@
             </div>
           </div>
         </div>
+      
+      <!-- MODAL PARA Leer PDF -->
+      <div class="mt-4">
+        <button id="leerPdfBtn" class="btn btn-primary">📄 Leer último PDF</button>
+      </div>
+
+      <div class="mt-3">
+        <h5>Contenido del PDF:</h5>
+        <textarea id="pdfTextOutput" class="form-control" rows="10" readonly></textarea>
+      </div>
+
+      <script>
+      document.getElementById("leerPdfBtn").addEventListener("click", async () => {
+        const response = await fetch("/leer_pdf/");
+        const data = await response.json();
+
+        if (data.error) {
+          alert(data.error);
+        } else {
+          document.getElementById("pdfTextOutput").value = data.texto;
+        }
+      });
+      </script>
 
     <!--llamado al js de inicio_alumno-->
     <script src="{% static 'assets/js/inicio_alumno.js' %}"></script>
