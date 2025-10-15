@@ -134,6 +134,54 @@
         <textarea id="pdfTextOutput" class="form-control" rows="10" readonly></textarea>
       </div>
 
+      <!-- MODAL PARA escribir asignaturas por pdf -->
+      <div class="mt-4">
+        <button id="procesarPdfBtn" class="btn btn-success">🧠 Analizar Certificado</button>
+      </div>
+
+      <div class="mt-3">
+        <h5>Asignaturas detectadas:</h5>
+        <table class="table table-bordered mt-2">
+          <thead>
+            <tr>
+              <th>Sigla</th>
+              <th>Nombre Asignatura</th>
+              <th>Nota</th>
+              <th>Semestre</th>
+              <th>Año</th>
+            </tr>
+          </thead>
+          <tbody id="tablaResultados"></tbody>
+        </table>
+      </div>
+
+      <script>
+      document.getElementById("procesarPdfBtn").addEventListener("click", async () => {
+        const response = await fetch("/procesar_pdf/");
+        const data = await response.json();
+
+        const tabla = document.getElementById("tablaResultados");
+        tabla.innerHTML = "";
+
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+
+        data.data.forEach(item => {
+          const fila = `
+            <tr>
+              <td>${item.sigla}</td>
+              <td>${item.nombre_asignatura}</td>
+              <td>${item.nota}</td>
+              <td>${item.semestre}</td>
+              <td>${item.anio}</td>
+            </tr>`;
+          tabla.innerHTML += fila;
+        });
+      });
+      </script>
+      
       <script>
       document.getElementById("leerPdfBtn").addEventListener("click", async () => {
         const response = await fetch("/leer_pdf/");

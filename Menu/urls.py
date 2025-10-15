@@ -23,4 +23,5 @@ urlpatterns = [
     path("login/", views.iniciar_sesion, name="login"),
     path("logout/", views.cerrar_sesion, name="logout"),
     path('leer_pdf/', views.leer_pdf, name='leer_pdf'),
+    path('procesar_pdf/', views.procesar_pdf, name='procesar_pdf'),
 ] 

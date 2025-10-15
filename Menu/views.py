@@ -6,13 +6,15 @@ from django.utils.timezone import now
 import uuid  # 👈 para nombres únicos
 import hashlib
 
+# conexión a Supabase
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm
-from .supabase_client import supabase  # conexión a Supabase
+from .supabase_client import supabase  
 
+#lectura de pdf
 import fitz  # PyMuPDF
 from django.http import JsonResponse
-
+import re
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -445,6 +447,8 @@ def cerrar_sesion(request):
     return redirect('Inicio')
 
 
+
+
 @login_requerido
 @solo_alumno
 def leer_pdf(request):
@@ -474,8 +478,57 @@ def leer_pdf(request):
         return JsonResponse({"error": "Ocurrió un problema al leer el PDF."}, status=500)
 
 
+@login_requerido
+@solo_alumno
+def procesar_pdf(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return JsonResponse({"error": "Sesión inválida."}, status=403)
 
+    try:
+        # Obtener el último PDF subido por el estudiante
+        pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).limit(1).execute()
+        if not pdfs.data:
+            return JsonResponse({"error": "No se encontró ningún PDF."}, status=404)
 
+        pdf_data = pdfs.data[0]["ruta_archivo"]  # Base64
+        pdf_bytes = base64.b64decode(pdf_data)
+
+        # Extraer texto del PDF
+        text = ""
+        with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
+            for page in doc:
+                text += page.get_text("text")
+
+        # 🔍 Expresión regular para extraer asignaturas
+        patron = re.compile(
+            r"([A-Z]{3,4}\d{3,4})\s+\d+\s+([A-ZÁÉÍÓÚÑÜ0-9 ,\-/]+)\s+(\d+(?:,\d+)?)\s+[A-Z]\s+(\d)\s+(20\d{2})"
+        )
+
+        resultados = []
+        for match in patron.finditer(text):
+            sigla = match.group(1)
+            nombre = match.group(2).strip()
+            nota = match.group(3).replace(",", ".")
+            semestre = match.group(4)
+            anio = match.group(5)
+
+            resultados.append({
+                "sigla": sigla,
+                "nombre_asignatura": nombre.title(),
+                "nota": float(nota) if nota.replace(".", "", 1).isdigit() else None,
+                "semestre": int(semestre),
+                "anio": int(anio)
+            })
+
+        if not resultados:
+            return JsonResponse({"error": "No se pudieron extraer asignaturas."}, status=422)
+
+        return JsonResponse({"data": resultados})
+
+    except Exception as e:
+        print("Error al procesar PDF:", e)
+        return JsonResponse({"error": "Ocurrió un error al procesar el PDF."}, status=500)
 
 
 
