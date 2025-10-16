@@ -139,10 +139,6 @@
         <button id="procesarPdfBtn" class="btn btn-success">🧠 Analizar Certificado</button>
       </div>
 
-      <button id="guardarResultadosBtn" class="btn btn-success mt-3">
-        Guardar resultados en la base de datos
-      </button>
-
       <div id="resultadoMensaje" class="mt-3"></div>
 
       <div class="mt-3">
@@ -164,117 +160,43 @@
       
       <!-- === SISTEMA DE LECTURA Y PROCESAMIENTO DE PDF === -->
       <script>
-        let resultadosExtraidos = []; // almacenará los resultados extraídos del PDF
+      document.getElementById("procesarPdfBtn").addEventListener("click", async () => {
+        try {
+          const response = await fetch("{% url 'procesar_y_guardar_pdf' %}");
+          const data = await response.json();
 
-        // --- Función para leer el PDF desde Supabase ---
-        document.getElementById("leerPdfBtn").addEventListener("click", async () => {
-          try {
-            const response = await fetch("{% url 'leer_pdf' %}");
-            const data = await response.json();
+          const tabla = document.getElementById("tablaResultados");
+          tabla.innerHTML = "";
 
-            if (data.error) {
-              Swal.fire("Error", data.error, "error");
-            } else {
-              document.getElementById("pdfTextOutput").value = data.texto;
-              Swal.fire("Éxito", "El PDF fue leído correctamente.", "success");
-            }
-          } catch (err) {
-            console.error("Error al leer PDF:", err);
-            Swal.fire("Error", "No se pudo leer el PDF.", "error");
-          }
-        });
-
-        // --- Función para procesar el PDF ---
-        document.getElementById("procesarPdfBtn").addEventListener("click", async () => {
-          try {
-            const response = await fetch("{% url 'procesar_pdf' %}");
-            const data = await response.json();
-
-            const tabla = document.getElementById("tablaResultados");
-            tabla.innerHTML = "";
-
-            if (data.error) {
-              Swal.fire("Error", data.error, "error");
-              return;
-            }
-
-            if (!data.data || data.data.length === 0) {
-              Swal.fire("Atención", "No se detectaron asignaturas en el PDF.", "warning");
-              return;
-            }
-
-            resultadosExtraidos = data.data;
-
-            // Mostrar los resultados en la tabla
-            data.data.forEach(item => {
-              const fila = `
-                <tr>
-                  <td>${item.sigla}</td>
-                  <td>${item.nombre_asignatura}</td>
-                  <td>${item.nota}</td>
-                  <td>${item.semestre}</td>
-                  <td>${item.anio}</td>
-                </tr>`;
-              tabla.innerHTML += fila;
-            });
-
-            Swal.fire("Éxito", "El certificado fue procesado correctamente.", "success");
-
-          } catch (err) {
-            console.error("Error al procesar PDF:", err);
-            Swal.fire("Error", "No se pudo procesar el PDF.", "error");
-          }
-        });
-
-        // --- Función para guardar resultados ---
-        document.getElementById("guardarResultadosBtn").addEventListener("click", async () => {
-          if (!resultadosExtraidos || resultadosExtraidos.length === 0) {
-            Swal.fire("Atención", "No hay resultados procesados para guardar.", "warning");
+          if (data.error) {
+            Swal.fire("Error", data.error, "error");
             return;
           }
 
-          try {
-            const response = await fetch("{% url 'guardar_notas_pdf' %}", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken")
-              },
-              body: JSON.stringify({ resultados: resultadosExtraidos })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              Swal.fire("Éxito", data.mensaje, "success");
-            } else {
-              Swal.fire("Error", data.error || "Ocurrió un error al guardar los datos.", "error");
-            }
-
-          } catch (err) {
-            console.error("Error al guardar:", err);
-            Swal.fire("Error", "No se pudo conectar con el servidor.", "error");
+          if (!data.data || data.data.length === 0) {
+            Swal.fire("Atención", "No se detectaron asignaturas en el PDF.", "warning");
+            return;
           }
-        });
 
-        // --- Obtener el CSRF token ---
-        function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let cookie of cookies) {
-              const c = cookie.trim();
-              if (c.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(c.substring(name.length + 1));
-                break;
-              }
-            }
-          }
-          return cookieValue;
+          data.data.forEach(item => {
+            const fila = `
+              <tr>
+                <td>${item.sigla}</td>
+                <td>${item.nombre_asignatura}</td>
+                <td>${item.nota}</td>
+                <td>${item.semestre}</td>
+                <td>${item.anio}</td>
+              </tr>`;
+            tabla.innerHTML += fila;
+          });
+
+          Swal.fire("Resultado", data.mensaje, "success");
+        } catch (err) {
+          console.error("Error al procesar y guardar PDF:", err);
+          Swal.fire("Error", "No se pudo procesar ni guardar el PDF.", "error");
         }
+      });
       </script>
-
-      
       
 
     <!--llamado al js de inicio_alumno-->
