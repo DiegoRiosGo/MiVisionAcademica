@@ -30,81 +30,105 @@
     });
     });
 
-// TITULO APARTADO GRAFICOS 
 
-    document.addEventListener('DOMContentLoaded', function () {
+    //nuevos gráficos
+    document.addEventListener('DOMContentLoaded', async function () {
     const subjectSelect = document.getElementById('subjectSelect');
     const lineCtx = document.getElementById('lineChartSubject').getContext('2d');
     const radarCtx = document.getElementById('radarChartSubject').getContext('2d');
 
-    // Datos simulados de notas por semestre
-    const lineData = {
-        analisis: [5.2, 5.5, 5.8, 6.0, 6.2, 6.5, 6.8, 7.0],
-        calidad: [4.8, 5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7],
-        gestion: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
-        programacion: [4.4, 4.9, 5.3, 5.7, 6.1, 6.4, 6.8, 7.0],
-        inteligencia: [4.1, 4.5, 5.0, 5.4, 5.8, 6.2, 6.6, 7.0],
-        modelos: [5.0, 5.3, 5.7, 7.0, 6.1, 6.4, 6.7, 6.9],
-        arquitectura: [7.0, 2.3, 3.0, 7.0, 4.6, 5.4, 6.1, 6.8]
-    };
+    let datosNotas = {};
+    let promedios = {};
 
-    // Datos simulados de certificación por asignatura
-    const radarLabels = [
-        'Análisis y Planificación',
-        'Calidad de Software',
-        'Gestión de Proyectos',
-        'Programación',
-        'Inteligencia de Negocios',
-        'Modelos de Datos',
-        'Arquitectura de Software'
-    ];
+    // 1️⃣ Cargar datos reales desde el backend
+    try {
+        const res = await fetch("{% url 'estadisticas_notas_alumno' %}");
+        const data = await res.json();
 
-    const radarValues = [1, 2, 3, 4, 5, 6, 7];
-
-    // Inicializar gráfico de línea
-    const lineChart = new Chart(lineCtx, {
-        type: 'line',
-        data: {
-        labels: ['Semestre I','II','III','IV','V','VI','VII','VIII'],
-        datasets: [{
-            label: 'Notas por Semestre',
-            data: lineData.analisis,
-            borderColor: '#ff69b4',
-            backgroundColor: 'rgba(255,105,180,0.2)',
-            fill: true,
-            tension: 0.3
-        }]
-        },
-        options: {
-        responsive: true,
-        maintainAspectRatio: false
+        if (!data.success) {
+        Swal.fire("Error", "No se pudieron cargar las estadísticas.", "error");
+        return;
         }
+
+        datosNotas = data.notas;
+        promedios = data.promedios;
+
+    } catch (err) {
+        console.error("Error cargando estadísticas:", err);
+        Swal.fire("Error", "Fallo al obtener datos del servidor.", "error");
+        return;
+    }
+
+    // 2️⃣ Llenar el selector con las asignaturas reales
+    subjectSelect.innerHTML = "";
+    Object.keys(datosNotas).forEach(asig => {
+        const option = document.createElement("option");
+        option.value = asig;
+        option.textContent = asig;
+        subjectSelect.appendChild(option);
     });
 
-    // Inicializar gráfico de radar
+    if (Object.keys(datosNotas).length === 0) {
+        Swal.fire("Sin datos", "No hay notas registradas aún.", "info");
+        return;
+    }
+
+    // 3️⃣ Función para generar gráfico de línea (evolución)
+    function crearGraficoLinea(asignatura) {
+        const datos = datosNotas[asignatura].sort((a, b) => a.anio - b.anio || a.semestre - b.semestre);
+        const etiquetas = datos.map(d => `${d.anio} - S${d.semestre}`);
+        const valores = datos.map(d => d.nota);
+
+        return new Chart(lineCtx, {
+        type: 'line',
+        data: {
+            labels: etiquetas,
+            datasets: [{
+            label: `Evolución de Notas (${asignatura})`,
+            data: valores,
+            borderColor: '#7c60ba',
+            backgroundColor: 'rgba(124,96,186,0.3)',
+            fill: true,
+            tension: 0.3
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, max: 7 } },
+            plugins: { legend: { display: true } },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+        });
+    }
+
+    // 4️⃣ Gráfico de radar — comparación promedio por asignatura
     const radarChart = new Chart(radarCtx, {
         type: 'radar',
         data: {
-        labels: radarLabels,
+        labels: Object.keys(promedios),
         datasets: [{
-            label: 'Nivel de Certificación',
-            data: radarValues,
-            backgroundColor: 'rgba(124,96,186,0.5)',
+            label: 'Promedio General',
+            data: Object.values(promedios),
+            backgroundColor: 'rgba(124,96,186,0.4)',
             borderColor: '#7c60ba',
             pointBackgroundColor: '#7c60ba'
         }]
         },
         options: {
+        scales: { r: { suggestedMin: 1, suggestedMax: 7 } },
         responsive: true,
         maintainAspectRatio: false
         }
     });
 
-    // Actualizar gráfico de línea al cambiar asignatura
+    // 5️⃣ Inicializar primer gráfico de línea
+    let lineChart = crearGraficoLinea(Object.keys(datosNotas)[0]);
+
+    // 6️⃣ Cambiar asignatura desde el selector
     subjectSelect.addEventListener('change', function () {
-        const selected = this.value;
-        lineChart.data.datasets[0].data = lineData[selected];
-        lineChart.update();
+        const asig = this.value;
+        lineChart.destroy();
+        lineChart = crearGraficoLinea(asig);
     });
     });
 

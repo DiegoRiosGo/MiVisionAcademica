@@ -24,4 +24,5 @@ urlpatterns = [
     path("logout/", views.cerrar_sesion, name="logout"),
     path('leer_pdf/', views.leer_pdf, name='leer_pdf'),
     path('procesar_y_guardar_pdf/', views.procesar_y_guardar_pdf, name='procesar_y_guardar_pdf'),
+    path("estadisticas_notas_alumno/", views.estadisticas_notas_alumno, name="estadisticas_notas_alumno"),
 ] 

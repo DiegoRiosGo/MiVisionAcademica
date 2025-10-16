@@ -447,7 +447,7 @@ def cerrar_sesion(request):
 
 
 
-
+#solo por ahora, luego borrar para mostrar al profe
 @login_requerido
 @solo_alumno
 def leer_pdf(request):
@@ -477,6 +477,9 @@ def leer_pdf(request):
         return JsonResponse({"error": "Ocurrió un problema al leer el PDF."}, status=500)
 
 
+# ---------------------------------------------------------------------
+# procesar pdf y guardarlos en bbdd
+# ---------------------------------------------------------------------
 @login_requerido
 @solo_alumno
 def procesar_y_guardar_pdf(request):
@@ -610,7 +613,57 @@ def procesar_y_guardar_pdf(request):
         return JsonResponse({"error": "Ocurrió un error interno al procesar y guardar el PDF."}, status=500)
 
 
+# ---------------------------------------------------------------------
+# crear gráficos
+# ---------------------------------------------------------------------
+@login_requerido
+@solo_alumno
+def estadisticas_notas_alumno(request):
+    """
+    Devuelve las notas del estudiante en formato JSON
+    agrupadas por asignatura, semestre y año.
+    """
+    usuario_id = request.session.get("usuario_id")
 
+    try:
+        # 1️⃣ Obtener notas del estudiante con unión a la tabla asignatura
+        response = supabase.rpc("get_notas_con_asignaturas", {"p_estudiante_id": usuario_id}).execute()
+        # ⚠️ Opción alternativa si no tienes RPC (usa join manual):
+        if not response.data:
+            response = supabase.table("nota") \
+                .select("nota_id,calificacion,semestre,acno,sigla,asignatura(nombre_asignatura)") \
+                .eq("estudiante_id", usuario_id) \
+                .order("acno", desc=False).execute()
+
+        datos = response.data or []
+
+        # 2️⃣ Estructurar para frontend
+        notas_por_asignatura = {}
+        for fila in datos:
+            nombre_asig = fila.get("asignatura", {}).get("nombre_asignatura", "Desconocida")
+            if nombre_asig not in notas_por_asignatura:
+                notas_por_asignatura[nombre_asig] = []
+            notas_por_asignatura[nombre_asig].append({
+                "nota": float(fila.get("calificacion", 0)),
+                "semestre": fila.get("semestre", 0),
+                "anio": fila.get("acno", 0)
+            })
+
+        # 3️⃣ Calcular promedio por asignatura
+        promedios = {
+            a: round(sum(n["nota"] for n in notas) / len(notas), 2)
+            for a, notas in notas_por_asignatura.items()
+        }
+
+        return JsonResponse({
+            "success": True,
+            "notas": notas_por_asignatura,
+            "promedios": promedios
+        })
+
+    except Exception as e:
+        print("Error en estadisticas_notas_alumno:", e)
+        return JsonResponse({"error": "No se pudieron obtener las estadísticas."}, status=500)
 
 
 

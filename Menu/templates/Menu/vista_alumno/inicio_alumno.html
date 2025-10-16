@@ -124,6 +124,7 @@
           </div>
         </div>
       
+      <!--luego borrar solo para mostrar al profe-->
       <!-- MODAL PARA Leer PDF -->
       <div class="mt-4">
         <button id="leerPdfBtn" class="btn btn-primary">📄 Leer último PDF</button>
@@ -198,7 +199,26 @@
       });
       </script>
       
+      <!--luego borrar solo para mostrar al profe-->
+      <script>
+        document.getElementById("leerPdfBtn").addEventListener("click", async () => {
+          try {
+            const response = await fetch("{% url 'leer_pdf' %}");
+            const data = await response.json();
 
+            if (data.error) {
+              Swal.fire("Error", data.error, "error");
+            } else {
+              document.getElementById("pdfTextOutput").value = data.texto;
+              Swal.fire("Éxito", "El PDF fue leído correctamente.", "success");
+            }
+          } catch (err) {
+            console.error("Error al leer PDF:", err);
+            Swal.fire("Error", "No se pudo leer el PDF.", "error");
+          }
+        });
+      </script>
+        
     <!--llamado al js de inicio_alumno-->
     <script src="{% static 'assets/js/inicio_alumno.js' %}"></script>
     
