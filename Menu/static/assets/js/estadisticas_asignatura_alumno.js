@@ -42,7 +42,7 @@
 
     // 1️⃣ Cargar datos reales desde el backend
     try {
-        const res = await fetch("{% url 'estadisticas_notas_alumno' %}");
+        const res = await fetch(urlEstadisticasNotas);
         const data = await res.json();
 
         if (!data.success) {
