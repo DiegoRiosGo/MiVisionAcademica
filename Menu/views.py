@@ -642,7 +642,7 @@ def api_estadisticas_alumno(request):
             return JsonResponse({"error": "Falta el ID del estudiante"}, status=400)
 
         response = supabase.table("nota")\
-            .select("acno, semestre, calificacion, nombre_asignatura, area")\
+            .select("acno, semestre, calificacion, asignatura(nombre_asignatura, area)")\
             .eq("estudiante_id", estudiante_id).execute()
 
         datos = response.data
@@ -657,13 +657,14 @@ def api_estadisticas_alumno(request):
 
         promedios_area = {}
         for d in datos:
-            area = d["area"] or "Sin área"
+            area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
             promedios_area.setdefault(area, []).append(float(d["calificacion"]))
         promedios_area = {k: round(sum(v)/len(v), 2) for k, v in promedios_area.items()}
 
         area_anio = {}
         for d in datos:
-            clave = (d["acno"], d["area"] or "Sin área")
+            area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
+            clave = (d["acno"], area)
             area_anio.setdefault(clave, []).append(float(d["calificacion"]))
         area_anio = {
             f"{anio}-{area}": round(sum(v)/len(v), 2)
