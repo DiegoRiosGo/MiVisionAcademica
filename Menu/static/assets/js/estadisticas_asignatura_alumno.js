@@ -73,62 +73,41 @@
         return;
     }
 
-    // 3️⃣ Función para generar gráfico de línea (evolución)
-    function crearGraficoLinea(asignatura) {
-        const datos = datosNotas[asignatura].sort((a, b) => a.anio - b.anio || a.semestre - b.semestre);
-        const etiquetas = datos.map(d => `${d.anio} - S${d.semestre}`);
-        const valores = datos.map(d => d.nota);
-
-        return new Chart(lineCtx, {
+    fetch(`/estadisticas_notas_alumno/?estudiante_id=1`)
+    .then(res => res.json())
+    .then(data => {
+        // === Gráfico 1: Evolución por semestre ===
+        const ctx1 = document.getElementById('graficoEvolucion').getContext('2d');
+        new Chart(ctx1, {
         type: 'line',
         data: {
-            labels: etiquetas,
+            labels: Object.keys(data.promedios_semestre),
             datasets: [{
-            label: `Evolución de Notas (${asignatura})`,
-            data: valores,
-            borderColor: '#7c60ba',
-            backgroundColor: 'rgba(124,96,186,0.3)',
-            fill: true,
+            label: 'Promedio por Semestre',
+            data: Object.values(data.promedios_semestre),
+            borderWidth: 2,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            fill: false,
             tension: 0.3
             }]
-        },
-        options: {
-            scales: { y: { beginAtZero: true, max: 7 } },
-            plugins: { legend: { display: true } },
-            responsive: true,
-            maintainAspectRatio: false
         }
         });
-    }
 
-    // 4️⃣ Gráfico de radar — comparación promedio por asignatura
-    const radarChart = new Chart(radarCtx, {
+        // === Gráfico 2: Radar por áreas ===
+        const ctx2 = document.getElementById('graficoRadar').getContext('2d');
+        new Chart(ctx2, {
         type: 'radar',
         data: {
-        labels: Object.keys(promedios),
-        datasets: [{
-            label: 'Promedio General',
-            data: Object.values(promedios),
-            backgroundColor: 'rgba(124,96,186,0.4)',
-            borderColor: '#7c60ba',
-            pointBackgroundColor: '#7c60ba'
-        }]
-        },
-        options: {
-        scales: { r: { suggestedMin: 1, suggestedMax: 7 } },
-        responsive: true,
-        maintainAspectRatio: false
+            labels: Object.keys(data.promedios_areas),
+            datasets: [{
+            label: 'Rendimiento por Área',
+            data: Object.values(data.promedios_areas),
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+            }]
         }
-    });
-
-    // 5️⃣ Inicializar primer gráfico de línea
-    let lineChart = crearGraficoLinea(Object.keys(datosNotas)[0]);
-
-    // 6️⃣ Cambiar asignatura desde el selector
-    subjectSelect.addEventListener('change', function () {
-        const asig = this.value;
-        lineChart.destroy();
-        lineChart = crearGraficoLinea(asig);
+        });
     });
     });
 

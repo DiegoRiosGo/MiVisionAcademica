@@ -619,52 +619,78 @@ def procesar_y_guardar_pdf(request):
 @login_requerido
 @solo_alumno
 def estadisticas_notas_alumno(request):
-    """
-    Devuelve las notas del estudiante en formato JSON
-    agrupadas por asignatura, semestre y año.
-    """
-    usuario_id = request.session.get("usuario_id")
-
     try:
-        # 1️⃣ Obtener notas del estudiante con unión a la tabla asignatura
-        response = supabase.rpc("get_notas_con_asignaturas", {"p_estudiante_id": usuario_id}).execute()
-        # ⚠️ Opción alternativa si no tienes RPC (usa join manual):
-        if not response.data:
-            response = supabase.table("nota") \
-                .select("nota_id,calificacion,semestre,acno,sigla,asignatura(nombre_asignatura)") \
-                .eq("estudiante_id", usuario_id) \
-                .order("acno", desc=False).execute()
 
-        datos = response.data or []
+        estudiante_id = request.GET.get("estudiante_id")
+        response = supabase.rpc("get_notas_con_asignaturas", {"p_estudiante_id": int(estudiante_id)}).execute()
 
-        # 2️⃣ Estructurar para frontend
-        notas_por_asignatura = {}
-        for fila in datos:
-            nombre_asig = fila.get("asignatura", {}).get("nombre_asignatura", "Desconocida")
-            if nombre_asig not in notas_por_asignatura:
-                notas_por_asignatura[nombre_asig] = []
-            notas_por_asignatura[nombre_asig].append({
-                "nota": float(fila.get("calificacion", 0)),
-                "semestre": fila.get("semestre", 0),
-                "anio": fila.get("acno", 0)
-            })
+        datos = response.data
 
-        # 3️⃣ Calcular promedio por asignatura
-        promedios = {
-            a: round(sum(n["nota"] for n in notas) / len(notas), 2)
-            for a, notas in notas_por_asignatura.items()
+        if not datos:
+            return JsonResponse({"error": "Sin datos disponibles"}, status=404)
+
+        # === 1️⃣ Promedios por año y semestre ===
+        promedios_semestre = {}
+        for d in datos:
+            clave = f"{d['acno']}-S{d['semestre']}"
+            promedios_semestre.setdefault(clave, []).append(float(d['calificacion']))
+
+        promedios_semestre = {
+            k: round(sum(v) / len(v), 2) for k, v in promedios_semestre.items()
+        }
+
+        # === 2️⃣ Promedios por área ===
+        areas = {
+            "Desarrollo de Software": [],
+            "Automatización": [],
+            "Ciencia de Datos": [],
+            "Ingeniería de Datos": [],
+            "Inteligencia Artificial": []
+        }
+
+        for d in datos:
+            nombre = d["nombre_asignatura"].lower()
+            nota = float(d["calificacion"])
+
+            if "program" in nombre or "software" in nombre:
+                areas["Desarrollo de Software"].append(nota)
+            elif "auto" in nombre:
+                areas["Automatización"].append(nota)
+            elif "datos" in nombre and "ingeniería" not in nombre:
+                areas["Ciencia de Datos"].append(nota)
+            elif "ingeniería de datos" in nombre or "base" in nombre:
+                areas["Ingeniería de Datos"].append(nota)
+            elif "inteligencia" in nombre or "machine" in nombre or "ai" in nombre:
+                areas["Inteligencia Artificial"].append(nota)
+
+        promedios_areas = {
+            k: round(sum(v) / len(v), 2) if v else 0 for k, v in areas.items()
+        }
+
+        # === 3️⃣ Promedios por área y año ===
+        promedios_area_anio = {}
+        for d in datos:
+            area = next((a for a in areas.keys() if a.lower() in d["nombre_asignatura"].lower()), None)
+            if not area:
+                continue
+            anio = d["acno"]
+            clave = (anio, area)
+            promedios_area_anio.setdefault(clave, []).append(float(d["calificacion"]))
+
+        promedios_area_anio = {
+            f"{anio}-{area}": round(sum(v) / len(v), 2)
+            for (anio, area), v in promedios_area_anio.items()
         }
 
         return JsonResponse({
-            "success": True,
-            "notas": notas_por_asignatura,
-            "promedios": promedios
+            "promedios_semestre": promedios_semestre,
+            "promedios_areas": promedios_areas,
+            "promedios_area_anio": promedios_area_anio,
         })
 
     except Exception as e:
         print("Error en estadisticas_notas_alumno:", e)
-        return JsonResponse({"error": "No se pudieron obtener las estadísticas."}, status=500)
-
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 
