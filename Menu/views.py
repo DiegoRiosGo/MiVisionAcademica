@@ -637,13 +637,13 @@ def estadisticas_notas_alumno(request):
 
 def api_estadisticas_alumno(request):
     try:
-        estudiante_id = request.GET.get("estudiante_id")
-        if not estudiante_id:
+        usuario_id = request.session.get('usuario_id')
+        if not usuario_id:
             return JsonResponse({"error": "Falta el ID del estudiante"}, status=400)
 
         response = supabase.table("nota")\
             .select("acno, semestre, calificacion, asignatura(nombre_asignatura, area)")\
-            .eq("estudiante_id", estudiante_id).execute()
+            .eq("estudiante_id", usuario_id).execute()
 
         datos = response.data
         if not datos:
