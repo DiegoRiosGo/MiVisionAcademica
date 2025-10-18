@@ -25,4 +25,5 @@ urlpatterns = [
     path('procesar_y_guardar_pdf/', views.procesar_y_guardar_pdf, name='procesar_y_guardar_pdf'),
 
     path("estadisticas_notas_alumno/", views.estadisticas_notas_alumno, name="estadisticas_notas_alumno"),
+    path('api/estadisticas_alumno/', views.api_estadisticas_alumno, name='api_estadisticas_alumno'),
 ] 

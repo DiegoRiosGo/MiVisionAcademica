@@ -34,10 +34,18 @@
     //nuevos gráficos
    document.addEventListener("DOMContentLoaded", () => {
     const estudianteId = localStorage.getItem("estudiante_id") || 1; // ejemplo
-    const url = `/estadisticas_asignatura_alumno/?estudiante_id=${estudianteId}`;
+    const url = `/api/estadisticas_alumno/?estudiante_id=${estudianteId}`;
 
     fetch(url)
-        .then((res) => res.json())
+        .then(async (res) => {
+            const text = await res.text();
+            try {
+            return JSON.parse(text);
+            } catch {
+            console.error("Respuesta inesperada:", text);
+            throw new Error("No es JSON");
+            }
+        })
         .then((data) => {
         if (data.error) {
             Swal.fire("Error", data.error, "error");
