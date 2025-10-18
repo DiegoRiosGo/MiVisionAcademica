@@ -584,56 +584,6 @@ def procesar_y_guardar_pdf(request):
 # ---------------------------------------------------------------------
 # crear gráficos
 # ---------------------------------------------------------------------
-@login_requerido
-@solo_alumno
-def estadisticas_notas_alumno(request):
-    try:
-        estudiante_id = request.GET.get("estudiante_id")
-        if not estudiante_id:
-            return JsonResponse({"error": "Falta el ID del estudiante"}, status=400)
-
-        response = supabase.table("nota")\
-            .select("acno, semestre, calificacion, nombre_asignatura, area")\
-            .eq("estudiante_id", estudiante_id).execute()
-
-        datos = response.data
-        if not datos:
-            return JsonResponse({"error": "No se encontraron notas"}, status=404)
-
-        # --- Promedio por semestre ---
-        promedios_semestre = {}
-        for d in datos:
-            clave = f"{d['acno']}-S{d['semestre']}"
-            promedios_semestre.setdefault(clave, []).append(float(d["calificacion"]))
-        promedios_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_semestre.items()}
-
-        # --- Promedio por área ---
-        promedios_area = {}
-        for d in datos:
-            area = d["area"] or "Sin área"
-            promedios_area.setdefault(area, []).append(float(d["calificacion"]))
-        promedios_area = {k: round(sum(v)/len(v), 2) for k, v in promedios_area.items()}
-
-        # --- Promedio por área y año ---
-        area_anio = {}
-        for d in datos:
-            clave = (d["acno"], d["area"] or "Sin área")
-            area_anio.setdefault(clave, []).append(float(d["calificacion"]))
-        area_anio = {
-            f"{anio}-{area}": round(sum(v)/len(v), 2)
-            for (anio, area), v in area_anio.items()
-        }
-
-        return JsonResponse({
-            "promedios_semestre": promedios_semestre,
-            "promedios_area": promedios_area,
-            "promedios_area_anio": area_anio
-        })
-
-    except Exception as e:
-        print("Error en estadisticas_asignatura_alumno:", e)
-        return JsonResponse({"error": str(e)}, status=500)
-
 
 def api_estadisticas_alumno(request):
     try:
@@ -641,14 +591,30 @@ def api_estadisticas_alumno(request):
         if not usuario_id:
             return JsonResponse({"error": "Falta el ID del estudiante"}, status=400)
 
-        response = supabase.table("nota")\
-            .select("acno, semestre, calificacion, asignatura(nombre_asignatura, area)")\
-            .eq("estudiante_id", usuario_id).execute()
+        # 🔹 Captura de filtros opcionales
+        filtro_anio = request.GET.get("anio")
+        filtro_area = request.GET.get("area")
 
+        query = supabase.table("nota")\
+            .select("acno, semestre, calificacion, asignatura(nombre_asignatura, area)")\
+            .eq("estudiante_id", usuario_id)
+
+        # 🔹 Aplicar filtros si existen
+        if filtro_anio:
+            query = query.eq("acno", int(filtro_anio))
+        if filtro_area and filtro_area.lower() != "todas":
+            query = query.eq("asignatura.area", filtro_area)
+
+        response = query.execute()
         datos = response.data
         if not datos:
             return JsonResponse({"error": "No se encontraron notas"}, status=404)
 
+        # 🔹 Listado dinámico de años y áreas disponibles
+        anios_disponibles = sorted(list({d["acno"] for d in datos}))
+        areas_disponibles = sorted(list({d["asignatura"]["area"] for d in datos if d["asignatura"]}))
+
+        # 🔹 Cálculos de promedios
         promedios_semestre = {}
         for d in datos:
             clave = f"{d['acno']}-S{d['semestre']}"
@@ -674,7 +640,9 @@ def api_estadisticas_alumno(request):
         return JsonResponse({
             "promedios_semestre": promedios_semestre,
             "promedios_area": promedios_area,
-            "promedios_area_anio": area_anio
+            "promedios_area_anio": area_anio,
+            "anios": anios_disponibles,
+            "areas": areas_disponibles
         })
     except Exception as e:
         print("Error en api_estadisticas_alumno:", e)

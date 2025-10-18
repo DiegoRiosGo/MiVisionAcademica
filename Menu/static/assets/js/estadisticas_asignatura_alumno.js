@@ -33,82 +33,116 @@
 
     //nuevos gráficos
    document.addEventListener("DOMContentLoaded", () => {
-    const estudianteId = localStorage.getItem("estudiante_id") || 1; // ejemplo
-    const url = `/api/estadisticas_alumno/?estudiante_id=${estudianteId}`;
+    const estudianteId = localStorage.getItem("estudiante_id") || 1;
+    const urlBase = `/api/estadisticas_alumno/?estudiante_id=${estudianteId}`;
 
-    fetch(url)
-        .then(async (res) => {
-            const text = await res.text();
-            try {
-            return JSON.parse(text);
-            } catch {
-            console.error("Respuesta inesperada:", text);
-            throw new Error("No es JSON");
-            }
-        })
-        .then((data) => {
-        if (data.error) {
-            Swal.fire("Error", data.error, "error");
-            return;
-        }
+    const filtroAnio = document.getElementById("filtroAnio");
+    const filtroArea = document.getElementById("filtroArea");
 
-        crearGraficoEvolucion(data.promedios_semestre);
-        crearGraficoRadar(data.promedios_area);
-        crearGraficoBarras(data.promedios_area_anio);
-        })
-        .catch((err) => {
-        Swal.fire("Error", "No se pudieron cargar las estadísticas", "error");
-        console.error(err);
-        });
-    });
+    let graficoEvolucion, graficoRadar, graficoBarras;
 
-    function crearGraficoEvolucion(datos) {
+    function cargarDatos() {
+        const url = `${urlBase}&anio=${filtroAnio.value || ""}&area=${filtroArea.value || ""}`;
+        fetch(url)
+            .then(async (res) => {
+                const text = await res.text();
+                try {
+                    return JSON.parse(text);
+                } catch {
+                    console.error("Respuesta inesperada:", text);
+                    throw new Error("No es JSON");
+                }
+            })
+            .then((data) => {
+                if (data.error) {
+                    Swal.fire("Error", data.error, "error");
+                    return;
+                }
+
+                // --- llenar selectores dinámicamente ---
+                if (filtroAnio.options.length === 0) {
+                    filtroAnio.innerHTML = `<option value="">Todos</option>`;
+                    data.anios.forEach(a => {
+                        filtroAnio.innerHTML += `<option value="${a}">${a}</option>`;
+                    });
+                }
+
+                if (filtroArea.options.length === 0) {
+                    filtroArea.innerHTML = `<option value="todas">Todas</option>`;
+                    data.areas.forEach(a => {
+                        filtroArea.innerHTML += `<option value="${a}">${a}</option>`;
+                    });
+                }
+
+                // --- actualizar gráficos ---
+                actualizarGraficos(data);
+            })
+            .catch((err) => {
+                Swal.fire("Error", "No se pudieron cargar las estadísticas", "error");
+                console.error(err);
+            });
+    }
+
+    function actualizarGraficos(data) {
+        if (graficoEvolucion) graficoEvolucion.destroy();
+        if (graficoRadar) graficoRadar.destroy();
+        if (graficoBarras) graficoBarras.destroy();
+
+        graficoEvolucion = crearGraficoEvolucion(data.promedios_semestre);
+        graficoRadar = crearGraficoRadar(data.promedios_area);
+        graficoBarras = crearGraficoBarras(data.promedios_area_anio);
+    }
+
+    filtroAnio.addEventListener("change", cargarDatos);
+    filtroArea.addEventListener("change", cargarDatos);
+
+    cargarDatos(); // primera carga
+});
+
+// --- Funciones de gráficos ---
+function crearGraficoEvolucion(datos) {
     const ctx = document.getElementById("graficoEvolucion");
-    new Chart(ctx, {
+    return new Chart(ctx, {
         type: "line",
         data: {
-        labels: Object.keys(datos),
-        datasets: [{
-            label: "Promedio por semestre",
-            data: Object.values(datos),
-            borderColor: "rgba(75,192,192,1)",
-            backgroundColor: "rgba(75,192,192,0.2)",
-            tension: 0.3
-        }]
+            labels: Object.keys(datos),
+            datasets: [{
+                label: "Promedio por semestre",
+                data: Object.values(datos),
+                borderColor: "rgba(75,192,192,1)",
+                backgroundColor: "rgba(75,192,192,0.2)",
+                tension: 0.3
+            }]
         },
         options: {
-        responsive: true,
-        plugins: {
-            title: { display: true, text: "Evolución de notas por semestre" }
-        }
+            responsive: true,
+            plugins: { title: { display: true, text: "Evolución de notas por semestre" } }
         }
     });
-    }
+}
 
-    function crearGraficoRadar(datos) {
+function crearGraficoRadar(datos) {
     const ctx = document.getElementById("graficoRadar");
-    new Chart(ctx, {
+    return new Chart(ctx, {
         type: "radar",
         data: {
-        labels: Object.keys(datos),
-        datasets: [{
-            label: "Promedio por área",
-            data: Object.values(datos),
-            borderColor: "rgba(54,162,235,1)",
-            backgroundColor: "rgba(54,162,235,0.2)"
-        }]
+            labels: Object.keys(datos),
+            datasets: [{
+                label: "Promedio por área",
+                data: Object.values(datos),
+                borderColor: "rgba(54,162,235,1)",
+                backgroundColor: "rgba(54,162,235,0.2)"
+            }]
         },
         options: {
-        responsive: true,
-        plugins: {
-            title: { display: true, text: "Rendimiento por área" }
-        },
-        scales: { r: { min: 0, max: 7 } }
+            responsive: true,
+            plugins: { title: { display: true, text: "Rendimiento por área" } },
+            scales: { r: { min: 2, max: 7 } }
         }
     });
-    }
+}
 
-    function crearGraficoBarras(datos) {
+function crearGraficoBarras(datos) {
     const agrupado = {};
     for (let clave in datos) {
         const [anio, area] = clave.split("-");
@@ -126,21 +160,19 @@
     }));
 
     const ctx = document.getElementById("graficoBarras");
-    new Chart(ctx, {
+    return new Chart(ctx, {
         type: "bar",
         data: { labels: anios, datasets },
         options: {
-        responsive: true,
-        plugins: {
-            title: { display: true, text: "Promedio por área y año" },
-            legend: { position: "bottom" }
-        },
-        scales: {
-            y: { beginAtZero: true, max: 7 }
-        }
+            responsive: true,
+            plugins: {
+                title: { display: true, text: "Promedio por área y año" },
+                legend: { position: "bottom" }
+            },
+            scales: { y: { beginAtZero: true, max: 7 } }
         }
     });
-    }
+}
 
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .JS -----------------------------------
