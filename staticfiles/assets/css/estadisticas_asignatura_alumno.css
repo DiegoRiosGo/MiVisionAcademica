@@ -69,11 +69,25 @@
     
 /* TITULO APARTADO GRAFICOS*/
     .content {
-        margin-left: 220px;
-        padding: 50px;
-        background-color: #f4f6f8;
+        flex-grow: 1;
+        padding: 20px;
+        margin-left: 250px; /* ancho barra lateral */
     }
 
+    .chart-container {
+        margin: 30px auto;
+        background: #161b22;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        max-width: 800px;
+    }
+
+    canvas {
+        width: 100% !important;
+        height: 400px !important;
+    }
+    
     /* Título del apartado */
     .topbar h4 {
         margin-bottom: 10px;

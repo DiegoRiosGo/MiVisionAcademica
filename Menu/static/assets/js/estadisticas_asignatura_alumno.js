@@ -32,84 +32,107 @@
 
 
     //nuevos gráficos
-    document.addEventListener('DOMContentLoaded', async function () {
-    const subjectSelect = document.getElementById('subjectSelect');
-    const lineCtx = document.getElementById('lineChartSubject').getContext('2d');
-    const radarCtx = document.getElementById('radarChartSubject').getContext('2d');
+   document.addEventListener("DOMContentLoaded", () => {
+    const estudianteId = localStorage.getItem("estudiante_id") || 1; // ejemplo
+    const url = `/estadisticas_asignatura_alumno/?estudiante_id=${estudianteId}`;
 
-    let datosNotas = {};
-    let promedios = {};
-
-    // 1️⃣ Cargar datos reales desde el backend
-    try {
-        const res = await fetch(urlEstadisticasNotas);
-        const data = await res.json();
-
-        if (!data.success) {
-        Swal.fire("Error", "No se pudieron cargar las estadísticas.", "error");
-        return;
+    fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+        if (data.error) {
+            Swal.fire("Error", data.error, "error");
+            return;
         }
 
-        datosNotas = data.notas;
-        promedios = data.promedios;
-
-    } catch (err) {
-        console.error("Error cargando estadísticas:", err);
-        Swal.fire("Error", "Fallo al obtener datos del servidor.", "error");
-        return;
-    }
-
-    // 2️⃣ Llenar el selector con las asignaturas reales
-    subjectSelect.innerHTML = "";
-    Object.keys(datosNotas).forEach(asig => {
-        const option = document.createElement("option");
-        option.value = asig;
-        option.textContent = asig;
-        subjectSelect.appendChild(option);
+        crearGraficoEvolucion(data.promedios_semestre);
+        crearGraficoRadar(data.promedios_area);
+        crearGraficoBarras(data.promedios_area_anio);
+        })
+        .catch((err) => {
+        Swal.fire("Error", "No se pudieron cargar las estadísticas", "error");
+        console.error(err);
+        });
     });
 
-    if (Object.keys(datosNotas).length === 0) {
-        Swal.fire("Sin datos", "No hay notas registradas aún.", "info");
-        return;
-    }
-
-    fetch(`/estadisticas_notas_alumno/?estudiante_id=1`)
-    .then(res => res.json())
-    .then(data => {
-        // === Gráfico 1: Evolución por semestre ===
-        const ctx1 = document.getElementById('graficoEvolucion').getContext('2d');
-        new Chart(ctx1, {
-        type: 'line',
+    function crearGraficoEvolucion(datos) {
+    const ctx = document.getElementById("graficoEvolucion");
+    new Chart(ctx, {
+        type: "line",
         data: {
-            labels: Object.keys(data.promedios_semestre),
-            datasets: [{
-            label: 'Promedio por Semestre',
-            data: Object.values(data.promedios_semestre),
-            borderWidth: 2,
-            borderColor: 'rgba(75, 192, 192, 1)',
-            fill: false,
+        labels: Object.keys(datos),
+        datasets: [{
+            label: "Promedio por semestre",
+            data: Object.values(datos),
+            borderColor: "rgba(75,192,192,1)",
+            backgroundColor: "rgba(75,192,192,0.2)",
             tension: 0.3
-            }]
+        }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            title: { display: true, text: "Evolución de notas por semestre" }
         }
-        });
+        }
+    });
+    }
 
-        // === Gráfico 2: Radar por áreas ===
-        const ctx2 = document.getElementById('graficoRadar').getContext('2d');
-        new Chart(ctx2, {
-        type: 'radar',
+    function crearGraficoRadar(datos) {
+    const ctx = document.getElementById("graficoRadar");
+    new Chart(ctx, {
+        type: "radar",
         data: {
-            labels: Object.keys(data.promedios_areas),
-            datasets: [{
-            label: 'Rendimiento por Área',
-            data: Object.values(data.promedios_areas),
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            pointBackgroundColor: 'rgba(54, 162, 235, 1)'
-            }]
+        labels: Object.keys(datos),
+        datasets: [{
+            label: "Promedio por área",
+            data: Object.values(datos),
+            borderColor: "rgba(54,162,235,1)",
+            backgroundColor: "rgba(54,162,235,0.2)"
+        }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            title: { display: true, text: "Rendimiento por área" }
+        },
+        scales: { r: { min: 0, max: 7 } }
         }
-        });
     });
+    }
+
+    function crearGraficoBarras(datos) {
+    const agrupado = {};
+    for (let clave in datos) {
+        const [anio, area] = clave.split("-");
+        agrupado[anio] = agrupado[anio] || {};
+        agrupado[anio][area] = datos[clave];
+    }
+
+    const anios = Object.keys(agrupado);
+    const areas = [...new Set(Object.values(agrupado).flatMap(Object.keys))];
+
+    const datasets = areas.map((area) => ({
+        label: area,
+        data: anios.map((a) => agrupado[a][area] || 0),
+        backgroundColor: `hsl(${Math.random() * 360}, 70%, 60%)`
+    }));
+
+    const ctx = document.getElementById("graficoBarras");
+    new Chart(ctx, {
+        type: "bar",
+        data: { labels: anios, datasets },
+        options: {
+        responsive: true,
+        plugins: {
+            title: { display: true, text: "Promedio por área y año" },
+            legend: { position: "bottom" }
+        },
+        scales: {
+            y: { beginAtZero: true, max: 7 }
+        }
+        }
     });
+    }
 
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .JS -----------------------------------

@@ -445,38 +445,6 @@ def cerrar_sesion(request):
     messages.info(request, "Has cerrado sesión correctamente.")
     return redirect('Inicio')
 
-
-
-#solo por ahora, luego borrar para mostrar al profe
-@login_requerido
-@solo_alumno
-def leer_pdf(request):
-    usuario_id = request.session.get('usuario_id')
-    if not usuario_id:
-        return JsonResponse({"error": "Sesión inválida."}, status=403)
-
-    try:
-        # Obtener el último PDF subido por el estudiante
-        pdfs = supabase.table("pdf_notas").select("*").eq("estudiante_id", usuario_id).order("fecha_subida", desc=True).limit(1).execute()
-        if not pdfs.data:
-            return JsonResponse({"error": "No se encontró ningún PDF."}, status=404)
-
-        pdf_data = pdfs.data[0]["ruta_archivo"]  # Base64
-        pdf_bytes = base64.b64decode(pdf_data)
-
-        # Leer contenido del PDF
-        text = ""
-        with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
-            for page in doc:
-                text += page.get_text("text")
-
-        return JsonResponse({"texto": text})
-
-    except Exception as e:
-        print("Error al leer PDF:", e)
-        return JsonResponse({"error": "Ocurrió un problema al leer el PDF."}, status=500)
-
-
 # ---------------------------------------------------------------------
 # procesar pdf y guardarlos en bbdd
 # ---------------------------------------------------------------------
@@ -620,76 +588,50 @@ def procesar_y_guardar_pdf(request):
 @solo_alumno
 def estadisticas_notas_alumno(request):
     try:
-
         estudiante_id = request.GET.get("estudiante_id")
-        response = supabase.rpc("get_notas_con_asignaturas", {"p_estudiante_id": int(estudiante_id)}).execute()
+        if not estudiante_id:
+            return JsonResponse({"error": "Falta el ID del estudiante"}, status=400)
+
+        response = supabase.table("nota")\
+            .select("acno, semestre, calificacion, nombre_asignatura, area")\
+            .eq("estudiante_id", estudiante_id).execute()
 
         datos = response.data
-
         if not datos:
-            return JsonResponse({"error": "Sin datos disponibles"}, status=404)
+            return JsonResponse({"error": "No se encontraron notas"}, status=404)
 
-        # === 1️⃣ Promedios por año y semestre ===
+        # --- Promedio por semestre ---
         promedios_semestre = {}
         for d in datos:
             clave = f"{d['acno']}-S{d['semestre']}"
-            promedios_semestre.setdefault(clave, []).append(float(d['calificacion']))
+            promedios_semestre.setdefault(clave, []).append(float(d["calificacion"]))
+        promedios_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_semestre.items()}
 
-        promedios_semestre = {
-            k: round(sum(v) / len(v), 2) for k, v in promedios_semestre.items()
-        }
-
-        # === 2️⃣ Promedios por área ===
-        areas = {
-            "Desarrollo de Software": [],
-            "Automatización": [],
-            "Ciencia de Datos": [],
-            "Ingeniería de Datos": [],
-            "Inteligencia Artificial": []
-        }
-
+        # --- Promedio por área ---
+        promedios_area = {}
         for d in datos:
-            nombre = d["nombre_asignatura"].lower()
-            nota = float(d["calificacion"])
+            area = d["area"] or "Sin área"
+            promedios_area.setdefault(area, []).append(float(d["calificacion"]))
+        promedios_area = {k: round(sum(v)/len(v), 2) for k, v in promedios_area.items()}
 
-            if "program" in nombre or "software" in nombre:
-                areas["Desarrollo de Software"].append(nota)
-            elif "auto" in nombre:
-                areas["Automatización"].append(nota)
-            elif "datos" in nombre and "ingeniería" not in nombre:
-                areas["Ciencia de Datos"].append(nota)
-            elif "ingeniería de datos" in nombre or "base" in nombre:
-                areas["Ingeniería de Datos"].append(nota)
-            elif "inteligencia" in nombre or "machine" in nombre or "ai" in nombre:
-                areas["Inteligencia Artificial"].append(nota)
-
-        promedios_areas = {
-            k: round(sum(v) / len(v), 2) if v else 0 for k, v in areas.items()
-        }
-
-        # === 3️⃣ Promedios por área y año ===
-        promedios_area_anio = {}
+        # --- Promedio por área y año ---
+        area_anio = {}
         for d in datos:
-            area = next((a for a in areas.keys() if a.lower() in d["nombre_asignatura"].lower()), None)
-            if not area:
-                continue
-            anio = d["acno"]
-            clave = (anio, area)
-            promedios_area_anio.setdefault(clave, []).append(float(d["calificacion"]))
-
-        promedios_area_anio = {
-            f"{anio}-{area}": round(sum(v) / len(v), 2)
-            for (anio, area), v in promedios_area_anio.items()
+            clave = (d["acno"], d["area"] or "Sin área")
+            area_anio.setdefault(clave, []).append(float(d["calificacion"]))
+        area_anio = {
+            f"{anio}-{area}": round(sum(v)/len(v), 2)
+            for (anio, area), v in area_anio.items()
         }
 
         return JsonResponse({
             "promedios_semestre": promedios_semestre,
-            "promedios_areas": promedios_areas,
-            "promedios_area_anio": promedios_area_anio,
+            "promedios_area": promedios_area,
+            "promedios_area_anio": area_anio
         })
 
     except Exception as e:
-        print("Error en estadisticas_notas_alumno:", e)
+        print("Error en estadisticas_asignatura_alumno:", e)
         return JsonResponse({"error": str(e)}, status=500)
 
 

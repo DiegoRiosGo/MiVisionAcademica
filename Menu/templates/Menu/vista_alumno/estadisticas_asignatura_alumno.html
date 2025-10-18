@@ -45,42 +45,23 @@
 
   <!-- TITULO APARTADO GRAFICOS -->
 
-      <div class="content">
-        <!-- Título del apartado -->
-        <div class="topbar">
-          <h4>Gráficos por Asignatura</h4>
-        </div>
-        <p>
-          En este apartado podrás seleccionar tu asignatura y visualizar tus notas representadas gráficamente, 
-          lo que te permitirá analizar tu rendimiento académico de forma clara y dinámica.
-        </p>
+      <main class="content">
+        <h2 class="text-center my-4 text-white">Estadísticas Académicas</h2>
 
-  <!-- TITULO SELECTOR DE ASIGNATURA -->
-
-        <!-- Selector de asignatura -->
-        <div class="mb-3">
-          <label for="subjectSelect" class="form-label">Selecciona Asignatura</label>
-          <select class="form-control" id="subjectSelect">
-            <option disabled selected>Cargando asignaturas...</option>
-          </select>
-        </div>
-
-  <!-- TITULO SELECTOR DE GRAFICOS-->
-
-        <!-- Contenedor de gráficos -->
-        <div class="graphs-container">
-          <div class="card p-4 mb-4">
-            <canvas id="lineChartSubject"></canvas>
+        <div class="container text-center">
+          <div class="chart-container">
+            <canvas id="graficoEvolucion"></canvas>
           </div>
-          <div class="card p-4 mb-4">
-            <canvas id="radarChartSubject"></canvas>
+
+          <div class="chart-container">
+            <canvas id="graficoRadar"></canvas>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="graficoBarras"></canvas>
           </div>
         </div>
-      </div>
-
-      <script>
-          const urlEstadisticasNotas = "{% url 'estadisticas_notas_alumno' %}";
-      </script>
+      </main>
       <!-- llamada al js estadisticas_asignatura_alumno -->
       <script src="{% static 'assets/js/estadisticas_asignatura_alumno.js' %}"></script>
 
