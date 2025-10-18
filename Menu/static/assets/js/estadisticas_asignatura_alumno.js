@@ -39,6 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const filtroAnio = document.getElementById("filtroAnio");
     const filtroArea = document.getElementById("filtroArea");
     const btnRestablecer = document.getElementById("btnRestablecer");
+    if (btnRestablecer) {
+    btnRestablecer.addEventListener("click", () => {
+        document.getElementById("filtroAnio").value = "";
+        document.getElementById("filtroArea").value = "";
+        cargarEstadisticas();
+    });
+    }
 
     let graficoEvolucion, graficoRadar, graficoBarras;
 
