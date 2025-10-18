@@ -87,7 +87,7 @@
         width: 100% !important;
         height: 400px !important;
     }
-    
+
     /* Título del apartado */
     .topbar h4 {
         margin-bottom: 10px;
@@ -151,6 +151,24 @@
         width: 100%;
         height: auto;
     }
+    }
+
+    .filtros {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    justify-content: flex-start;
+    margin-bottom: 1.5rem;
+    }
+
+    .filtros label {
+    font-weight: 600;
+    color: #333;
+    }
+
+    #btnRestablecer {
+    height: 38px;
+    white-space: nowrap;
     }
 
 /* -------------------------------------------------------------------------------------------------------------

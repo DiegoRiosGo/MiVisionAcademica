@@ -32,17 +32,19 @@
 
 
     //nuevos gráficos
-   document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     const estudianteId = localStorage.getItem("estudiante_id") || 1;
     const urlBase = `/api/estadisticas_alumno/?estudiante_id=${estudianteId}`;
 
     const filtroAnio = document.getElementById("filtroAnio");
     const filtroArea = document.getElementById("filtroArea");
+    const btnRestablecer = document.getElementById("btnRestablecer");
 
     let graficoEvolucion, graficoRadar, graficoBarras;
 
-    function cargarDatos() {
-        const url = `${urlBase}&anio=${filtroAnio.value || ""}&area=${filtroArea.value || ""}`;
+    function cargarDatos(reset = false) {
+        const url = `${urlBase}&anio=${reset ? "" : (filtroAnio.value || "")}&area=${reset ? "" : (filtroArea.value || "")}`;
+
         fetch(url)
             .then(async (res) => {
                 const text = await res.text();
@@ -59,15 +61,15 @@
                     return;
                 }
 
-                // --- llenar selectores dinámicamente ---
-                if (filtroAnio.options.length === 0) {
+                // --- llenar selectores sólo si están vacíos ---
+                if (filtroAnio.options.length === 0 || reset) {
                     filtroAnio.innerHTML = `<option value="">Todos</option>`;
                     data.anios.forEach(a => {
                         filtroAnio.innerHTML += `<option value="${a}">${a}</option>`;
                     });
                 }
 
-                if (filtroArea.options.length === 0) {
+                if (filtroArea.options.length === 0 || reset) {
                     filtroArea.innerHTML = `<option value="todas">Todas</option>`;
                     data.areas.forEach(a => {
                         filtroArea.innerHTML += `<option value="${a}">${a}</option>`;
@@ -93,8 +95,16 @@
         graficoBarras = crearGraficoBarras(data.promedios_area_anio);
     }
 
-    filtroAnio.addEventListener("change", cargarDatos);
-    filtroArea.addEventListener("change", cargarDatos);
+    // --- Eventos de filtros ---
+    filtroAnio.addEventListener("change", () => cargarDatos());
+    filtroArea.addEventListener("change", () => cargarDatos());
+
+    // --- Botón de restablecer ---
+    btnRestablecer.addEventListener("click", () => {
+        filtroAnio.value = "";
+        filtroArea.value = "todas";
+        cargarDatos(true);
+    });
 
     cargarDatos(); // primera carga
 });
