@@ -47,10 +47,171 @@
 
   <!--TITULO FORMULARIO DE INTERES-->
 
-      <!--completar al final-->
+    <!-- Bloque del formulario -->
+      <div class="formulario card p-4 shadow-sm">
+        <h5 class="text-center mb-4">Preguntas del Test</h5>
 
-      <div class="card p-4" style="max-width: 600px; margin: 20px auto;">
+        <form id="testForm">
+          <!--  Preguntas abiertas -->
+          <div class="pregunta">
+            <p>1. ¿Qué asignatura te ha parecido más importante o interesante en tu carrera, y por qué?</p>
+            <textarea name="abierta1" class="form-control" rows="3" required></textarea>
+          </div>
 
+          <div class="pregunta">
+            <p>2. ¿Qué tipo de trabajo te gustaría desempeñar al egresar de la carrera?</p>
+            <textarea name="abierta2" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>3. ¿Qué habilidades técnicas sientes que dominas mejor?</p>
+            <textarea name="abierta3" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>4. ¿Qué habilidades blandas crees que necesitas fortalecer?</p>
+            <textarea name="abierta4" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>5. ¿Cómo te gustaría aplicar tus conocimientos en el mundo laboral?</p>
+            <textarea name="abierta5" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>6. ¿Qué tipo de proyectos te gustaría desarrollar en el futuro?</p>
+            <textarea name="abierta6" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>7. ¿Qué te motiva a seguir aprendiendo dentro de tu carrera?</p>
+            <textarea name="abierta7" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>8. ¿Qué aspectos de tu rendimiento académico te gustaría mejorar?</p>
+            <textarea name="abierta8" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>9. ¿Qué forma de enseñanza te ayuda más a aprender y sentirte motivado/a?</p>
+            <textarea name="abierta9" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="pregunta">
+            <p>10. ¿Qué áreas de la informática te generan más curiosidad o entusiasmo?</p>
+            <textarea name="abierta10" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <!-- Preguntas cerradas -->
+          <div class="pregunta">
+            <p>1. ¿En qué tipo de asignaturas sientes que desarrollas mejor tus habilidades?</p>
+            <div class="opciones" data-multiple="true">
+              <label><input type="checkbox" name="interes[]" required> De programación y desarrollo</label>
+              <label><input type="checkbox" name="interes[]" required> De análisis y datos</label>
+              <label><input type="checkbox" name="interes[]" required> De diseño y experiencia de usuario</label>
+              <label><input type="checkbox" name="interes[]" required> De gestión y planificación de proyectos</label>
+              <label><input type="checkbox" name="interes[]" required> De investigación e innovación</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>2. ¿En cuál de estas asignaturas sientes mayor dificultad?</p>
+            <div class="opciones">
+              <label><input type="radio" name="dificultad" required> Programación de Base de Datos</label>
+              <label><input type="radio" name="dificultad" required> Estadística Descriptiva</label>
+              <label><input type="radio" name="dificultad" required> Seguridad en Sistemas Computacionales</label>
+              <label><input type="radio" name="dificultad" required> Calidad de Software</label>
+              <label><input type="radio" name="dificultad" required> Modelamiento de Base de Datos</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>3. ¿Qué tipo de contenido te resulta más útil para aprender?</p>
+            <div class="opciones" data-multiple="true">
+              <label><input type="checkbox" name="contenido[]" required> Videos explicativos</label>
+              <label><input type="checkbox" name="contenido[]" required> Ejercicios prácticos</label>
+              <label><input type="checkbox" name="contenido[]" required> Lecturas teóricas</label>
+              <label><input type="checkbox" name="contenido[]" required> Infografías y esquemas visuales</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>4. ¿Qué área profesional te atrae más?</p>
+            <div class="opciones" data-multiple="true">
+              <label><input type="checkbox" name="area[]" required> Desarrollo de software</label>
+              <label><input type="checkbox" name="area[]" required> UX/UI y diseño de interfaces</label>
+              <label><input type="checkbox" name="area[]" required> Ciencia de datos y Big Data</label>
+              <label><input type="checkbox" name="area[]" required> Gestión de proyectos</label>
+              <label><input type="checkbox" name="area[]" required> Ciberseguridad</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>5. ¿Qué tipo de acompañamiento académico valoras más?</p>
+            <div class="opciones" data-multiple="true">
+              <label><input type="checkbox" name="acompanamiento[]" required> Tutorías personalizadas</label>
+              <label><input type="checkbox" name="acompanamiento[]" required> Recomendaciones automáticas basadas en datos</label>
+              <label><input type="checkbox" name="acompanamiento[]" required> Retroalimentación docente</label>
+              <label><input type="checkbox" name="acompanamiento[]" required> Grupos de estudio</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>6. ¿Qué tan claro tienes tu camino profesional?</p>
+            <div class="opciones">
+              <label><input type="radio" name="claridad" required> Muy claro</label>
+              <label><input type="radio" name="claridad" required> Algo claro</label>
+              <label><input type="radio" name="claridad" required> Poco claro</label>
+              <label><input type="radio" name="claridad" required> Nada claro</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>7. ¿Qué te motiva más a mejorar tu rendimiento académico?</p>
+            <div class="opciones" data-multiple="true">
+              <label><input type="checkbox" name="motivacion[]" required> Alcanzar metas personales</label>
+              <label><input type="checkbox" name="motivacion[]" required> Obtener mejores oportunidades laborales</label>
+              <label><input type="checkbox" name="motivacion[]" required> Reconocimiento académico</label>
+              <label><input type="checkbox" name="motivacion[]" required> Superar desafíos personales</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>8. ¿Con qué frecuencia revisas tus notas y avances académicos?</p>
+            <div class="opciones">
+              <label><input type="radio" name="frecuencia" required> Cada semana</label>
+              <label><input type="radio" name="frecuencia" required> Cada mes</label>
+              <label><input type="radio" name="frecuencia" required> Solo al final del semestre</label>
+              <label><input type="radio" name="frecuencia" required> Casi nunca</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>9. ¿Qué tipo de profesional te gustaría llegar a ser según tus gustos e intereses?</p>
+            <div class="opciones" data-multiple="true">
+              <label><input type="checkbox" name="profesional[]" required> Alguien que diseña experiencias visuales</label>
+              <label><input type="checkbox" name="profesional[]" required> Alguien que programa soluciones eficientes</label>
+              <label><input type="checkbox" name="profesional[]" required> Alguien que analiza datos y toma decisiones</label>
+              <label><input type="checkbox" name="profesional[]" required> Alguien que lidera proyectos y equipos</label>
+            </div>
+          </div>
+
+          <div class="pregunta">
+            <p>10. ¿Qué tipo de certificación te gustaría obtener al finalizar la carrera?</p>
+            <div class="opciones" data-multiple="true">
+              <label><input type="checkbox" name="certificacion[]" required> Programación de Software</label>
+              <label><input type="checkbox" name="certificacion[]" required> Inteligencia de Negocios</label>
+              <label><input type="checkbox" name="certificacion[]" required> Gestión de Proyectos Informáticos</label>
+              <label><input type="checkbox" name="certificacion[]" required> Calidad de Software</label>
+              <label><input type="checkbox" name="certificacion[]" required> Análisis y Desarrollo de Modelos de Datos</label>
+            </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-5">Enviar Test</button>
+          </div>
+        </form>
       </div>
 
       <!--llamado al js de test_interes_alumno-->
