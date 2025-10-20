@@ -650,10 +650,112 @@ def api_estadisticas_alumno(request):
 
 
 
+import os
+import json
+import time
+import requests       # pip install requests
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from openai import OpenAI
 
+@csrf_exempt
+@login_requerido
+@solo_alumno
+def analizar_perfil_ia(request):
+    """
+    Analiza el desempeño académico del estudiante usando IA (modelo gratuito gpt-4o-mini)
+    y guarda el resultado como reporte en Supabase.
+    """
+    usuario_id = request.session.get("usuario_id")
+    if not usuario_id:
+        return JsonResponse({"error": "Sesión inválida."}, status=403)
 
+    # --- 1️⃣ Obtener notas del estudiante ---
+    try:
+        resp = supabase.table("nota") \
+            .select("calificacion,semestre,acno,asignatura(nombre_asignatura,area),sigla") \
+            .eq("estudiante_id", usuario_id).order("acno", desc=False).execute()
+        notas = resp.data or []
+    except Exception as e:
+        print("Error al obtener notas:", e)
+        return JsonResponse({"error": "No se pudieron obtener notas."}, status=500)
 
+    if not notas:
+        return JsonResponse({"error": "No hay notas registradas."}, status=400)
 
+    # --- 2️⃣ Preparar texto resumido para la IA ---
+    resumen_texto = "\n".join([
+        f"{n.get('acno')} S{n.get('semestre')} | {n.get('sigla')} | "
+        f"{n.get('asignatura', {}).get('nombre_asignatura','Desconocida')} "
+        f"| área: {n.get('asignatura', {}).get('area','Sin área')} | nota: {n.get('calificacion')}"
+        for n in notas
+    ])
+
+    # --- 3️⃣ Construir prompt ---
+    system_instruction = (
+        "Eres un asistente educativo que analiza el rendimiento académico de un estudiante "
+        "a partir de sus notas. Devuelve SOLO un JSON válido con los campos: "
+        "fortalezas, debilidades, recomendaciones, resumen_corto, recomendaciones_recursos."
+    )
+
+    user_prompt = (
+        f"Historial académico:\n{resumen_texto}\n\n"
+        "Analiza y devuelve el resultado con el formato JSON siguiente:\n"
+        "{\"fortalezas\":[],\"debilidades\":[],\"recomendaciones\":[],"
+        "\"resumen_corto\":\"\",\"recomendaciones_recursos\":[]}"
+    )
+
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+    if not OPENAI_API_KEY:
+        return JsonResponse({"error": "No se encontró la API key de OpenAI."}, status=500)
+
+    payload = {
+        "model": "gpt-4o-mini",  # 💡 modelo liviano y económico
+        "messages": [
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": 0.3,
+        "max_tokens": 700
+    }
+
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    # --- 4️⃣ Llamar a la API ---
+    try:
+        r = requests.post("https://api.openai.com/v1/chat/completions",
+                          headers=headers, json=payload, timeout=30)
+        r.raise_for_status()
+        content = r.json()["choices"][0]["message"]["content"].strip()
+        result_json = json.loads(content)
+    except Exception as e:
+        print("❌ Error al analizar con IA:", e)
+        return JsonResponse({"error": "Error en la generación de IA."}, status=500)
+
+    # --- 5️⃣ Guardar en la tabla reporte ---
+    try:
+        # Borrar reporte anterior del día (opcional, para evitar duplicar)
+        fecha_hoy = datetime.now().date().isoformat()
+        existing = supabase.table("reporte").select("reporte_id") \
+            .eq("estudiante_id", usuario_id).gte("fecha_generado", fecha_hoy).execute()
+
+        if existing.data:
+            supabase.table("reporte").delete().eq("reporte_id", existing.data[0]["reporte_id"]).execute()
+
+        # Insertar nuevo reporte
+        supabase.table("reporte").insert({
+            "estudiante_id": usuario_id,
+            "contenido": json.dumps(result_json, ensure_ascii=False),
+            "fecha_generado": now().isoformat()
+        }).execute()
+
+    except Exception as e:
+        print("⚠️ Error al guardar en reporte:", e)
+
+    return JsonResponse({"success": True, "analisis": result_json})
 
 
 

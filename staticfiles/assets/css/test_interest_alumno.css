@@ -100,6 +100,98 @@
     }
     }
 
+
+    .content {
+        margin-left: 240px; /* Evita sobreponerse del sidebar */
+        padding: 20px;
+    }
+
+    .container {
+    max-width: 900px;
+    }
+
+    .intro {
+    background-color: #ffffff;
+    border-radius: 12px;
+    }
+
+    .formulario {
+    background-color: #ffffff;
+    border-radius: 12px;
+    max-width: 900px;
+    margin: 0 auto;
+    }
+
+    .pregunta {
+    margin-bottom: 25px;
+    }
+
+    .pregunta p {
+    font-weight: 600;
+    margin-bottom: 10px;
+    }
+
+    .opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    }
+
+    .opciones label {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    }
+
+    .opciones input {
+    margin-right: 8px;
+    }
+
+    .opciones label:hover {
+    background-color: #f0e8ff;
+    border-color: #a26bfa;
+    }
+
+    .opciones label.selected {
+    background-color: #a26bfa;
+    color: white;
+    border-color: #8c52ff;
+    }
+
+    textarea {
+    resize: vertical;
+    }
+
+    /* Botón morado */
+    .btn-morado {
+    background-color: #a26bfa;
+    border-color: #8c52ff;
+    color: white;
+    }
+
+    .btn-morado:hover {
+    background-color: #8c52ff;
+    border-color: #6e3edb;
+    color: white;
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+    .content {
+        margin-left: 0; /* sidebar colapsa o desaparece */
+        padding: 15px;
+    }
+    }
+
+    @media (max-width: 576px) {
+    .container {
+        padding: 0 15px;
+    }
+    }
+
+
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */
