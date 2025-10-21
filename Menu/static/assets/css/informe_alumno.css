@@ -124,6 +124,58 @@
     }
     }
 
+    
+    /* --- Tarjetas de resultado IA --- */
+.ia-result-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 1rem;
+}
+
+.ia-card {
+  border-radius: 10px;
+  padding: 1.5rem;
+  color: #1a1a1a;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ia-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.ia-card h5 {
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.ia-card ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+
+/* Colores por tipo */
+.ia-card.resumen { background-color: #e8f4fd; border-left: 6px solid #007bff; }
+.ia-card.fortalezas { background-color: #e9f8ee; border-left: 6px solid #28a745; }
+.ia-card.debilidades { background-color: #fdecea; border-left: 6px solid #dc3545; }
+.ia-card.recomendaciones { background-color: #eef2ff; border-left: 6px solid #4e5af7; }
+.ia-card.laborales { background-color: #f4e9ff; border-left: 6px solid #9b59b6; }
+.ia-card.herramientas { background-color: #fffbe6; border-left: 6px solid #f1c40f; }
+.ia-card.recursos { background-color: #f7f9fa; border-left: 6px solid #6c757d; }
+
+.ia-card a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.ia-card a:hover {
+  text-decoration: underline;
+}
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN informe_alumno .CSS ----------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */    
