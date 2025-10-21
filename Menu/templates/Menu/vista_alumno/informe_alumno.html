@@ -67,17 +67,37 @@
           </ul>
       </div>
 
-      <div class="ia-analisis mt-4">
-        <button id="btnAnalizarIA" class="btn btn-primary">🔎 Analizar mi perfil con IA :p</button>
-      </div>
+      <h4>🔍 Etapa 1: Preparar datos para IA</h4>
+      <button id="btnPrepararIA" class="btn btn-primary">Preparar datos IA</button>
 
-      <!-- Lugar para mostrar el resultado -->
-      <div id="iaResult" class="mt-3"></div>
-      
+      <pre id="resultadoIA" style="background:#f3f3f3; padding:15px; border-radius:8px; margin-top:10px;"></pre>
+
       <script>
-        const ANALISIS_IA_URL = "{% url 'analizar_perfil_ia' %}";
-        const CSRF_TOKEN = "{{ csrf_token }}";
+        document.getElementById("btnPrepararIA").addEventListener("click", async () => {
+          const btn = document.getElementById("btnPrepararIA");
+          const salida = document.getElementById("resultadoIA");
+          btn.disabled = true;
+          btn.innerText = "Preparando...";
+          salida.textContent = "";
+
+          try {
+            const response = await fetch("{% url 'preparar_datos_ia' %}");
+            const data = await response.json();
+
+            if (data.success) {
+              salida.textContent = data.texto_preparado;
+            } else {
+              salida.textContent = "⚠️ " + (data.error || "Error desconocido");
+            }
+          } catch (err) {
+            salida.textContent = "❌ Error de conexión: " + err.message;
+          } finally {
+            btn.disabled = false;
+            btn.innerText = "Preparar datos IA";
+          }
+        });
       </script>
+      
       <!--llamado al js de informe_alumno-->
       <script src="{% static 'assets/js/informe_alumno.js' %}"></script>
 

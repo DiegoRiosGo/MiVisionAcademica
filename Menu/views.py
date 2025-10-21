@@ -757,6 +757,43 @@ def analizar_perfil_ia(request):
 
     return JsonResponse({"success": True, "analisis": result_json})
 
+@csrf_exempt
+@login_requerido
+@solo_alumno
+def preparar_datos_ia(request):
+    """
+    Etapa 1: Obtiene las notas del estudiante y prepara el texto que usaremos como entrada para la IA.
+    """
+    usuario_id = request.session.get("usuario_id")
+    if not usuario_id:
+        return JsonResponse({"error": "Sesión inválida"}, status=403)
+
+    try:
+        # Obtener notas del estudiante desde Supabase
+        resp = supabase.table("nota") \
+            .select("calificacion, semestre, acno, sigla, asignatura(nombre_asignatura, area)") \
+            .eq("estudiante_id", usuario_id).execute()
+        notas = resp.data or []
+    except Exception as e:
+        print("❌ Error al obtener notas:", e)
+        return JsonResponse({"error": "Error al obtener notas del estudiante."}, status=500)
+
+    if not notas:
+        return JsonResponse({"error": "No se encontraron notas registradas."}, status=404)
+
+    # Formatear las notas en texto legible para la IA
+    resumen_texto = "\n".join([
+        f"{n.get('acno')} S{n.get('semestre')} | {n.get('sigla')} | "
+        f"{n.get('asignatura', {}).get('nombre_asignatura', 'Desconocida')} "
+        f"| área: {n.get('asignatura', {}).get('area', 'Sin área')} | nota: {n.get('calificacion')}"
+        for n in notas
+    ])
+
+    return JsonResponse({
+        "success": True,
+        "mensaje": "Datos preparados correctamente",
+        "texto_preparado": resumen_texto
+    })
 
 
 

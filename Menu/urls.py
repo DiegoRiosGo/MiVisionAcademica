@@ -26,4 +26,6 @@ urlpatterns = [
     path('api/estadisticas_alumno/', views.api_estadisticas_alumno, name='api_estadisticas_alumno'),
 
     path('ai/analizar_perfil/', views.analizar_perfil_ia, name='analizar_perfil_ia'),
+
+    path("preparar_datos_ia/", views.preparar_datos_ia, name="preparar_datos_ia"),
 ] 
