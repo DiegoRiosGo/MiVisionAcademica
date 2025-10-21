@@ -796,7 +796,80 @@ def preparar_datos_ia(request):
     })
 
 
+import os
+import json
+import requests
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .decorators import login_requerido, solo_alumno
+from datetime import datetime
+from django.utils.timezone import now
 
+@csrf_exempt
+@login_requerido
+@solo_alumno
+def analizar_perfil_ia_free(request):
+    usuario_id = request.session.get("usuario_id")
+    if not usuario_id:
+        return JsonResponse({"error": "Sesión inválida."}, status=403)
+
+    # Obtener notas (igual que antes) …
+    resp = supabase.table("nota") \
+        .select("calificacion,semestre,acno,asignatura(nombre_asignatura,area),sigla") \
+        .eq("estudiante_id", usuario_id).order("acno", desc=False).execute()
+    notas = resp.data or []
+    if not notas:
+        return JsonResponse({"error": "No hay notas registradas."}, status=400)
+
+    resumen_texto = "\n".join([
+        f"{n.get('acno')} S{n.get('semestre')} | {n.get('sigla')} | "
+        f"{n.get('asignatura', {}).get('nombre_asignatura','Desconocida')} | "
+        f"area: {n.get('asignatura', {}).get('area','Sin área')} | nota: {n.get('calificacion')}"
+        for n in notas
+    ])
+
+    # Construir prompt
+    system_instruction = (
+        "Eres un asistente que analiza el rendimiento académico de un estudiante y devuelve SOLO JSON "
+        "con claves: fortalezas, debilidades, recomendaciones, resumen_corto, recomendaciones_recursos."
+    )
+    user_prompt = (
+        f"Historial académico:\n{resumen_texto}\n\n"
+        "Analiza y devuelve en JSON exactamente como: "
+        '{"fortalezas":[],"debilidades":[],"recomendaciones":[],"resumen_corto":"","recomendaciones_recursos":[]}'
+    )
+
+    # Llamar OpenRouter
+    OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+    if not OPENROUTER_API_KEY:
+        return JsonResponse({"error": "OPENROUTER_API_KEY no configurada."}, status=500)
+
+    url = "https://openrouter.ai/api/v1"
+    payload = {
+        "model": "openai/gpt-oss-20b:free",  # ejemplo de modelo free
+        "messages": [
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": 0.3,
+        "max_tokens": 500
+    }
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        r = requests.post(url, headers=headers, json=payload, timeout=30)
+        r.raise_for_status()
+        content = r.json()["choices"][0]["message"]["content"].strip()
+        result_json = json.loads(content)
+    except Exception as e:
+        print("Error al llamar IA gratuita:", e)
+        return JsonResponse({"error": "Error al generar análisis IA."}, status=500)
+
+    # Devolver resultado al front sin guardar aún
+    return JsonResponse({"success": True, "analisis": result_json})
 
 
 

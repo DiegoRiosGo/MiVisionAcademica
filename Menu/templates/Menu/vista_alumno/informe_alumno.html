@@ -67,6 +67,7 @@
           </ul>
       </div>
 
+      <!--ESTE ES LA ETAPA 1-->
       <div class="content">
         <div class="topbar">
           <h4>🔍 Etapa 1: Preparar datos para IA</h4>
@@ -75,6 +76,40 @@
           <pre id="resultadoIA" style="background:#f3f3f3; padding:15px; border-radius:8px; margin-top:10px;"></pre>
         </div>
       </div>
+
+      <!--ESTE ES LA ETAPA 2-->
+      <div class="content">
+        <div class="topbar">
+          <button id="btnPruebaIAFree" class="btn btn-secondary">Prueba IA Gratis</button>
+          <pre id="outputIAFree"></pre>
+        </div>
+      </div>
+
+      <!--ESTE ES LA ETAPA 2-->
+      <script>
+        document.getElementById("btnPruebaIAFree").addEventListener("click", async () => {
+          const btn = document.getElementById("btnPruebaIAFree");
+          const out = document.getElementById("outputIAFree");
+          btn.disabled = true;
+          btn.innerText = "Generando análisis...";
+
+          try {
+            const res = await fetch("{% url 'analizar_perfil_ia_free' %}", { method: "POST", headers: { "X-CSRFToken": "{{ csrf_token }}" } });
+            const data = await res.json();
+            if (data.success) {
+              out.textContent = JSON.stringify(data.analisis, null, 2);
+            } else {
+              out.textContent = "🔴 Error: " + (data.error || "desconocido");
+            }
+          } catch (err) {
+            out.textContent = "🔴 Error de conexión: " + err.message;
+          } finally {
+            btn.disabled = false;
+            btn.innerText = "Prueba IA Gratis";
+          }
+        });
+      </script>
+      <!--ESTE ES LA ETAPA 1-->
       <script>
         document.getElementById("btnPrepararIA").addEventListener("click", async () => {
           const btn = document.getElementById("btnPrepararIA");
