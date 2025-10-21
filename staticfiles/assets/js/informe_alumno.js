@@ -41,17 +41,25 @@
     btn.innerText = "Analizando...";
 
     try {
-        const res = await fetch("{% url 'analizar_perfil_ia' %}", { method: "POST", headers: { "X-CSRFToken": getCookie("csrftoken") }});
-        const data = await res.json();
-        if (!data.success) {
-        Swal.fire("Error", data.error || "No se pudo generar el análisis.", "error");
-        console.error(data);
-        return;
-        }
+    const response = await fetch("{% url 'analizar_perfil_ia' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+    });
 
-        const analisis = data.analisis;
-        renderAnalisisIA(analisis);
+    if (!response.ok) throw new Error("Respuesta inválida del servidor");
+    const data = await response.json();
 
+    if (data.success) {
+      Swal.fire({
+        title: "✅ Análisis completado",
+        html: `<pre>${JSON.stringify(data.analisis, null, 2)}</pre>`,
+        icon: "success"
+      });
+    } else {
+      Swal.fire("Error", data.error || "Ocurrió un error desconocido", "error");
+    }
     } catch (err) {
         console.error("Error al pedir IA:", err);
         Swal.fire("Error", "No se pudo conectar al servidor para el análisis IA.", "error");
