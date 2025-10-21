@@ -74,6 +74,10 @@
       <!-- Lugar para mostrar el resultado -->
       <div id="iaResult" class="mt-3"></div>
       
+      <script>
+        const ANALISIS_IA_URL = "{% url 'analizar_perfil_ia' %}";
+        const CSRF_TOKEN = "{{ csrf_token }}";
+      </script>
       <!--llamado al js de informe_alumno-->
       <script src="{% static 'assets/js/informe_alumno.js' %}"></script>
 

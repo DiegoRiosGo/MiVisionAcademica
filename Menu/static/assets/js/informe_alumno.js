@@ -41,11 +41,11 @@
     btn.innerText = "Analizando...";
 
     try {
-    const response = await fetch("{% url 'analizar_perfil_ia' %}", {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": "{{ csrf_token }}",
-      },
+    const response = await fetch(ANALISIS_IA_URL, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": CSRF_TOKEN,
+        },
     });
 
     if (!response.ok) throw new Error("Respuesta inválida del servidor");
