@@ -860,12 +860,22 @@ def analizar_perfil_ia_free(request):
     }
 
     try:
-        r = requests.post(url, headers=headers, json=payload, timeout=30)
+        r = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
         r.raise_for_status()
+
+        print("🟢 Respuesta completa IA:", r.text[:1000])  # 👈 muestra primeros 1000 caracteres
+
+        data = r.json()
         content = r.json()["choices"][0]["message"]["content"].strip()
+        print("📄 Contenido IA:", content[:300])
         result_json = json.loads(content)
     except Exception as e:
-        print("Error al llamar IA gratuita:", e)
+        print("❌ Error al llamar IA gratuita:", e)
         return JsonResponse({"error": "Error al generar análisis IA."}, status=500)
 
     # Devolver resultado al front sin guardar aún
