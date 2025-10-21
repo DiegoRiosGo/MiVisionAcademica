@@ -844,7 +844,7 @@ def analizar_perfil_ia_free(request):
     if not OPENROUTER_API_KEY:
         return JsonResponse({"error": "OPENROUTER_API_KEY no configurada."}, status=500)
 
-    url = "https://openrouter.ai/api/v1"
+    url = "https://openrouter.ai/api/v1/chat/completions"
     payload = {
         "model": "openai/gpt-oss-20b:free",  # ejemplo de modelo free
         "messages": [
@@ -870,7 +870,6 @@ def analizar_perfil_ia_free(request):
 
     # Devolver resultado al front sin guardar aún
     return JsonResponse({"success": True, "analisis": result_json})
-
 
 
 
