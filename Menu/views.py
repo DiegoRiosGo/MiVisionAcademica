@@ -830,7 +830,7 @@ def analizar_perfil_ia_free(request):
 
     # Construir prompt
     system_instruction = (
-        "Eres un asistente que analiza el rendimiento académico de un estudiante y devuelve SOLO JSON "
+        "Eres un asistente que analiza el rendimiento académico de un estudiante y devuelve **solo como JSON válido**, sin texto extra."
         "con claves: fortalezas, debilidades, recomendaciones, resumen_corto, recomendaciones_recursos."
     )
     user_prompt = (
@@ -846,7 +846,7 @@ def analizar_perfil_ia_free(request):
 
     url = "https://openrouter.ai/api/v1/chat/completions"
     payload = {
-        "model": "openai/gpt-oss-20b:free",  # ejemplo de modelo free
+        "model": "mistralai/mistral-7b-instruct:free",  # ejemplo de modelo free
         "messages": [
             {"role": "system", "content": system_instruction},
             {"role": "user", "content": user_prompt}
