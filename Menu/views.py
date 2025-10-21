@@ -649,7 +649,6 @@ def api_estadisticas_alumno(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-
 import os
 import json
 import requests
@@ -764,7 +763,69 @@ def analizar_perfil_ia_free(request):
     # Devolver resultado al front sin guardar aún
     return JsonResponse({"success": True, "analisis": result_json})
 
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
 
+@login_requerido
+@solo_alumno
+def guardar_reporte_pdf(request):
+    """
+    Genera un PDF desde el análisis de IA y lo guarda en Supabase (tabla reporte)
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+    usuario_id = request.session.get("usuario_id")
+    if not usuario_id:
+        return JsonResponse({"error": "Sesión no válida"}, status=403)
+
+    try:
+        # Leer contenido enviado desde JS
+        body = json.loads(request.body)
+        analisis_texto = body.get("analisis", "").strip()
+        if not analisis_texto:
+            return JsonResponse({"error": "No se recibió el contenido del análisis"}, status=400)
+
+        # --- Crear PDF en memoria ---
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=letter)
+        pdf.setTitle("Informe de Análisis IA")
+
+        # Formato básico
+        pdf.setFont("Helvetica-Bold", 14)
+        pdf.drawString(50, 750, "Informe de Análisis de IA")
+        pdf.setFont("Helvetica", 10)
+
+        # Escribir texto con saltos de línea
+        y = 730
+        for linea in analisis_texto.splitlines():
+            if y < 50:  # salto de página
+                pdf.showPage()
+                pdf.setFont("Helvetica", 10)
+                y = 750
+            pdf.drawString(50, y, linea)
+            y -= 14
+
+        pdf.save()
+        buffer.seek(0)
+        pdf_bytes = buffer.read()
+        pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+
+        # --- Guardar en Supabase ---
+        fecha_actual = datetime.now().isoformat()
+        data = {
+            "estudiante_id": usuario_id,
+            "contenido": pdf_base64,
+            "fecha_generado": fecha_actual
+        }
+        supabase.table("reporte").insert(data).execute()
+
+        return JsonResponse({"success": True, "mensaje": "Reporte guardado correctamente."})
+
+    except Exception as e:
+        print("❌ Error en guardar_reporte_pdf:", traceback.format_exc())
+        return JsonResponse({"error": "Ocurrió un error al generar o guardar el PDF."}, status=500)
 
 
 

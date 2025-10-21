@@ -72,10 +72,12 @@
         <div class="topbar">
           <h4>🔍  Análisis de IA </h4>
           <button id="btnPruebaIAFree" class="btn btn-secondary">Ejecutar IA</button>
+          <button id="btnGuardarPDF" class="btn btn-success mt-3" disabled>Guardar Informe como PDF</button>
           <pre id="outputIAFree"></pre>
           <div id="iaResult" class="ia-result-container mt-4"></div>
         </div>
       </div>
+
 
       <!--ESTE ES LA ETAPA 2-->
       <script>
@@ -90,6 +92,7 @@
             const data = await res.json();
             if (data.success) {
               out.textContent = JSON.stringify(data.analisis, null, 2);
+              document.getElementById("btnGuardarPDF").disabled = false;
             } else {
               out.textContent = "🔴 Error: " + (data.error || "desconocido");
             }
@@ -97,7 +100,7 @@
             out.textContent = "🔴 Error de conexión: " + err.message;
           } finally {
             btn.disabled = false;
-            btn.innerText = "Prueba IA Gratis";
+            btn.innerText = "Ejecutar IA";
           }
         });
       </script>

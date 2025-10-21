@@ -26,4 +26,5 @@ urlpatterns = [
     path('api/estadisticas_alumno/', views.api_estadisticas_alumno, name='api_estadisticas_alumno'),
 
     path("analizar_perfil_ia_free/", views.analizar_perfil_ia_free, name="analizar_perfil_ia_free"),
+    path("guardar_reporte_pdf/", views.guardar_reporte_pdf, name="guardar_reporte_pdf"),
 ] 
