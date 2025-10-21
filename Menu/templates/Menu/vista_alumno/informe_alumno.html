@@ -67,11 +67,14 @@
           </ul>
       </div>
 
-      <h4>🔍 Etapa 1: Preparar datos para IA</h4>
-      <button id="btnPrepararIA" class="btn btn-primary">Preparar datos IA</button>
+      <div class="content">
+        <div class="topbar">
+          <h4>🔍 Etapa 1: Preparar datos para IA</h4>
+          <button id="btnPrepararIA" class="btn btn-primary">Preparar datos IA</button>
 
-      <pre id="resultadoIA" style="background:#f3f3f3; padding:15px; border-radius:8px; margin-top:10px;"></pre>
-
+          <pre id="resultadoIA" style="background:#f3f3f3; padding:15px; border-radius:8px; margin-top:10px;"></pre>
+        </div>
+      </div>
       <script>
         document.getElementById("btnPrepararIA").addEventListener("click", async () => {
           const btn = document.getElementById("btnPrepararIA");
@@ -97,7 +100,7 @@
           }
         });
       </script>
-      
+
       <!--llamado al js de informe_alumno-->
       <script src="{% static 'assets/js/informe_alumno.js' %}"></script>
 
