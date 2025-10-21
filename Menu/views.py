@@ -830,8 +830,9 @@ def analizar_perfil_ia_free(request):
 
     # Construir prompt
     system_instruction = (
-        "Eres un asistente que analiza el rendimiento académico de un estudiante y devuelve **solo como JSON válido**, sin texto extra."
-        "con claves: fortalezas, debilidades, recomendaciones, resumen_corto, recomendaciones_recursos."
+        "Eres un analista educativo. Analiza las notas del estudiante y responde **solo con un JSON válido**, sin explicaciones, sin comentarios, sin formato Markdown ni texto adicional. "
+        "Usa este formato exacto: "
+        "{\"fortalezas\":[],\"debilidades\":[],\"recomendaciones\":[],\"resumen_corto\":\"\",\"recomendaciones_recursos\":[]}"
     )
     user_prompt = (
         f"Historial académico:\n{resumen_texto}\n\n"
@@ -871,9 +872,37 @@ def analizar_perfil_ia_free(request):
         print("🟢 Respuesta completa IA:", r.text[:1000])  # 👈 muestra primeros 1000 caracteres
 
         data = r.json()
-        content = r.json()["choices"][0]["message"]["content"].strip()
+        content = data["choices"][0]["message"]["content"].strip()
         print("📄 Contenido IA:", content[:300])
-        result_json = json.loads(content)
+
+        # 🧩 Limpieza del texto antes de intentar leer el JSON
+        import re
+
+        # Elimina tokens extra del modelo (como <s>, [/INST], ```json, ``` etc.)
+        cleaned = re.sub(r'(<s>|</s>|\\[/?INST\\]|```json|```)', '', content)
+        cleaned = cleaned.strip()
+
+        # Si hay texto antes del JSON (por ejemplo "El análisis es:"), lo recorta hasta el primer '{'
+        if "{" in cleaned:
+            cleaned = cleaned[cleaned.find("{"):]
+
+        print("🧹 Texto limpio IA:", cleaned[:200])
+
+            
+        # Intenta parsear el JSON
+        try:
+            result_json = json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            print("⚠️ Error al parsear JSON, contenido recibido:", cleaned[:300])
+            # Si aún no es JSON válido, encapsulamos el texto como resumen
+            result_json = {
+                "resumen_corto": cleaned,
+                "fortalezas": [],
+                "debilidades": [],
+                "recomendaciones": [],
+                "recomendaciones_recursos": []
+            }
+
     except Exception as e:
         print("❌ Error al llamar IA gratuita:", e)
         return JsonResponse({"error": "Error al generar análisis IA."}, status=500)
