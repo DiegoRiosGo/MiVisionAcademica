@@ -77,7 +77,47 @@
           <div id="iaResult" class="ia-result-container mt-4"></div>
         </div>
       </div>
- 
+      
+      <script>
+      document.getElementById("btnGuardarPDF").addEventListener("click", async () => {
+        const output = document.getElementById("outputIAFree").textContent;
+        if (!output.trim()) {
+          Swal.fire("Error", "Primero ejecuta la IA antes de generar el PDF.", "warning");
+          return;
+        }
+
+        try {
+          const analisis = JSON.parse(output);
+          Swal.fire({
+            title: "Generando PDF...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+          });
+
+          const res = await fetch("{% url 'generar_pdf_informe' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ analisis })
+          });
+
+          if (!res.ok) throw new Error("Error al generar el PDF");
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "Informe_Academico.pdf";
+          a.click();
+          window.URL.revokeObjectURL(url);
+          Swal.close();
+          Swal.fire("Listo", "El informe PDF se generó correctamente.", "success");
+        } catch (err) {
+          Swal.fire("Error", err.message, "error");
+        }
+      });
+      </script>
       <!--ESTE ES LA ETAPA 2-->
       <script>
         document.getElementById("btnPruebaIAFree").addEventListener("click", async () => {

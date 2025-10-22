@@ -25,6 +25,10 @@ urlpatterns = [
     path('procesar_y_guardar_pdf/', views.procesar_y_guardar_pdf, name='procesar_y_guardar_pdf'),
     path('api/estadisticas_alumno/', views.api_estadisticas_alumno, name='api_estadisticas_alumno'),
 
+
     path("analizar_perfil_ia_free/", views.analizar_perfil_ia_free, name="analizar_perfil_ia_free"),
+
     path("guardar_reporte_pdf/", views.guardar_reporte_pdf, name="guardar_reporte_pdf"),
+
+    path('generar_pdf_informe/', views.generar_pdf_informe, name='generar_pdf_informe'),
 ] 

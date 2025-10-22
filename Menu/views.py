@@ -829,7 +829,69 @@ def guardar_reporte_pdf(request):
 
 
 
+from io import BytesIO
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
+@login_requerido
+@solo_alumno
+def generar_pdf_informe(request):
+    """
+    Genera un PDF con los resultados del análisis IA (sin guardarlo aún).
+    Recibe los datos en formato JSON desde el frontend.
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Método no permitido."}, status=405)
+
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        analisis = data.get("analisis", {})
+    except Exception as e:
+        print("⚠️ Error leyendo datos del análisis:", e)
+        return JsonResponse({"error": "Datos inválidos."}, status=400)
+
+    # Configurar PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    contenido = []
+
+    # Estilos personalizados
+    titulo = ParagraphStyle("Titulo", parent=styles["Heading1"], alignment=1, textColor=colors.HexColor("#004aad"))
+    subtitulo = ParagraphStyle("Subtitulo", parent=styles["Heading2"], textColor=colors.HexColor("#003366"))
+    normal = styles["Normal"]
+
+    contenido.append(Paragraph("Informe de Análisis Académico", titulo))
+    contenido.append(Spacer(1, 12))
+
+    if analisis.get("resumen_corto"):
+        contenido.append(Paragraph("<b>Resumen:</b> " + analisis["resumen_corto"], normal))
+        contenido.append(Spacer(1, 12))
+
+    def add_section(title, items, color="#004aad"):
+        if items:
+            contenido.append(Paragraph(f"<b><font color='{color}'>{title}</font></b>", subtitulo))
+            lista = ListFlowable([ListItem(Paragraph(i, normal)) for i in items], bulletType="bullet")
+            contenido.append(lista)
+            contenido.append(Spacer(1, 10))
+
+    add_section("Fortalezas", analisis.get("fortalezas", []), "#1E8449")
+    add_section("Debilidades", analisis.get("debilidades", []), "#C0392B")
+    add_section("Recomendaciones Académicas", analisis.get("recomendaciones", []), "#2471A3")
+    add_section("Recomendaciones Laborales", analisis.get("recomendaciones_laborales", []), "#8E44AD")
+    add_section("Herramientas de Mejora", analisis.get("herramietas_de_mejora", []), "#D68910")
+    add_section("Recursos Recomendados", analisis.get("recomendaciones_recursos", []), "#117864")
+
+    doc.build(contenido)
+
+    # Retornar PDF como descarga
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="informe_academico.pdf"'
+    return response
 
 
 
