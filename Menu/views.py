@@ -2,8 +2,7 @@ from django.shortcuts import render,redirect
 # Create your views here.
 from .decorators import login_requerido, solo_docente, solo_alumno
 from django.utils.timezone import now
-import uuid  # 👈 para nombres únicos
-import hashlib
+
 
 # conexión a Supabase
 from django.contrib import messages
@@ -11,9 +10,22 @@ from .forms import RegistroForm, LoginForm
 from .supabase_client import supabase  
 
 #lectura de pdf
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from datetime import datetime
-import base64, fitz, re, json, traceback
+import base64, fitz, re, json, traceback,uuid,hashlib,os,requests
+
+#Uso de IA
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import now
+
+#informes de la IA
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+
+
 
 def Inicio(request):
     # Si existe sesión previa, se limpia
@@ -376,12 +388,6 @@ def RetroalimentacionDocente(request):
 
 #=================================================
 #Programación inicio
-# Página de inicio con login y registro
-
-
-# ---------------------------------------------------------------------
-# Página principal (vista base con los formularios)
-# ---------------------------------------------------------------------
 # ---------------------------------------------------------------------
 # Registro de usuario
 # ---------------------------------------------------------------------
@@ -657,15 +663,9 @@ def api_estadisticas_alumno(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-import os
-import json
-import requests
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from .decorators import login_requerido, solo_alumno
-from datetime import datetime
-from django.utils.timezone import now
-
+# ---------------------------------------------------------------------
+# Análisis IA
+# ---------------------------------------------------------------------
 @csrf_exempt
 @login_requerido
 @solo_alumno
@@ -788,13 +788,10 @@ def analizar_perfil_ia_free(request):
     return JsonResponse({"success": True, "analisis": result_json})
 
 
-from io import BytesIO
-from django.http import HttpResponse
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib import colors
 
+# ---------------------------------------------------------------------
+# Informes Con IA
+# ---------------------------------------------------------------------
 @login_requerido
 @solo_alumno
 def generar_pdf_informe(request):
@@ -852,12 +849,6 @@ def generar_pdf_informe(request):
     response["Content-Disposition"] = 'attachment; filename="informe_academico.pdf"'
     return response
 
-
-
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import base64, hashlib, uuid
-from django.utils.timezone import now
 
 @login_requerido
 @solo_alumno
@@ -924,3 +915,83 @@ def guardar_reporte_pdf(request):
         return JsonResponse({"success": False, "error": "Error interno al guardar el informe."}, status=500)
 
 
+# ---------------------------------------------------------------------
+# Retroalimentacion docente 
+# ---------------------------------------------------------------------
+# --- API: obtener asignaturas por área ---
+@csrf_exempt
+def obtener_asignaturas(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        area = data.get("area")
+        try:
+            asignaturas = supabase.table("asignatura").select("asignatura_id, nombre_asignatura").eq("area", area).execute()
+            return JsonResponse({"success": True, "asignaturas": asignaturas.data})
+        except Exception as e:
+            print("Error al cargar asignaturas:", e)
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Método inválido"})
+
+
+# --- API: obtener siglas por asignatura ---
+@csrf_exempt
+def obtener_siglas(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        asignatura_id = data.get("asignatura_id")
+        try:
+            siglas = supabase.table("asignatura").select("sigla").eq("asignatura_id", asignatura_id).execute()
+            return JsonResponse({"success": True, "siglas": siglas.data})
+        except Exception as e:
+            print("Error al cargar siglas:", e)
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Método inválido"})
+
+
+# --- API: obtener estudiantes según área/asignatura/sigla ---
+@csrf_exempt
+def obtener_estudiantes(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        sigla = data.get("sigla")
+
+        try:
+            estudiantes = (
+                supabase.table("nota")
+                .select("estudiante_id, estudiante(nombre, apellido)")
+                .eq("sigla", sigla)
+                .execute()
+            )
+            lista_estudiantes = [
+                {"id": e["estudiante_id"], "nombre": f"{e['estudiante']['nombre']} {e['estudiante']['apellido']}"}
+                for e in estudiantes.data
+            ]
+            return JsonResponse({"success": True, "estudiantes": lista_estudiantes})
+        except Exception as e:
+            print("Error al cargar estudiantes:", e)
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Método inválido"})
+
+
+# --- API: guardar comentario del docente ---
+@csrf_exempt
+def guardar_comentario_docente(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        docente_id = data.get("docente_id")
+        estudiante_id = data.get("estudiante_id")
+        contenido = data.get("contenido")
+
+        try:
+            supabase.table("comentario_docente").insert({
+                "docente_id": docente_id,
+                "estudiante_id": estudiante_id,
+                "contenido": contenido,
+                "fecha": datetime.now().isoformat()
+            }).execute()
+
+            return JsonResponse({"success": True})
+        except Exception as e:
+            print("Error guardando comentario:", e)
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Método inválido"})

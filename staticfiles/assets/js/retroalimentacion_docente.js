@@ -164,6 +164,90 @@
 
 
 
+        
+document.addEventListener("DOMContentLoaded", () => {
+  const areaSelect = document.getElementById("subjectSelect");
+  const asignaturaSelect = document.getElementById("asignaturaSelect");
+  const siglaSelect = document.getElementById("siglaSelect");
+  const estudianteSelect = document.getElementById("studentSelect");
+  const feedbackForm = document.getElementById("feedbackForm");
+
+  // 🔹 Cargar asignaturas según área
+  areaSelect.addEventListener("change", async () => {
+    const area = areaSelect.value;
+    const res = await fetch("/obtener_asignaturas/", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ area })
+    });
+    const data = await res.json();
+    asignaturaSelect.innerHTML = '<option value="">Seleccione una asignatura</option>';
+    data.asignaturas.forEach(a => {
+      asignaturaSelect.innerHTML += `<option value="${a.asignatura_id}">${a.nombre_asignatura}</option>`;
+    });
+  });
+
+  // 🔹 Cargar siglas según asignatura
+  asignaturaSelect.addEventListener("change", async () => {
+    const asignatura_id = asignaturaSelect.value;
+    const res = await fetch("/obtener_siglas/", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ asignatura_id })
+    });
+    const data = await res.json();
+    siglaSelect.innerHTML = '<option value="">Seleccione una sigla</option>';
+    data.siglas.forEach(s => {
+      siglaSelect.innerHTML += `<option value="${s.sigla}">${s.sigla}</option>`;
+    });
+  });
+
+  // 🔹 Cargar estudiantes según sigla
+  siglaSelect.addEventListener("change", async () => {
+    const sigla = siglaSelect.value;
+    const res = await fetch("/obtener_estudiantes/", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ sigla })
+    });
+    const data = await res.json();
+    estudianteSelect.innerHTML = '<option value="">Seleccione estudiante</option>';
+    data.estudiantes.forEach(e => {
+      estudianteSelect.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
+    });
+  });
+
+  // 🔹 Enviar retroalimentación
+  feedbackForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const estudiante_id = estudianteSelect.value;
+    const contenido = document.getElementById("feedback").value;
+
+    if (!estudiante_id || !contenido.trim()) {
+      Swal.fire("⚠️", "Selecciona un estudiante y escribe la retroalimentación.", "warning");
+      return;
+    }
+
+    const res = await fetch("/guardar_comentario_docente/", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        docente_id: "{{ docente_id }}",
+        estudiante_id,
+        contenido
+      })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      Swal.fire("✅ Éxito", "Retroalimentación enviada correctamente.", "success");
+      document.getElementById("feedback").value = "";
+    } else {
+      Swal.fire("❌ Error", "No se pudo guardar la retroalimentación.", "error");
+    }
+  });
+});
+
 
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN retroalimentacion_docente .JS ----------------------------------------
