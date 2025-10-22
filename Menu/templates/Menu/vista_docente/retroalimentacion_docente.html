@@ -41,44 +41,75 @@
         <div class="content">
           <div class="topbar"><h4>Retroalimentación a Estudiantes</h4></div>
 
-          <!-- Formulario -->
+          <!-- FORMULARIO DE FILTROS -->
           <div class="card p-4 mb-4">
-            <form id="feedbackForm">
-              <div class="mb-3">
-                <label for="subjectSelect" class="form-label">Selecciona Asignatura</label>
-                <select class="form-control" id="asignaturaSelect">
-                  
-                </select>
+            <form id="feedbackForm" data-docente-id="{{ docente_id }}">
+              <div class="row g-3">
+                
+                <div class="col-md-3">
+                  <label for="subjectSelect" class="form-label">Selecciona Área</label>
+                  <select id="subjectSelect" class="form-control">
+                    <option value="">Seleccione un área</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label for="asignaturaSelect" class="form-label">Selecciona Asignatura</label>
+                  <select id="asignaturaSelect" class="form-control">
+                    <option value="">Seleccione asignatura</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label for="siglaSelect" class="form-label">Selecciona Sección</label>
+                  <select id="siglaSelect" class="form-control">
+                    <option value="">Seleccione sigla</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label for="studentSelect" class="form-label">Selecciona Estudiante</label>
+                  <select id="studentSelect" class="form-control">
+                    <option value="">Seleccione estudiante</option>
+                  </select>
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="sectionSelect" class="form-label">Selecciona Sección</label>
-                <select class="form-control" id="siglaSelect">
-                 
-                </select>
+
+              <!-- BOTONES DE ACCIÓN -->
+              <div class="mt-4 d-flex justify-content-between align-items-center">
+                <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                  <i class="fas fa-rotate-left"></i> Restablecer filtros
+                </button>
+                <button type="submit" class="btn btn-primary-custom">
+                  <i class="fas fa-paper-plane"></i> Enviar Retroalimentación
+                </button>
               </div>
-              <div class="mb-3">
-                <label for="studentSelect" class="form-label">Selecciona Estudiante</label>
-                <select class="form-control" id="studentSelect"></select>
-              </div>
-              <div class="mb-3">
+
+              <!-- TEXTAREA DE RETROALIMENTACIÓN -->
+              <div class="mt-4">
                 <label for="feedback" class="form-label">Retroalimentación</label>
                 <textarea class="form-control" id="feedback" rows="3" placeholder="Escribe tu retroalimentación..."></textarea>
               </div>
-              <button type="submit" class="btn btn-primary-custom"><i class="fas fa-paper-plane"></i> Enviar</button>
             </form>
           </div>
 
-    <!--TITULO SELECTOR DE GRAFICOS-->          
-            <h5 class="mb-3">Gráficos del Estudiante</h5>
+          <!-- GRÁFICOS -->
+          <div class="card p-4 mb-4">
+            <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Desempeño Académico del Estudiante</h5>
             <div class="graphs-container">
-              <div class="card p-4 mb-4">
+              <div class="card p-3">
                 <canvas id="lineChartSubject"></canvas>
               </div>
-              <div class="card p-4 mb-4">
+              <div class="card p-3">
                 <canvas id="radarChartSubject"></canvas>
               </div>
             </div>
+          </div>
+
+          <!-- TARJETAS DE ANÁLISIS IA para que esta? .-.-->
+          <div id="analisisIA" class="row g-3"></div>
         </div>
+
 
     <!--TITULO POPUP-->        
 
