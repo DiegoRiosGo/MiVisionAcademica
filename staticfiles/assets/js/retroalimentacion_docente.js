@@ -30,68 +30,6 @@
     });
 
 
-        const sectionSelect = document.getElementById('sectionSelect');
-        const subjectSelect = document.getElementById('subjectSelect');
-        const studentSelect = document.getElementById('studentSelect');
-        const feedbackForm = document.getElementById('feedbackForm');
-        const feedbackInput = document.getElementById('feedback');
-        const popup = document.getElementById('confirmationPopup');
-
-        // Datos simulados por sección, asignatura y estudiante
-        const studentData = {
-        "001D": {
-            "ITadori": {
-            programacion: [5.2, 5.5, 5.8, 6.0, 6.2, 6.5, 6.8, 7.0],
-            inteligencia: [4.8, 5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7],
-            gestion: [5.0, 5.3, 5.6, 5.9, 6.1, 6.4, 6.7, 7.0],
-            calidad: [5.5, 5.7, 5.9, 6.2, 6.4, 6.6, 6.8, 7.0],
-            modelos: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.0],
-            arquitectura: [4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0],
-            analisis: [5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0, 7.0]
-            },
-            "Maki": {
-            programacion: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
-            inteligencia: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
-            gestion: [4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9],
-            calidad: [5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0, 7.0],
-            modelos: [4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0],
-            arquitectura: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.0],
-            analisis: [4.7, 5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8]
-            }
-        },
-        "001V": {
-            "Toji": {
-            programacion: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
-            inteligencia: [4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6],
-            gestion: [5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0, 7.0],
-            calidad: [4.8, 5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9],
-            modelos: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
-            arquitectura: [4.6, 4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7],
-            analisis: [5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0, 7.0]
-            },
-            "Hinata": {
-            programacion: [4.2, 4.5, 4.8, 5.1, 5.4, 5.7, 6.0, 6.3],
-            inteligencia: [5.1, 5.4, 5.7, 6.0, 6.3, 6.6, 6.9, 7.0],
-            gestion: [4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0],
-            calidad: [5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8, 7.0],
-            modelos: [4.7, 5.0, 5.3, 5.6, 5.9, 6.2, 6.5, 6.8],
-            arquitectura: [5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0, 7.0],
-            analisis: [4.6, 4.9, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7]
-            }
-        }
-        };
-
-        // Radar fijo por certificados
-        const radarLabels = [
-        'Análisis y Planificación de Requerimientos Informáticos',
-        'Calidad de Software',
-        'Gestión de Proyectos Informáticos',
-        'Programación de Software',
-        'Inteligencia de Negocios',
-        'Modelos de Datos',
-        'Arquitectura de Software'
-        ];
-
         const lineCtx = document.getElementById('lineChartSubject').getContext('2d');
         const radarCtx = document.getElementById('radarChartSubject').getContext('2d');
 
@@ -165,7 +103,7 @@
 
 
 
-        
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const areaSelect = document.getElementById("subjectSelect");       // en tu HTML es #subjectSelect
