@@ -73,13 +73,13 @@
                     <td>
                       <!-- Botón Ver -->
                       <button class="btn btn-outline-primary btn-sm ver-pdf-btn"
-                              data-base64="{{ rep.file_reporte }}"
+                              data-base64="{{ rep.ruta_contenido  }}"
                               data-nombre="{{ rep.nombre_reporte|default:'Informe.pdf' }}">
                         <i class="fas fa-eye"></i> Ver
                       </button>
 
                       <!-- Botón Descargar -->
-                      <a href="data:application/pdf;base64,{{ rep.file_reporte }}"
+                      <a href="data:application/pdf;base64,{{ rep.ruta_contenido  }}"
                         download="{{ rep.nombre_reporte|default:'Informe.pdf' }}"
                         class="btn btn-outline-success btn-sm ms-2">
                         <i class="fas fa-download"></i> Descargar
