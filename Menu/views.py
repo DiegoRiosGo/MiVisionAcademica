@@ -231,29 +231,29 @@ def TestInterestAlumno(request):
 def InformeAlumno(request):
     usuario_id = request.session.get('usuario_id')
 
+    # 1 Buscar la información completa del usuario en Supabase
     try:
-        # Obtener usuario (para mostrar nombre, apellido y foto)
         response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
         if not response.data:
             messages.error(request, "No se encontró la información del usuario.")
             return redirect('Inicio')
+
         usuario = response.data[0]
 
-        # Obtener estudiante
-        estudiante_resp = supabase.table("estudiante").select("estudiante_id").eq("usuario_id", usuario_id).execute()
-        if not estudiante_resp.data:
-            messages.error(request, "No se encontró información del estudiante.")
-            return redirect('Inicio')
-        estudiante_id = estudiante_resp.data[0]["estudiante_id"]
+    except Exception as e:
+        print("Error al obtener usuario:", e)
+        messages.error(request, "Hubo un problema al cargar tu información.")
+        return redirect('Inicio')
 
-        # Obtener informes guardados en la tabla "reporte"
-        reportes = supabase.table("reporte").select("*").eq("estudiante_id", estudiante_id).order("fecha_generado", desc=True).execute()
+    # 2 Obtener lista de archivos del usuario
+    try:
+        reportes = supabase.table("reportes").select("*").eq("estudiante_id", usuario_id).order("fecha_generado", desc=True).execute()
         lista_reportes = reportes.data or []
-
     except Exception as e:
         print("Error al obtener reportes:", e)
         lista_reportes = []
 
+    # 3 Renderizar plantilla
     contexto = {
         "nombre": usuario.get("nombre", ""),
         "apellido": usuario.get("apellido", ""),
