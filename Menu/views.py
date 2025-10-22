@@ -921,77 +921,109 @@ def guardar_reporte_pdf(request):
 # --- API: obtener asignaturas por área ---
 @csrf_exempt
 def obtener_asignaturas(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
+    """Devuelve asignaturas que pertenecen a un area dada (area debe llegar en body JSON)."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Método inválido"}, status=405)
+    try:
+        data = json.loads(request.body.decode("utf-8") or "{}")
         area = data.get("area")
-        try:
-            asignaturas = supabase.table("asignatura").select("asignatura_id, nombre_asignatura").eq("area", area).execute()
-            return JsonResponse({"success": True, "asignaturas": asignaturas.data})
-        except Exception as e:
-            print("Error al cargar asignaturas:", e)
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Método inválido"})
+        if not area:
+            return JsonResponse({"success": False, "error": "Falta el parámetro 'area'."}, status=400)
 
+        resp = supabase.table("asignatura")\
+            .select("asignatura_id, nombre_asignatura")\
+            .eq("area", area).execute()
+        return JsonResponse({"success": True, "asignaturas": resp.data})
+    except Exception as e:
+        print("Error al cargar asignaturas:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 # --- API: obtener siglas por asignatura ---
 @csrf_exempt
 def obtener_siglas(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
+    """Devuelve las siglas (distinct) registradas en la tabla `nota` para una asignatura_id dada."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Método inválido"}, status=405)
+    try:
+        data = json.loads(request.body.decode("utf-8") or "{}")
         asignatura_id = data.get("asignatura_id")
-        try:
-            siglas = supabase.table("asignatura").select("sigla").eq("asignatura_id", asignatura_id).execute()
-            return JsonResponse({"success": True, "siglas": siglas.data})
-        except Exception as e:
-            print("Error al cargar siglas:", e)
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Método inválido"})
+        if not asignatura_id:
+            return JsonResponse({"success": False, "error": "Falta 'asignatura_id'."}, status=400)
+
+        # Obtener siglas distintas de la tabla nota
+        # Nota: la SDK de supabase no tiene 'distinct' universal, así que recuperamos y hacemos distinct en Python
+        resp = supabase.table("nota").select("sigla").eq("asignatura_id", int(asignatura_id)).execute()
+        filas = resp.data or []
+        siglas = sorted({f.get("sigla") for f in filas if f.get("sigla")})
+        return JsonResponse({"success": True, "siglas": siglas})
+    except Exception as e:
+        print("Error al cargar siglas:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 # --- API: obtener estudiantes según área/asignatura/sigla ---
 @csrf_exempt
 def obtener_estudiantes(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
+    """
+    Recibe JSON con keys: asignatura_id (opcional), sigla (opcional).
+    Devuelve lista de estudiantes (id y nombre completo) que tienen notas con esos filtros.
+    """
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Método inválido"}, status=405)
+    try:
+        data = json.loads(request.body.decode("utf-8") or "{}")
+        asignatura_id = data.get("asignatura_id")
         sigla = data.get("sigla")
 
-        try:
-            estudiantes = (
-                supabase.table("nota")
-                .select("estudiante_id, estudiante(nombre, apellido)")
-                .eq("sigla", sigla)
-                .execute()
-            )
-            lista_estudiantes = [
-                {"id": e["estudiante_id"], "nombre": f"{e['estudiante']['nombre']} {e['estudiante']['apellido']}"}
-                for e in estudiantes.data
-            ]
-            return JsonResponse({"success": True, "estudiantes": lista_estudiantes})
-        except Exception as e:
-            print("Error al cargar estudiantes:", e)
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Método inválido"})
+        query = supabase.table("nota").select("estudiante_id")
+        if asignatura_id:
+            query = query.eq("asignatura_id", int(asignatura_id))
+        if sigla:
+            query = query.eq("sigla", sigla)
+
+        resp = query.execute()
+        notas = resp.data or []
+        estudiante_ids = sorted({n.get("estudiante_id") for n in notas if n.get("estudiante_id")})
+
+        if not estudiante_ids:
+            return JsonResponse({"success": True, "estudiantes": []})
+
+        # Obtener datos de usuario (tabla usuario) para esos ids
+        # La SDK usa .in_ o .in para filtrar múltiples valores; si tu SDK difiere, adáptalo.
+        usuarios_resp = supabase.table("usuario").select("usuario_id, nombre, apellido")\
+            .in_("usuario_id", estudiante_ids).execute()
+
+        usuarios = usuarios_resp.data or []
+        # Mapear usuario_id a nombre completo
+        lista = [{"id": u["usuario_id"], "nombre": f"{u.get('nombre','')} {u.get('apellido','')}"} for u in usuarios]
+        return JsonResponse({"success": True, "estudiantes": lista})
+    except Exception as e:
+        print("Error al cargar estudiantes:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 # --- API: guardar comentario del docente ---
 @csrf_exempt
 def guardar_comentario_docente(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Método inválido"}, status=405)
+    try:
+        data = json.loads(request.body.decode("utf-8") or "{}")
         docente_id = data.get("docente_id")
         estudiante_id = data.get("estudiante_id")
         contenido = data.get("contenido")
 
-        try:
-            supabase.table("comentario_docente").insert({
-                "docente_id": docente_id,
-                "estudiante_id": estudiante_id,
-                "contenido": contenido,
-                "fecha": datetime.now().isoformat()
-            }).execute()
+        if not (docente_id and estudiante_id and contenido):
+            return JsonResponse({"success": False, "error": "Faltan datos requeridos."}, status=400)
 
-            return JsonResponse({"success": True})
-        except Exception as e:
-            print("Error guardando comentario:", e)
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Método inválido"})
+        supabase.table("comentario_docente").insert({
+            "docente_id": int(docente_id),
+            "estudiante_id": int(estudiante_id),
+            "contenido": contenido,
+            "fecha": datetime.now().isoformat()
+        }).execute()
+
+        return JsonResponse({"success": True})
+    except Exception as e:
+        print("Error guardando comentario:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
