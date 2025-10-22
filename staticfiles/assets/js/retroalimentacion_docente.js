@@ -9,30 +9,8 @@
 // TITULO BARRA LATERAL
 
     //personalizacion de tabs
-    document.addEventListener('DOMContentLoaded', function () {
-    const tabButtons = document.querySelectorAll('.personal-tab-btn');
-    const tabSections = document.querySelectorAll('.personal-tab-section');
 
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-        // Quitar clase 'active' de todos los botones
-        tabButtons.forEach(b => b.classList.remove('active'));
-        // Activar el botón clickeado
-        btn.classList.add('active');
-
-        // Mostrar la sección correspondiente
-        const target = btn.dataset.target;
-        tabSections.forEach(sec => {
-            sec.style.display = (sec.id === target) ? 'block' : 'none';
-        });
-        });
-    });
-    });
-
-
-        const lineCtx = document.getElementById('lineChartSubject').getContext('2d');
-        const radarCtx = document.getElementById('radarChartSubject').getContext('2d');
-
+    /*
         const lineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
@@ -61,43 +39,8 @@
         },
         options: { responsive: true, maintainAspectRatio: false }
         });
+    */
 
-        function updateStudentOptions() {
-        const section = sectionSelect.value;
-        studentSelect.innerHTML = '';
-        Object.keys(studentData[section]).forEach(name => {
-            const opt = document.createElement('option');
-            opt.value = name;
-            opt.textContent = name;
-            studentSelect.appendChild(opt);
-        });
-        updateCharts();
-        }
-
-        function updateCharts() {
-        const section = sectionSelect.value;
-        const student = studentSelect.value;
-        const subject = subjectSelect.value;
-
-        if (!studentData[section][student] || !studentData[section][student][subject]) return;
-
-        const lineData = studentData[section][student][subject];
-        lineChart.data.datasets[0].data = lineData;
-        lineChart.update();
-        }
-
-        sectionSelect.addEventListener('change', updateStudentOptions);
-        subjectSelect.addEventListener('change', updateCharts);
-        studentSelect.addEventListener('change', updateCharts);
-
-        feedbackForm.addEventListener('submit', e => {
-        e.preventDefault();
-        popup.style.display = 'block';
-        setTimeout(() => { popup.style.display = 'none'; }, 2000);
-        feedbackInput.value = '';
-        });
-
-        updateStudentOptions();
 
 
 
