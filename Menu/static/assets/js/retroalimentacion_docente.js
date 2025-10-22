@@ -49,16 +49,14 @@
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  const areaSelect = document.getElementById("subjectSelect");       // en tu HTML es #subjectSelect
-  // crea selects faltantes en el HTML o ajusta ids si los nombraste distinto:
-  // <select id="asignaturaSelect">, <select id="siglaSelect">, <select id="studentSelect">
+  const areaSelect = document.getElementById("subjectSelect");
   const asignaturaSelect = document.getElementById("asignaturaSelect");
   const siglaSelect = document.getElementById("siglaSelect");
   const estudianteSelect = document.getElementById("studentSelect");
   const feedbackForm = document.getElementById("feedbackForm");
   const feedbackTextarea = document.getElementById("feedback");
 
-  // helper CSRF (si usas cookies csrftoken)
+  // --- Helper CSRF ---
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -73,25 +71,51 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return cookieValue;
   }
-  const csrftoken = getCookie('csrftoken');
+  const csrftoken = getCookie("csrftoken");
 
-  // Seguridad: comprueba existencia de elementos antes de operar
+  // --- Función para resetear selects dependientes ---
+  function resetDependentSelects(select, message = "--") {
+    if (select) select.innerHTML = `<option value="">${message}</option>`;
+  }
+
+  // --- Cargar áreas al iniciar ---
+  async function cargarAreas() {
+    try {
+      const res = await fetch("/obtener_areas/");
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Error al cargar áreas");
+      areaSelect.innerHTML = '<option value="">Seleccione un área</option>';
+      data.areas.forEach(a => {
+        areaSelect.innerHTML += `<option value="${a}">${a}</option>`;
+      });
+    } catch (err) {
+      console.error("Error cargando áreas:", err);
+      areaSelect.innerHTML = '<option value="">Error cargando áreas</option>';
+    }
+  }
+  if (areaSelect) cargarAreas();
+
+  // --- Cargar asignaturas al cambiar el área ---
   if (areaSelect && asignaturaSelect) {
     areaSelect.addEventListener("change", async () => {
       const area = areaSelect.value;
-      // limpiar selects dependientes
-      asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
-      siglaSelect && (siglaSelect.innerHTML = '<option value="">--</option>');
-      estudianteSelect && (estudianteSelect.innerHTML = '<option value="">--</option>');
+      resetDependentSelects(asignaturaSelect, "Cargando...");
+      resetDependentSelects(siglaSelect);
+      resetDependentSelects(estudianteSelect);
+
+      if (!area) {
+        asignaturaSelect.innerHTML = '<option value="">Seleccione un área primero</option>';
+        return;
+      }
 
       try {
         const res = await fetch("/obtener_asignaturas/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
+            "X-CSRFToken": csrftoken,
           },
-          body: JSON.stringify({ area })
+          body: JSON.stringify({ area }),
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "Error al obtener asignaturas");
@@ -106,20 +130,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Cargar siglas al cambiar asignatura ---
   if (asignaturaSelect && siglaSelect) {
     asignaturaSelect.addEventListener("change", async () => {
       const asignatura_id = asignaturaSelect.value;
-      siglaSelect.innerHTML = '<option value="">Cargando...</option>';
-      estudianteSelect && (estudianteSelect.innerHTML = '<option value="">--</option>');
+      resetDependentSelects(siglaSelect, "Cargando...");
+      resetDependentSelects(estudianteSelect);
+
+      if (!asignatura_id) {
+        siglaSelect.innerHTML = '<option value="">Seleccione asignatura primero</option>';
+        return;
+      }
 
       try {
         const res = await fetch("/obtener_siglas/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
+            "X-CSRFToken": csrftoken,
           },
-          body: JSON.stringify({ asignatura_id })
+          body: JSON.stringify({ asignatura_id }),
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "Error al obtener siglas");
@@ -134,20 +164,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Cargar estudiantes al cambiar sigla ---
   if (siglaSelect && estudianteSelect) {
     siglaSelect.addEventListener("change", async () => {
       const sigla = siglaSelect.value;
       const asignatura_id = asignaturaSelect ? asignaturaSelect.value : null;
-      estudianteSelect.innerHTML = '<option value="">Cargando...</option>';
+      resetDependentSelects(estudianteSelect, "Cargando...");
+
+      if (!sigla) {
+        estudianteSelect.innerHTML = '<option value="">Seleccione una sigla primero</option>';
+        return;
+      }
 
       try {
         const res = await fetch("/obtener_estudiantes/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
+            "X-CSRFToken": csrftoken,
           },
-          body: JSON.stringify({ asignatura_id: asignatura_id || null, sigla: sigla || null })
+          body: JSON.stringify({
+            asignatura_id: asignatura_id || null,
+            sigla: sigla || null,
+          }),
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "Error al obtener estudiantes");
@@ -162,6 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Enviar retroalimentación ---
   if (feedbackForm) {
     feedbackForm.addEventListener("submit", async (ev) => {
       ev.preventDefault();
@@ -171,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.fire("Atención", "Selecciona un estudiante y escribe la retroalimentación.", "warning");
         return;
       }
-      // docente_id: si tienes el id del docente en el template, pásalo como variable
+
       const docente_id = feedbackForm.dataset.docenteId || null;
 
       try {
@@ -179,13 +219,13 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
+            "X-CSRFToken": csrftoken,
           },
           body: JSON.stringify({
             docente_id: docente_id,
             estudiante_id: estudiante_id,
-            contenido: contenido
-          })
+            contenido: contenido,
+          }),
         });
         const data = await res.json();
         if (data.success) {

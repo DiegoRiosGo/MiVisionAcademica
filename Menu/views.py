@@ -918,6 +918,22 @@ def guardar_reporte_pdf(request):
 # ---------------------------------------------------------------------
 # Retroalimentacion docente 
 # ---------------------------------------------------------------------
+# --- API: obtener áreas disponibles ---
+@csrf_exempt
+def obtener_areas(request):
+    """Devuelve las áreas académicas distintas desde la tabla asignatura."""
+    if request.method != "GET":
+        return JsonResponse({"success": False, "error": "Método inválido"}, status=405)
+    try:
+        resp = supabase.table("asignatura").select("area").execute()
+        filas = resp.data or []
+        # Distintas áreas no nulas
+        areas = sorted({f.get("area") for f in filas if f.get("area")})
+        return JsonResponse({"success": True, "areas": areas})
+    except Exception as e:
+        print("Error al obtener áreas:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+    
 # --- API: obtener asignaturas por área ---
 @csrf_exempt
 def obtener_asignaturas(request):
