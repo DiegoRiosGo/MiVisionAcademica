@@ -84,12 +84,17 @@
     }
 
     // 📘 Recursos recomendados
-    if (analisis.recomendaciones_recursos?.length) {
-        const list = analisis.recomendaciones_recursos
-        .map(r => `<li><a href="${r.url}" target="_blank">${r.titulo}</a> (${r.tipo})</li>`)
-        .join("");
-        container.appendChild(crearTarjeta("Recursos Recomendados", `<ul>${list}</ul>`, "recursos"));
-    }
+    if (analisis.recomendaciones_recursos && analisis.recomendaciones_recursos.length > 0) {
+        html += `
+            <div class="ia-section mt-3">
+                <h5>📚 Recursos Recomendados</h5>
+                <ul>
+                    ${analisis.recomendaciones_recursos
+                        .map(rec => `<li>${rec}</li>`)
+                        .join('')}
+                </ul>
+            </div>`;
+}
     }
 
 /* --------------------------------------------------------------------------------------------------------------

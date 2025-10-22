@@ -69,7 +69,7 @@
                 {% for rep in reportes %}
                   <tr>
                     <td>{{ rep.nombre_reporte|default:"Informe.pdf" }}</td>
-                    <td>{{ rep.fecha_generado|date:"Y-m-d H:i" }}</td>
+                    <td>{{ rep.fecha_generado|default:""|slice:":19" }}</td>
                     <td>
                       <!-- Botón Ver -->
                       <button class="btn btn-outline-primary btn-sm ver-pdf-btn"
@@ -155,18 +155,36 @@
       });
 
       async function generarPdfBase64DesdeElemento(element, options = {}) {
-        // options: scaleReduction (0.5..1), imageQuality (0.5..1)
         const scale = options.scaleReduction || 0.8;
         const imageQuality = options.imageQuality || 0.7;
 
-        // crear canvas de html2canvas con scale reducido para disminuir tamaño
-        const canvas = await html2canvas(element, {
+        // Añadir encabezado con información del estudiante y fecha
+        const nombreEstudiante = "{{ nombre }} {{ apellido }}";
+        const fechaActual = new Date().toLocaleDateString("es-CL");
+
+        // Clonar contenido del análisis para evitar modificar el DOM real
+        const clone = element.cloneNode(true);
+
+        // Crear contenedor temporal para darle estilo
+        const wrapper = document.createElement("div");
+        wrapper.style.padding = "30px";
+        wrapper.style.fontFamily = "Arial, sans-serif";
+        wrapper.style.lineHeight = "1.5";
+        wrapper.innerHTML = `
+          <h2 style="text-align:center; color:#003366;">📘 Informe de Análisis Académico</h2>
+          <p style="text-align:center;">${nombreEstudiante} — ${fechaActual}</p>
+          <hr style="margin: 20px 0; border:1px solid #003366;">
+          ${clone.outerHTML}
+        `;
+
+        document.body.appendChild(wrapper);
+        const canvas = await html2canvas(wrapper, {
           scale: window.devicePixelRatio * scale,
           useCORS: true,
           logging: false
         });
+        document.body.removeChild(wrapper);
 
-        // generar JPEG para tamaño reducido
         const imgData = canvas.toDataURL('image/jpeg', imageQuality);
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'pt', 'a4');
@@ -174,11 +192,9 @@
         const imgProps = pdf.getImageProperties(imgData);
         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        // si el contenido excede una página (muy alto) podríamos dividir — por simplicidad asumimos 1 página
+
         const blob = pdf.output('blob');
-        // convertir blob -> base64 (sin encabezado data:)
-        const base64 = await blobToBase64(blob);
-        return base64;
+        return await blobToBase64(blob);
       }
 
       function blobToBase64(blob) {
@@ -242,6 +258,10 @@
           if (res.ok && data.success) {
             Swal.fire("✅ Guardado", "El informe se guardó correctamente en la base de datos.", "success");
             // opcional: mostrar enlace para ver o descargar (si lo deseas implementar)
+            // 🔄 Recargar tabla de informes automáticamente
+            setTimeout(() => {
+              location.reload();
+            }, 1500);
           } else {
             Swal.fire("❌ Error", data.error || "No se pudo guardar el informe.", "error");
           }
