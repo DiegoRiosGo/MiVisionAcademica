@@ -247,7 +247,7 @@ def InformeAlumno(request):
 
     # 2 Obtener lista de archivos del usuario
     try:
-        reportes = supabase.table("reportes").select("*").eq("estudiante_id", usuario_id).order("fecha_generado", desc=True).execute()
+        reportes = supabase.table("reporte").select("*").eq("estudiante_id", usuario_id).order("fecha_generado", desc=True).execute()
         lista_reportes = reportes.data or []
     except Exception as e:
         print("Error al obtener reportes:", e)
