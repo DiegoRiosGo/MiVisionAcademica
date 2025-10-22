@@ -229,31 +229,39 @@ def TestInterestAlumno(request):
 @login_requerido
 @solo_alumno
 def InformeAlumno(request):
-    # 1 Obtener el ID del usuario desde la sesión
     usuario_id = request.session.get('usuario_id')
 
-    # 2 Buscar la información completa del usuario en Supabase
     try:
+        # Obtener usuario (para mostrar nombre, apellido y foto)
         response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
         if not response.data:
             messages.error(request, "No se encontró la información del usuario.")
             return redirect('Inicio')
-
         usuario = response.data[0]
 
-        # 3 Preparar los datos para el template
-        contexto = {
-            "nombre": usuario.get("nombre", ""),
-            "apellido": usuario.get("apellido", ""),
-            "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
-        }
+        # Obtener estudiante
+        estudiante_resp = supabase.table("estudiante").select("estudiante_id").eq("usuario_id", usuario_id).execute()
+        if not estudiante_resp.data:
+            messages.error(request, "No se encontró información del estudiante.")
+            return redirect('Inicio')
+        estudiante_id = estudiante_resp.data[0]["estudiante_id"]
 
-        return render(request, 'Menu/vista_alumno/informe_alumno.html', contexto)
+        # Obtener informes guardados en la tabla "reporte"
+        reportes = supabase.table("reporte").select("*").eq("estudiante_id", estudiante_id).order("fecha_generado", desc=True).execute()
+        lista_reportes = reportes.data or []
 
     except Exception as e:
-        print("Error al obtener usuario:", e)
-        messages.error(request, "Hubo un problema al cargar tu información.")
-        return redirect('Inicio')
+        print("Error al obtener reportes:", e)
+        lista_reportes = []
+
+    contexto = {
+        "nombre": usuario.get("nombre", ""),
+        "apellido": usuario.get("apellido", ""),
+        "foto": usuario.get("foto", None),
+        "reportes": lista_reportes,
+    }
+
+    return render(request, 'Menu/vista_alumno/informes_alumno.html', contexto)
 
 
 # ---------------------------------------------------------------------

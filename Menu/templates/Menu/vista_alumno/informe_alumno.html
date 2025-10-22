@@ -48,25 +48,69 @@
       <!--apartado de informes-->
       <div class="content">
         <div class="topbar">
-        <h4>Informes Generados</h4>
+          <h4>Informes Generados</h4>
         </div>
-          <p>Aquí podrás ver todos tus informes guardados para poder visualizarlos y descargarlos</p>
-          <ul class="list-group mt-3">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Informe 1
-              <div>
-                <button class="btn btn-sm btn-view-custom me-1">Ver</button>
-                <button class="btn btn-sm btn-primary-custom">Descargar</button>
-              </div>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Informe 2
-              <div>
-                <button class="btn btn-sm btn-view-custom me-1">Ver</button>
-                <button class="btn btn-sm btn-primary-custom">Descargar</button>
-              </div>
-            </li>
-          </ul>
+
+        <p>Aquí podrás ver todos tus informes guardados para poder visualizarlos y descargarlos</p>
+
+        <div class="card mt-4 p-4">
+          <h5>Mis Informes</h5>
+
+          {% if reportes %}
+            <table class="table table-striped mt-3 align-middle text-center">
+              <thead class="table-primary">
+                <tr>
+                  <th>Nombre del Informe</th>
+                  <th>Fecha de Generación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rep in reportes %}
+                  <tr>
+                    <td>{{ rep.nombre_reporte|default:"Informe.pdf" }}</td>
+                    <td>{{ rep.fecha_generado|date:"Y-m-d H:i" }}</td>
+                    <td>
+                      <!-- Botón Ver -->
+                      <button class="btn btn-outline-primary btn-sm ver-pdf-btn"
+                              data-base64="{{ rep.file_reporte }}"
+                              data-nombre="{{ rep.nombre_reporte|default:'Informe.pdf' }}">
+                        <i class="fas fa-eye"></i> Ver
+                      </button>
+
+                      <!-- Botón Descargar -->
+                      <a href="data:application/pdf;base64,{{ rep.file_reporte }}"
+                        download="{{ rep.nombre_reporte|default:'Informe.pdf' }}"
+                        class="btn btn-outline-success btn-sm ms-2">
+                        <i class="fas fa-download"></i> Descargar
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted mt-2">Aún no has generado ningún informe.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- MODAL PARA VISUALIZAR PDF -->
+      <div class="modal fade" id="verPdfModal" tabindex="-1" aria-labelledby="verPdfModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="verPdfModalLabel">Visualizar Informe</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <iframe id="pdfViewer" src="" width="100%" height="600px" style="border:none;"></iframe>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!--ESTE ES LA ETAPA 2-->
@@ -80,6 +124,7 @@
         </div>
       </div>
       
+      <!--para analizar la IA y subir los pdfs-->
       <script>
       document.getElementById("btnPruebaIAFree").addEventListener("click", async () => {
         const btn = document.getElementById("btnPruebaIAFree");
@@ -211,6 +256,29 @@
       });
       </script>
 
+      <!--para visualizar los pdfs-->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      <script>
+        // Mostrar modal con PDF base64
+        document.addEventListener("DOMContentLoaded", function () {
+          const verBtns = document.querySelectorAll(".ver-pdf-btn");
+          const pdfViewer = document.getElementById("pdfViewer");
+
+          verBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+              const base64Data = btn.getAttribute("data-base64");
+              const nombreArchivo = btn.getAttribute("data-nombre") || "Informe.pdf";
+              const pdfUrl = `data:application/pdf;base64,${base64Data}`;
+
+              pdfViewer.src = pdfUrl;
+              document.getElementById("verPdfModalLabel").innerText = nombreArchivo;
+
+              const modal = new bootstrap.Modal(document.getElementById("verPdfModal"));
+              modal.show();
+            });
+          });
+        });
+      </script>
       <!--llamado al js de informe_alumno-->
       <script src="{% static 'assets/js/informe_alumno.js' %}"></script>
       
