@@ -15,6 +15,8 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <!-- TITULO BODY -->
 <body>
@@ -107,67 +109,110 @@
         }
       });
 
+      async function generarPdfBase64DesdeElemento(element, options = {}) {
+        // options: scaleReduction (0.5..1), imageQuality (0.5..1)
+        const scale = options.scaleReduction || 0.8;
+        const imageQuality = options.imageQuality || 0.7;
+
+        // crear canvas de html2canvas con scale reducido para disminuir tamaño
+        const canvas = await html2canvas(element, {
+          scale: window.devicePixelRatio * scale,
+          useCORS: true,
+          logging: false
+        });
+
+        // generar JPEG para tamaño reducido
+        const imgData = canvas.toDataURL('image/jpeg', imageQuality);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'pt', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        // si el contenido excede una página (muy alto) podríamos dividir — por simplicidad asumimos 1 página
+        const blob = pdf.output('blob');
+        // convertir blob -> base64 (sin encabezado data:)
+        const base64 = await blobToBase64(blob);
+        return base64;
+      }
+
+      function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            // reader.result = data:<mime>;base64,.... -> quitar prefijo
+            const s = reader.result;
+            const comma = s.indexOf(',');
+            if (comma >= 0) resolve(s.slice(comma+1));
+            else resolve(s);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      // Evento para guardar pdf en BD
       document.getElementById("btnGuardarPDF").addEventListener("click", async () => {
         const btn = document.getElementById("btnGuardarPDF");
         btn.disabled = true;
         btn.innerText = "Guardando...";
-
         try {
           const element = document.getElementById("iaResult");
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF("p", "pt", "a4");
+          if (!element || element.innerText.trim() === "") {
+            Swal.fire("Aviso", "No hay contenido para guardar. Ejecuta primero el análisis.", "info");
+            btn.disabled = false;
+            btn.innerText = "Guardar Informe como PDF";
+            return;
+          }
 
-          await html2canvas(element).then((canvas) => {
-            const imgData = canvas.toDataURL("image/png");
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-          });
+          // Generar PDF en base64 (JPEG dentro de pdf para reducir tamaño)
+          // Ajusta scaleReduction y imageQuality si aún queda muy grande
+          const pdfBase64 = await generarPdfBase64DesdeElemento(element, { scaleReduction: 0.8, imageQuality: 0.7 });
 
-          const pdfBlob = pdf.output("blob");
-          const pdfBase64 = await blobToBase64(pdfBlob);
-
-          const formData = new FormData();
-          formData.append("pdfBase64", pdfBase64);
-          formData.append("nombreReporte", "Informe_Academico_IA.pdf");
+          // Enviar JSON (evita multipart/form-data que provoca parseo multipart y puede disparar RequestDataTooBig)
+          const payload = {
+            pdfBase64,
+            nombreReporte: null   // el backend generará nombre con nombre+apellido+fecha+uuid
+          };
 
           const res = await fetch("{% url 'guardar_reporte_pdf' %}", {
             method: "POST",
-            headers: { "X-CSRFToken": "{{ csrf_token }}" },
-            body: formData
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify(payload)
           });
 
-          const data = await res.json();
-          if (data.success) {
+          // importante: si la respuesta no es json, mostrar error
+          const text = await res.text();
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            console.error("Respuesta no JSON:", text);
+            throw new Error("Respuesta inválida del servidor al guardar PDF.");
+          }
+
+          if (res.ok && data.success) {
             Swal.fire("✅ Guardado", "El informe se guardó correctamente en la base de datos.", "success");
+            // opcional: mostrar enlace para ver o descargar (si lo deseas implementar)
           } else {
             Swal.fire("❌ Error", data.error || "No se pudo guardar el informe.", "error");
           }
 
         } catch (err) {
-          Swal.fire("❌ Error", "Ocurrió un problema: " + err.message, "error");
+          console.error("Error guardando PDF:", err);
+          Swal.fire("❌ Error", "Ocurrió un problema: " + (err.message || err), "error");
         } finally {
           btn.disabled = false;
           btn.innerText = "Guardar Informe como PDF";
         }
       });
-
-      function blobToBase64(blob) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result.split(",")[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      }
       </script>
 
       <!--llamado al js de informe_alumno-->
       <script src="{% static 'assets/js/informe_alumno.js' %}"></script>
-      <!-- Librerías necesarias -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
       
       <!--mensajes emergentes-->
     {% if messages %}

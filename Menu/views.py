@@ -732,27 +732,43 @@ def analizar_perfil_ia_free(request):
         import re
 
         # Elimina tokens extra del modelo (como <s>, [/INST], ```json, ``` etc.)
-        cleaned = re.sub(r'(<s>|</s>|\\[/?INST\\]|```json|```)', '', content)
-        cleaned = cleaned.strip()
+        def extract_json_from_text(s):
+            # Primero eliminar tokens comunes
+            s = re.sub(r'(<s>|</s>|\[/?INST\]|```json|```|\\n\\n|\\n)', '', s)
+            s = s.strip()
+            # buscar primer '{' y hacer balance de llaves para extraer bloque JSON completo
+            start = s.find('{')
+            if start == -1:
+                return None
+            depth = 0
+            for i in range(start, len(s)):
+                if s[i] == '{':
+                    depth += 1
+                elif s[i] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        candidate = s[start:i+1]
+                        try:
+                            return json.loads(candidate)
+                        except Exception:
+                            # si falla, continuar buscando (por si hay otro bloque más adelante)
+                            continue
+            return None
 
-        # Si hay texto antes del JSON (por ejemplo "El análisis es:"), lo recorta hasta el primer '{'
-        if "{" in cleaned:
-            cleaned = cleaned[cleaned.find("{"):]
+        # use extractor
+        content_raw = content if isinstance(content, str) else str(content)
+        result_json = extract_json_from_text(content_raw)
 
-        print("🧹 Texto limpio IA:", cleaned[:200])
-
-            
-        # Intenta parsear el JSON
-        try:
-            result_json = json.loads(cleaned)
-        except json.JSONDecodeError as e:
-            print("⚠️ Error al parsear JSON, contenido recibido:", cleaned[:300])
-            # Si aún no es JSON válido, encapsulamos el texto como resumen
+        if result_json is None:
+            # fallback heurístico: si el modelo devolvió algo legible, lo ponemos en resumen_corto
+            cleaned = re.sub(r'\s+', ' ', content_raw).strip()
             result_json = {
-                "resumen_corto": cleaned,
                 "fortalezas": [],
                 "debilidades": [],
                 "recomendaciones": [],
+                "recomendaciones_laborales": [],
+                "herramietas_de_mejora": [],
+                "resumen_corto": cleaned,
                 "recomendaciones_recursos": []
             }
 
@@ -762,71 +778,6 @@ def analizar_perfil_ia_free(request):
 
     # Devolver resultado al front sin guardar aún
     return JsonResponse({"success": True, "analisis": result_json})
-
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from io import BytesIO
-
-@login_requerido
-@solo_alumno
-def guardar_reporte_pdf(request):
-    """
-    Genera un PDF desde el análisis de IA y lo guarda en Supabase (tabla reporte)
-    """
-    if request.method != "POST":
-        return JsonResponse({"error": "Método no permitido"}, status=405)
-
-    usuario_id = request.session.get("usuario_id")
-    if not usuario_id:
-        return JsonResponse({"error": "Sesión no válida"}, status=403)
-
-    try:
-        # Leer contenido enviado desde JS
-        body = json.loads(request.body)
-        analisis_texto = body.get("analisis", "").strip()
-        if not analisis_texto:
-            return JsonResponse({"error": "No se recibió el contenido del análisis"}, status=400)
-
-        # --- Crear PDF en memoria ---
-        buffer = BytesIO()
-        pdf = canvas.Canvas(buffer, pagesize=letter)
-        pdf.setTitle("Informe de Análisis IA")
-
-        # Formato básico
-        pdf.setFont("Helvetica-Bold", 14)
-        pdf.drawString(50, 750, "Informe de Análisis de IA")
-        pdf.setFont("Helvetica", 10)
-
-        # Escribir texto con saltos de línea
-        y = 730
-        for linea in analisis_texto.splitlines():
-            if y < 50:  # salto de página
-                pdf.showPage()
-                pdf.setFont("Helvetica", 10)
-                y = 750
-            pdf.drawString(50, y, linea)
-            y -= 14
-
-        pdf.save()
-        buffer.seek(0)
-        pdf_bytes = buffer.read()
-        pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
-
-        # --- Guardar en Supabase ---
-        fecha_actual = datetime.now().isoformat()
-        data = {
-            "estudiante_id": usuario_id,
-            "contenido": pdf_base64,
-            "fecha_generado": fecha_actual
-        }
-        supabase.table("reporte").insert(data).execute()
-
-        return JsonResponse({"success": True, "mensaje": "Reporte guardado correctamente."})
-
-    except Exception as e:
-        print("❌ Error en guardar_reporte_pdf:", traceback.format_exc())
-        return JsonResponse({"error": "Ocurrió un error al generar o guardar el PDF."}, status=500)
-
 
 
 from io import BytesIO
@@ -905,26 +856,51 @@ from django.utils.timezone import now
 @csrf_exempt
 def guardar_reporte_pdf(request):
     if request.method != "POST":
-        return JsonResponse({"success": False, "error": "Método no permitido."})
-
+        return JsonResponse({"success": False, "error": "Método no permitido."}, status=405)
     try:
+        # leer JSON body
+        try:
+            payload = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            return JsonResponse({"success": False, "error": "Payload inválido (no JSON)."}, status=400)
+
+        pdf_base64 = payload.get("pdfBase64")
+        nombre_reporte = payload.get("nombreReporte")  # puede venir null
+
         usuario_id = request.session.get("usuario_id")
-        pdf_base64 = request.POST.get("pdfBase64")
-        nombre_reporte = request.POST.get("nombreReporte", f"Reporte_{uuid.uuid4().hex[:8]}.pdf")
+        if not usuario_id:
+            return JsonResponse({"success": False, "error": "Sesión inválida."}, status=403)
 
         if not pdf_base64:
-            return JsonResponse({"success": False, "error": "No se recibió el archivo PDF."})
+            return JsonResponse({"success": False, "error": "No se recibió el archivo PDF."}, status=400)
 
-        # Convertir base64 a bytes y generar hash
-        pdf_bytes = base64.b64decode(pdf_base64)
+        # decodificar a bytes y calcular hash
+        try:
+            pdf_bytes = base64.b64decode(pdf_base64)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": "Base64 inválido."}, status=400)
+
         file_hash = hashlib.sha256(pdf_bytes).hexdigest()
 
-        # Verificar duplicados por hash
+        # verificar duplicado por hash en file_reporte
         existing = supabase.table("reporte").select("reporte_id").eq("file_reporte", file_hash).execute()
         if existing.data:
-            return JsonResponse({"success": False, "error": "Este informe ya fue guardado."})
+            return JsonResponse({"success": False, "error": "Este informe ya existe en la base de datos."}, status=409)
 
-        # Guardar en tabla reporte
+        # generar nombre si no viene
+        if not nombre_reporte:
+            # obtener nombre y apellido del usuario
+            resp_user = supabase.table("usuario").select("nombre,apellido").eq("usuario_id", usuario_id).execute()
+            nombre = ""
+            apellido = ""
+            if resp_user.data:
+                nombre = resp_user.data[0].get("nombre", "").replace(" ", "_")
+                apellido = resp_user.data[0].get("apellido", "").replace(" ", "_")
+            fecha = now().date().isoformat()
+            short = uuid.uuid4().hex[:6]
+            nombre_reporte = f"Informe_{nombre}_{apellido}_{fecha}_{short}.pdf"
+
+        # almacenar en la tabla reporte
         supabase.table("reporte").insert({
             "estudiante_id": usuario_id,
             "ruta_contenido": pdf_base64,
@@ -933,10 +909,10 @@ def guardar_reporte_pdf(request):
             "file_reporte": file_hash
         }).execute()
 
-        return JsonResponse({"success": True})
+        return JsonResponse({"success": True, "nombre_reporte": nombre_reporte})
 
     except Exception as e:
-        print("❌ Error al guardar reporte:", e)
-        return JsonResponse({"success": False, "error": str(e)})
+        print("❌ Error guardar_reporte_pdf:", e)
+        return JsonResponse({"success": False, "error": "Error interno al guardar el informe."}, status=500)
 
 

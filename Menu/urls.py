@@ -28,7 +28,6 @@ urlpatterns = [
 
     path("analizar_perfil_ia_free/", views.analizar_perfil_ia_free, name="analizar_perfil_ia_free"),
 
-    path("guardar_reporte_pdf/", views.guardar_reporte_pdf, name="guardar_reporte_pdf"),
 
     path('generar_pdf_informe/', views.generar_pdf_informe, name='generar_pdf_informe'),
     path('guardar_reporte_pdf/', views.guardar_reporte_pdf, name='guardar_reporte_pdf'),
