@@ -31,4 +31,5 @@ urlpatterns = [
     path("guardar_reporte_pdf/", views.guardar_reporte_pdf, name="guardar_reporte_pdf"),
 
     path('generar_pdf_informe/', views.generar_pdf_informe, name='generar_pdf_informe'),
+    path('guardar_reporte_pdf/', views.guardar_reporte_pdf, name='guardar_reporte_pdf'),
 ] 

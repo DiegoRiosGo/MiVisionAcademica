@@ -92,47 +92,6 @@
     }
     }
 
-
-// ================================
-//  GUARDAR INFORME COMO PDF
-// ================================
-document.getElementById("btnGuardarPDF").addEventListener("click", async () => {
-  const analisis = document.getElementById("outputIAFree").textContent.trim();
-  if (!analisis) {
-    Swal.fire("Sin datos", "Primero ejecuta el análisis con la IA.", "warning");
-    return;
-  }
-
-  Swal.fire({
-    title: "Generando PDF...",
-    text: "Por favor espera mientras se crea y guarda el informe.",
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-  });
-
-  try {
-    const res = await fetch("{% url 'guardar_reporte_pdf' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": "{{ csrf_token }}",
-      },
-      body: JSON.stringify({ analisis }),
-    });
-
-    const data = await res.json();
-    Swal.close();
-
-    if (data.success) {
-      Swal.fire("✅ Éxito", "El informe fue generado y guardado correctamente.", "success");
-    } else {
-      Swal.fire("❌ Error", data.error || "Ocurrió un problema al guardar el informe.", "error");
-    }
-  } catch (err) {
-    Swal.close();
-    Swal.fire("Error de conexión", err.message, "error");
-  }
-});
 /* --------------------------------------------------------------------------------------------------------------
    ---------------------------------------- FIN informe_alumno .JS ----------------------------------------------
    -------------------------------------------------------------------------------------------------------------- */

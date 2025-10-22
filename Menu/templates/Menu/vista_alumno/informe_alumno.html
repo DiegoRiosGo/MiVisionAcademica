@@ -79,74 +79,96 @@
       </div>
       
       <script>
-      document.getElementById("btnGuardarPDF").addEventListener("click", async () => {
-        const output = document.getElementById("outputIAFree").textContent;
-        if (!output.trim()) {
-          Swal.fire("Error", "Primero ejecuta la IA antes de generar el PDF.", "warning");
-          return;
-        }
+      document.getElementById("btnPruebaIAFree").addEventListener("click", async () => {
+        const btn = document.getElementById("btnPruebaIAFree");
+        const out = document.getElementById("outputIAFree");
+        btn.disabled = true;
+        btn.innerText = "Generando análisis...";
 
         try {
-          const analisis = JSON.parse(output);
-          Swal.fire({
-            title: "Generando PDF...",
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
+          const res = await fetch("{% url 'analizar_perfil_ia_free' %}", { 
+            method: "POST", 
+            headers: { "X-CSRFToken": "{{ csrf_token }}" } 
           });
+          const data = await res.json();
 
-          const res = await fetch("{% url 'generar_pdf_informe' %}", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify({ analisis })
-          });
-
-          if (!res.ok) throw new Error("Error al generar el PDF");
-          const blob = await res.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "Informe_Academico.pdf";
-          a.click();
-          window.URL.revokeObjectURL(url);
-          Swal.close();
-          Swal.fire("Listo", "El informe PDF se generó correctamente.", "success");
+          if (data.success) {
+            out.textContent = JSON.stringify(data.analisis, null, 2);
+            renderAnalisisIA(data.analisis);  // 👈 Renderiza las tarjetas
+            document.getElementById("btnGuardarPDF").disabled = false;
+          } else {
+            out.textContent = "🔴 Error: " + (data.error || "desconocido");
+          }
         } catch (err) {
-          Swal.fire("Error", err.message, "error");
+          out.textContent = "🔴 Error de conexión: " + err.message;
+        } finally {
+          btn.disabled = false;
+          btn.innerText = "Ejecutar IA";
         }
       });
-      </script>
-      <!--ESTE ES LA ETAPA 2-->
-      <script>
-        document.getElementById("btnPruebaIAFree").addEventListener("click", async () => {
-          const btn = document.getElementById("btnPruebaIAFree");
-          const out = document.getElementById("outputIAFree");
-          btn.disabled = true;
-          btn.innerText = "Generando análisis...";
 
-          try {
-            const res = await fetch("{% url 'analizar_perfil_ia_free' %}", { method: "POST", headers: { "X-CSRFToken": "{{ csrf_token }}" } });
-            const data = await res.json();
-            if (data.success) {
-              out.textContent = JSON.stringify(data.analisis, null, 2);
-              document.getElementById("btnGuardarPDF").disabled = false;
-            } else {
-              out.textContent = "🔴 Error: " + (data.error || "desconocido");
-            }
-          } catch (err) {
-            out.textContent = "🔴 Error de conexión: " + err.message;
-          } finally {
-            btn.disabled = false;
-            btn.innerText = "Ejecutar IA";
+      document.getElementById("btnGuardarPDF").addEventListener("click", async () => {
+        const btn = document.getElementById("btnGuardarPDF");
+        btn.disabled = true;
+        btn.innerText = "Guardando...";
+
+        try {
+          const element = document.getElementById("iaResult");
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF("p", "pt", "a4");
+
+          await html2canvas(element).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+          });
+
+          const pdfBlob = pdf.output("blob");
+          const pdfBase64 = await blobToBase64(pdfBlob);
+
+          const formData = new FormData();
+          formData.append("pdfBase64", pdfBase64);
+          formData.append("nombreReporte", "Informe_Academico_IA.pdf");
+
+          const res = await fetch("{% url 'guardar_reporte_pdf' %}", {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            body: formData
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            Swal.fire("✅ Guardado", "El informe se guardó correctamente en la base de datos.", "success");
+          } else {
+            Swal.fire("❌ Error", data.error || "No se pudo guardar el informe.", "error");
           }
+
+        } catch (err) {
+          Swal.fire("❌ Error", "Ocurrió un problema: " + err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerText = "Guardar Informe como PDF";
+        }
+      });
+
+      function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
         });
+      }
       </script>
 
       <!--llamado al js de informe_alumno-->
       <script src="{% static 'assets/js/informe_alumno.js' %}"></script>
-
+      <!-- Librerías necesarias -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+      
       <!--mensajes emergentes-->
     {% if messages %}
       {% for message in messages %}

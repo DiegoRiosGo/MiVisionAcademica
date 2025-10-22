@@ -895,6 +895,48 @@ def generar_pdf_informe(request):
 
 
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import base64, hashlib, uuid
+from django.utils.timezone import now
 
+@login_requerido
+@solo_alumno
+@csrf_exempt
+def guardar_reporte_pdf(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Método no permitido."})
+
+    try:
+        usuario_id = request.session.get("usuario_id")
+        pdf_base64 = request.POST.get("pdfBase64")
+        nombre_reporte = request.POST.get("nombreReporte", f"Reporte_{uuid.uuid4().hex[:8]}.pdf")
+
+        if not pdf_base64:
+            return JsonResponse({"success": False, "error": "No se recibió el archivo PDF."})
+
+        # Convertir base64 a bytes y generar hash
+        pdf_bytes = base64.b64decode(pdf_base64)
+        file_hash = hashlib.sha256(pdf_bytes).hexdigest()
+
+        # Verificar duplicados por hash
+        existing = supabase.table("reporte").select("reporte_id").eq("file_reporte", file_hash).execute()
+        if existing.data:
+            return JsonResponse({"success": False, "error": "Este informe ya fue guardado."})
+
+        # Guardar en tabla reporte
+        supabase.table("reporte").insert({
+            "estudiante_id": usuario_id,
+            "ruta_contenido": pdf_base64,
+            "fecha_generado": now().isoformat(),
+            "nombre_reporte": nombre_reporte,
+            "file_reporte": file_hash
+        }).execute()
+
+        return JsonResponse({"success": True})
+
+    except Exception as e:
+        print("❌ Error al guardar reporte:", e)
+        return JsonResponse({"success": False, "error": str(e)})
 
 
