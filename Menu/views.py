@@ -261,7 +261,7 @@ def InformeAlumno(request):
         "reportes": lista_reportes,
     }
 
-    return render(request, 'Menu/vista_alumno/informes_alumno.html', contexto)
+    return render(request, 'Menu/vista_alumno/informe_alumno.html', contexto)
 
 
 # ---------------------------------------------------------------------
