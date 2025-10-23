@@ -831,6 +831,8 @@ def analizar_perfil_ia_free(request):
             f"🎯 TEST DE INTERESES (resumen):\n{resumen_test or 'Sin respuestas registradas.'}\n\n"
             f"🧠 RETROALIMENTACIÓN DOCENTE:\n{resumen_comentarios}\n\n"
             "Con toda esta información, genera un análisis integral del perfil académico del estudiante."
+            "Analiza y devuelve en JSON exactamente como: "
+            '{"fortalezas":[],"debilidades":[],"recomendaciones":[],"recomendaciones_laborales":[],"herramietas_de_mejora":[],"resumen_corto":"","recomendaciones_recursos":[]}'
         )
 
         # === 5️⃣ Llamada al modelo IA ===
@@ -854,14 +856,17 @@ def analizar_perfil_ia_free(request):
 
         r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=60)
         r.raise_for_status()
-
+        print("🟢 Respuesta completa IA:", r.text[:1000])
+        
         data = r.json()
         content = data["choices"][0]["message"]["content"].strip()
+        print("📄 Contenido IA:", content[:300])
 
         # === 6️⃣ Limpiar y parsear el JSON ===
         import re
         def extract_json(s):
-            s = re.sub(r'(```json|```|<s>|</s>|\[/?INST\]|\\n)', '', s).strip()
+            s = re.sub(r'(<s>|</s>|\[/?INST\]|```json|```|\\n\\n|\\n)', '', s)
+            s = s.strip()
             try:
                 start = s.find('{')
                 end = s.rfind('}') + 1
