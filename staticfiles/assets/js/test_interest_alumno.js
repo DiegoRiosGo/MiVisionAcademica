@@ -39,53 +39,86 @@
 //TITULO FORMULARIO DE INTERES   
 
     document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("testForm");
+        const form = document.getElementById("testForm");
+        if (!form) return;
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
 
-        // Validar preguntas abiertas
-        const textareas = form.querySelectorAll("textarea[required]");
-        for (const textarea of textareas) {
-        if (!textarea.value.trim()) {
-            Swal.fire("Falta responder", "Por favor completa todas las respuestas abiertas.", "warning");
-            textarea.focus();
+            const missing = [];
+
+            // 1) Validar textareas obligatorios
+            const textareas = form.querySelectorAll("textarea[required]");
+            textareas.forEach((ta, idx) => {
+            if (!ta.value.trim()) {
+                // Obtenemos el texto de la pregunta (el <p> anterior)
+                const p = ta.closest(".pregunta")?.querySelector("p");
+                missing.push(p ? p.innerText.trim() : `Pregunta abierta #${idx+1}`);
+            }
+            });
+
+            // 2) Validar grupos de radio/checkbox
+            // Lista de names esperados (según tu HTML)
+            const grupos = [
+            { name: "interes[]", tipo: "checkbox", label: "1. ¿En qué tipo de asignaturas sientes que desarrollas mejor tus habilidades?" },
+            { name: "dificultad", tipo: "radio", label: "2. ¿En cuál de estas asignaturas sientes mayor dificultad?" },
+            { name: "contenido[]", tipo: "checkbox", label: "3. ¿Qué tipo de contenido te resulta más útil para aprender?" },
+            { name: "area[]", tipo: "checkbox", label: "4. ¿Qué área profesional te atrae más?" },
+            { name: "acompanamiento[]", tipo: "checkbox", label: "5. ¿Qué tipo de acompañamiento académico valoras más?" },
+            { name: "claridad", tipo: "radio", label: "6. ¿Qué tan claro tienes tu camino profesional?" },
+            { name: "motivacion[]", tipo: "checkbox", label: "7. ¿Qué te motiva más a mejorar tu rendimiento académico?" },
+            { name: "frecuencia", tipo: "radio", label: "8. ¿Con qué frecuencia revisas tus notas y avances académicos?" },
+            { name: "profesional[]", tipo: "checkbox", label: "9. ¿Qué tipo de profesional te gustaría llegar a ser según tus gustos e intereses?" },
+            { name: "certificacion[]", tipo: "checkbox", label: "10. ¿Qué tipo de certificación te gustaría obtener al finalizar la carrera?" }
+            ];
+
+            grupos.forEach(g => {
+            // querySelectorAll por name exacto; si tu HTML usa name sin [], probamos ambos
+            let inputs = Array.from(form.querySelectorAll(`[name="${g.name}"]`));
+            if (!inputs.length) {
+                const alt = g.name.replace("[]", "");
+                inputs = Array.from(form.querySelectorAll(`[name="${alt}"]`));
+            }
+
+            if (!inputs.length) {
+                // si no encuentra inputs, ignora (evita falsos positivos)
+                return;
+            }
+
+            const anyChecked = inputs.some(i => i.checked);
+            if (!anyChecked) {
+                missing.push(g.label);
+            }
+            });
+
+            if (missing.length > 0) {
+            // Mostrar listado claro de preguntas faltantes
+            const html = `<strong>Por favor responde las siguientes preguntas obligatorias:</strong><ul style="text-align:left;">` +
+                        missing.map(m => `<li>${m}</li>`).join("") + `</ul>`;
+            Swal.fire({
+                icon: "warning",
+                title: "Faltan respuestas",
+                html: html,
+                width: 600
+            });
             return;
-        }
-        }
+            }
 
-        // Validar preguntas cerradas (radio o checkbox)
-        const groups = {};
-        form.querySelectorAll("input[type=radio], input[type=checkbox]").forEach((input) => {
-        const name = input.name;
-        if (!groups[name]) groups[name] = [];
-        groups[name].push(input);
+            // Confirmación y envío
+            Swal.fire({
+            title: "¿Deseas enviar el test?",
+            text: "Una vez enviado no podrás modificar tus respuestas.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Sí, enviar",
+            cancelButtonText: "Cancelar"
+            }).then((res) => {
+            if (res.isConfirmed) {
+                form.submit();
+            }
+            });
         });
-
-        for (const [name, inputs] of Object.entries(groups)) {
-        const checked = inputs.some((i) => i.checked);
-        if (!checked) {
-            Swal.fire("Falta responder", "Por favor selecciona una opción en todas las preguntas.", "warning");
-            inputs[0].focus();
-            return;
-        }
-        }
-
-        // Confirmación de envío
-        Swal.fire({
-        title: "¿Deseas enviar el test?",
-        text: "Una vez enviado no podrás modificar tus respuestas.",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Sí, enviar",
-        cancelButtonText: "Cancelar",
-        }).then((result) => {
-        if (result.isConfirmed) {
-            form.submit(); // Envío final
-        }
         });
-    });
-    });
 
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .JS ------------------------------------------

@@ -227,28 +227,85 @@ def TestInterestAlumno(request):
             messages.error(request, "Hubo un problema al cargar tu información.")
             return redirect('Inicio')
 
-        # --- Si se envía el formulario ---
+        # MAPPING: nombre de campo -> texto de la pregunta (tal como aparecen en el HTML)
+        pregunta_map = {
+            "abierta1": "1. ¿Qué asignatura te ha parecido más importante o interesante en tu carrera, y por qué?",
+            "abierta2": "2. ¿Qué tipo de trabajo te gustaría desempeñar al egresar de la carrera?",
+            "abierta3": "3. ¿Qué habilidades técnicas sientes que dominas mejor?",
+            "abierta4": "4. ¿Qué habilidades blandas crees que necesitas fortalecer?",
+            "abierta5": "5. ¿Cómo te gustaría aplicar tus conocimientos en el mundo laboral?",
+            "abierta6": "6. ¿Qué tipo de proyectos te gustaría desarrollar en el futuro?",
+            "abierta7": "7. ¿Qué te motiva a seguir aprendiendo dentro de tu carrera?",
+            "abierta8": "8. ¿Qué aspectos de tu rendimiento académico te gustaría mejorar?",
+            "abierta9": "9. ¿Qué forma de enseñanza te ayuda más a aprender y sentirte motivado/a?",
+            "abierta10": "10. ¿Qué áreas de la informática te generan más curiosidad o entusiasmo?",
+            # campos múltiples (checkboxes) -> las llaves son exactamente los name en el HTML
+            "interes[]": "Pregunta cerrada 1 - ¿En qué tipo de asignaturas sientes que desarrollas mejor tus habilidades?",
+            "dificultad": "Pregunta cerrada 2 - ¿En cuál de estas asignaturas sientes mayor dificultad?",
+            "contenido[]": "Pregunta cerrada 3 - ¿Qué tipo de contenido te resulta más útil para aprender?",
+            "area[]": "Pregunta cerrada 4 - ¿Qué área profesional te atrae más?",
+            "acompanamiento[]": "Pregunta cerrada 5 - ¿Qué tipo de acompañamiento académico valoras más?",
+            "claridad": "Pregunta cerrada 6 - ¿Qué tan claro tienes tu camino profesional?",
+            "motivacion[]": "Pregunta cerrada 7 - ¿Qué te motiva más a mejorar tu rendimiento académico?",
+            "frecuencia": "Pregunta cerrada 8 - ¿Con qué frecuencia revisas tus notas y avances académicos?",
+            "profesional[]": "Pregunta cerrada 9 - ¿Qué tipo de profesional te gustaría llegar a ser según tus gustos e intereses?",
+            "certificacion[]": "Pregunta cerrada 10 - ¿Qué tipo de certificación te gustaría obtener al finalizar la carrera?"
+        }
+
         if request.method == "POST":
             try:
-                respuestas = {}
-                for key, value in request.POST.items():
-                    if key not in ["csrfmiddlewaretoken"]:
-                        respuestas[key] = value
+                # Armar dict de resultados:
+                resultado_obj = {}
 
-                # Convertir respuestas a formato pregunta: respuesta
-                resultado = ", ".join([f"{pregunta}: {respuesta}" for pregunta, respuesta in respuestas.items()])
+                # Para campos tipo lista: usamos getlist; para simples: get
+                for key, pregunta_text in pregunta_map.items():
+                    # si el name termina con [] tratamos como lista (checkboxes)
+                    if key.endswith("[]"):
+                        # Django recibe la llave exactamente como 'interes[]' si el name está así
+                        valores = request.POST.getlist(key)
+                        # También por compatibilidad si el form en el frontend envía sin '[]', probar sin corchetes
+                        if not valores:
+                            alt_key = key.replace("[]", "")
+                            valores = request.POST.getlist(alt_key)
+                        # quitar strings vacíos y strip
+                        valores = [v.strip() for v in valores if v and v.strip()]
+                        resultado_obj[pregunta_text] = valores
+                    else:
+                        # campo único (text o radio)
+                        val = request.POST.get(key, "").strip()
+                        # si está vacío, intento con nombre alternativo (por si el HTML cambia)
+                        if not val:
+                            alt_key = key + "[]"
+                            alt_val = request.POST.get(alt_key, "").strip()
+                            if alt_val:
+                                val = alt_val
+                        resultado_obj[pregunta_text] = val
 
-                # Insertar en Supabase
-                from datetime import datetime
-                fecha_actual = datetime.now().isoformat()
+                # Validación servidor: asegurarnos que no haya campos vacíos
+                faltantes = []
+                for pregunta, resp in resultado_obj.items():
+                    if isinstance(resp, list):
+                        if len(resp) == 0:
+                            faltantes.append(pregunta)
+                    else:
+                        if not resp:
+                            faltantes.append(pregunta)
 
-                data = {
+                if faltantes:
+                    # devolver mensaje amigable
+                    mensajes = "\n".join([f"- {p}" for p in faltantes])
+                    messages.error(request, f"Faltan respuestas obligatorias en las siguientes preguntas:\n{mensajes}")
+                    return redirect("test_interest_alumno")
+
+                # Convertimos el objeto a JSON para almacenarlo (texto)
+                resultado_json = json.dumps(resultado_obj, ensure_ascii=False)
+
+                # Insert en Supabase
+                supabase.table("test_interes").insert({
                     "estudiante_id": usuario_id,
-                    "fecha_realizacion": fecha_actual,
-                    "resultado": resultado
-                }
-
-                supabase.table("test_interes").insert(data).execute()
+                    "fecha_realizacion": datetime.now().isoformat(),
+                    "resultado": resultado_json
+                }).execute()
 
                 messages.success(request, "✅ Tu test se ha enviado correctamente.")
                 return redirect("test_interest_alumno")
@@ -258,7 +315,7 @@ def TestInterestAlumno(request):
                 messages.error(request, "Ocurrió un error al guardar tus respuestas.")
                 return redirect("test_interest_alumno")
 
-        # --- Render normal (GET) ---
+        # GET -> render
         contexto = {
             "nombre": usuario.get("nombre", ""),
             "apellido": usuario.get("apellido", ""),
