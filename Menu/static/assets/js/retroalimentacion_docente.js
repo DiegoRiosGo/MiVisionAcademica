@@ -247,9 +247,10 @@ document.addEventListener("DOMContentLoaded", () => {
       ev.preventDefault();
       const docente_id = feedbackForm.dataset.docenteId || null;
       const estudiante_id = estudianteSelect ? estudianteSelect.value : null;
+      const asignatura_id = asignaturaSelect ? asignaturaSelect.value : null;
       const contenido = feedbackTextarea ? feedbackTextarea.value.trim() : "";
 
-      if (!docente_id || !estudiante_id || !contenido) {
+      if (!docente_id || !estudiante_id || !contenido || !asignatura_id) {
         Swal.fire("Atención", "Selecciona todos los campos y escribe la retroalimentación.", "warning");
         return;
       }
@@ -258,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("/guardar_comentario_docente/", {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-          body: JSON.stringify({ docente_id, estudiante_id, contenido }),
+          body: JSON.stringify({ docente_id, estudiante_id, contenido, asignatura_id }),
         });
         const data = await res.json();
         if (data.success) {

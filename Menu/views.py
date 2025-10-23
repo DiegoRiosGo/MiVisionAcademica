@@ -808,11 +808,12 @@ def analizar_perfil_ia_free(request):
 
         # === 3️⃣ Obtener retroalimentaciones del docente ===
         resp_comentarios = supabase.table("comentario_docente") \
-            .select("contenido,fecha") \
+            .select("contenido,fecha,asignatura(nombre_asignatura)") \
             .eq("estudiante_id", usuario_id).order("fecha", desc=True).execute()
         comentarios = resp_comentarios.data or []
         resumen_comentarios = "\n".join([
-            f"{c['fecha'][:10]}: {c['contenido']}" for c in comentarios
+            f"{c['fecha'][:10]} - {c.get('asignatura', {}).get('nombre_asignatura', 'Asignatura desconocida')}: {c['contenido']}"
+            for c in comentarios
         ]) or "Sin retroalimentaciones registradas."
 
         # === 4️⃣ Construir el prompt completo ===
@@ -857,7 +858,7 @@ def analizar_perfil_ia_free(request):
         r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=60)
         r.raise_for_status()
         print("🟢 Respuesta completa IA:", r.text[:1000])
-        
+
         data = r.json()
         content = data["choices"][0]["message"]["content"].strip()
         print("📄 Contenido IA:", content[:300])
@@ -886,7 +887,9 @@ def analizar_perfil_ia_free(request):
                 "recomendaciones_recursos": []
             }
 
-        return JsonResponse({"success": True, "analisis": analisis_json})
+        return JsonResponse({"success": True, "analisis": analisis_json, "resumen_test": resumen_test or "Sin respuestas registradas.",
+    "resumen_comentarios": resumen_comentarios or "Sin retroalimentaciones registradas.",
+    "resumen_notas": resumen_notas})
 
     except Exception as e:
         print("❌ Error en analizar_perfil_ia_free:", e)
@@ -1133,13 +1136,17 @@ def guardar_comentario_docente(request):
         docente_id = data.get("docente_id")
         estudiante_id = data.get("estudiante_id")
         contenido = data.get("contenido")
+        asignatura_id = data.get("asignatura_id")
 
         if not (docente_id and estudiante_id and contenido):
             return JsonResponse({"success": False, "error": "Faltan datos requeridos."}, status=400)
 
+        
+
         supabase.table("comentario_docente").insert({
             "docente_id": int(docente_id),
             "estudiante_id": int(estudiante_id),
+            "asignatura_id": int(asignatura_id),
             "contenido": contenido,
             "fecha": datetime.now().isoformat()
         }).execute()
