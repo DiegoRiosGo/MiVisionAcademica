@@ -10,44 +10,6 @@
 
     //personalizacion de tabs
 
-    /*
-        const lineChart = new Chart(lineCtx, {
-        type: 'line',
-        data: {
-            labels: ['Semestre I','II','III','IV','V','VI','VII','VIII'],
-            datasets: [{
-            label: 'Notas por Semestre',
-            data: [],
-            borderColor: '#5d2fb2',
-            backgroundColor: '#9c7fdc',
-            fill: false
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-        });
-
-        const radarChart = new Chart(radarCtx, {
-        type: 'radar',
-        data: {
-            labels: radarLabels,
-            datasets: [{
-            label: 'Certificados',
-            data: [1, 2, 3, 4, 5, 6, 7],
-            backgroundColor: 'rgba(124,96,186,0.5)',
-            borderColor: '#7c60ba'
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-        });
-    */
-
-
-
-
-
-
-
-
 document.addEventListener("DOMContentLoaded", () => {
   const areaSelect = document.getElementById("subjectSelect");
   const asignaturaSelect = document.getElementById("asignaturaSelect");
@@ -236,8 +198,8 @@ document.addEventListener("DOMContentLoaded", () => {
             datasets: [{
               label: "Evolución de notas",
               data: valores,
-              borderColor: "#007bff",
-              backgroundColor: "rgba(0,123,255,0.1)",
+              borderColor: '#5d2fb2',
+              backgroundColor: '#9c7fdc',
               tension: 0.3,
               fill: true
             }]
@@ -254,11 +216,11 @@ document.addEventListener("DOMContentLoaded", () => {
             datasets: [{
               label: "Desempeño por asignatura",
               data: valores,
-              borderColor: "#28a745",
-              backgroundColor: "rgba(40,167,69,0.2)",
+              backgroundColor: 'rgba(124,96,186,0.5)',
+              borderColor: '#7c60ba'
             }]
           },
-          options: { responsive: true, scales: { r: { min: 0, max: 7 } } }
+          options: { responsive: true, scales: { r: { min: 2, max: 7 } } }
         });
 
       } catch (err) {

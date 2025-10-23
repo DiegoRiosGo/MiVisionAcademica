@@ -373,6 +373,7 @@ def RetroalimentacionDocente(request):
 
         # 3 Preparar los datos para el template
         contexto = {
+            "docente_id": usuario_id,
             "nombre": usuario.get("nombre", ""),
             "apellido": usuario.get("apellido", ""),
             "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
