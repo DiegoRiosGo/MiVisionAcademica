@@ -819,10 +819,13 @@ def analizar_perfil_ia_free(request):
         # === 4️⃣ Construir el prompt completo ===
         system_instruction = (
             "Eres un analista educativo experto en orientación académica y vocacional. "
-            "Analiza de forma integral la información del estudiante considerando su rendimiento (notas), "
-            "sus intereses personales (test_interes) y las observaciones docentes. "
-            "Responde **solo con un JSON válido**, sin comentarios ni formato Markdown. "
-            "Usa el siguiente formato exacto:\n"
+            "Tu prioridad principal es analizar el RENDIMIENTO ACADÉMICO del estudiante (notas y áreas de desempeño). "
+            "Usa los resultados del test de intereses y las observaciones docentes solo como información COMPLEMENTARIA "
+            "para contextualizar las notas, interpretar fortalezas, debilidades y potencial de mejora. "
+            "Si el estudiante presenta bajas notas pero evidencia esfuerzo o interés en mejorar, "
+            "valóralo positivamente y propón estrategias de apoyo personalizadas. "
+            "Devuelve tu respuesta **únicamente en JSON válido**, sin texto adicional ni formato Markdown. "
+            "Formato exacto:\n"
             "{\"fortalezas\":[],\"debilidades\":[],\"recomendaciones\":[],\"recomendaciones_laborales\":[],"
             "\"herramientas_de_mejora\":[],\"resumen_corto\":\"\",\"recomendaciones_recursos\":[]}"
         )
