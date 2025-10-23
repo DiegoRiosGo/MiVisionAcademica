@@ -55,6 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const estudianteSelect = document.getElementById("studentSelect");
   const feedbackForm = document.getElementById("feedbackForm");
   const feedbackTextarea = document.getElementById("feedback");
+  const resetBtn = document.getElementById("resetFilters");
+
+  // Gráficos globales
+  let lineChart = null;
+  let radarChart = null;
 
   // --- Helper CSRF ---
   function getCookie(name) {
@@ -76,6 +81,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Función para resetear selects dependientes ---
   function resetDependentSelects(select, message = "--") {
     if (select) select.innerHTML = `<option value="">${message}</option>`;
+  }
+
+  // --- Función para limpiar gráficos ---
+  function limpiarGraficos() {
+    if (lineChart) {
+      lineChart.destroy();
+      lineChart = null;
+    }
+    if (radarChart) {
+      radarChart.destroy();
+      radarChart = null;
+    }
   }
 
   // --- Cargar áreas al iniciar ---
@@ -102,6 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resetDependentSelects(asignaturaSelect, "Cargando...");
       resetDependentSelects(siglaSelect);
       resetDependentSelects(estudianteSelect);
+      limpiarGraficos();
 
       if (!area) {
         asignaturaSelect.innerHTML = '<option value="">Seleccione un área primero</option>';
@@ -111,10 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch("/obtener_asignaturas/", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-          },
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
           body: JSON.stringify({ area }),
         });
         const data = await res.json();
@@ -136,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const asignatura_id = asignaturaSelect.value;
       resetDependentSelects(siglaSelect, "Cargando...");
       resetDependentSelects(estudianteSelect);
+      limpiarGraficos();
 
       if (!asignatura_id) {
         siglaSelect.innerHTML = '<option value="">Seleccione asignatura primero</option>';
@@ -145,10 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch("/obtener_siglas/", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-          },
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
           body: JSON.stringify({ asignatura_id }),
         });
         const data = await res.json();
@@ -170,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const sigla = siglaSelect.value;
       const asignatura_id = asignaturaSelect ? asignaturaSelect.value : null;
       resetDependentSelects(estudianteSelect, "Cargando...");
+      limpiarGraficos();
 
       if (!sigla) {
         estudianteSelect.innerHTML = '<option value="">Seleccione una sigla primero</option>';
@@ -179,14 +193,8 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch("/obtener_estudiantes/", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-          },
-          body: JSON.stringify({
-            asignatura_id: asignatura_id || null,
-            sigla: sigla || null,
-          }),
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+          body: JSON.stringify({ asignatura_id: asignatura_id || null, sigla: sigla || null }),
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "Error al obtener estudiantes");
@@ -201,31 +209,94 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Cargar gráficos al seleccionar estudiante ---
+  if (estudianteSelect) {
+    estudianteSelect.addEventListener("change", async () => {
+      const estudiante_id = estudianteSelect.value;
+      const area = areaSelect.value;
+
+      limpiarGraficos();
+
+      if (!estudiante_id || !area) return;
+
+      try {
+        const res = await fetch(`/obtener_notas_estudiante_area/?estudiante_id=${estudiante_id}&area=${encodeURIComponent(area)}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || "Error al obtener notas");
+
+        const etiquetas = data.notas.map(n => n.nombre_asignatura);
+        const valores = data.notas.map(n => n.calificacion);
+
+        // --- Gráfico de línea ---
+        const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
+        lineChart = new Chart(ctxLine, {
+          type: "line",
+          data: {
+            labels: etiquetas,
+            datasets: [{
+              label: "Evolución de notas",
+              data: valores,
+              borderColor: "#007bff",
+              backgroundColor: "rgba(0,123,255,0.1)",
+              tension: 0.3,
+              fill: true
+            }]
+          },
+          options: { responsive: true, scales: { y: { beginAtZero: true, max: 7 } } }
+        });
+
+        // --- Gráfico de radar ---
+        const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
+        radarChart = new Chart(ctxRadar, {
+          type: "radar",
+          data: {
+            labels: etiquetas,
+            datasets: [{
+              label: "Desempeño por asignatura",
+              data: valores,
+              borderColor: "#28a745",
+              backgroundColor: "rgba(40,167,69,0.2)",
+            }]
+          },
+          options: { responsive: true, scales: { r: { min: 0, max: 7 } } }
+        });
+
+      } catch (err) {
+        console.error("Error generando gráficos:", err);
+      }
+    });
+  }
+
+  // --- Restablecer filtros ---
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      areaSelect.selectedIndex = 0;
+      resetDependentSelects(asignaturaSelect, "Seleccione asignatura");
+      resetDependentSelects(siglaSelect, "Seleccione sigla");
+      resetDependentSelects(estudianteSelect, "Seleccione estudiante");
+      feedbackTextarea.value = "";
+      limpiarGraficos();
+    });
+  }
+
   // --- Enviar retroalimentación ---
   if (feedbackForm) {
     feedbackForm.addEventListener("submit", async (ev) => {
       ev.preventDefault();
+      const docente_id = feedbackForm.dataset.docenteId || null;
       const estudiante_id = estudianteSelect ? estudianteSelect.value : null;
       const contenido = feedbackTextarea ? feedbackTextarea.value.trim() : "";
-      if (!estudiante_id || !contenido) {
-        Swal.fire("Atención", "Selecciona un estudiante y escribe la retroalimentación.", "warning");
+
+      if (!docente_id || !estudiante_id || !contenido) {
+        Swal.fire("Atención", "Selecciona todos los campos y escribe la retroalimentación.", "warning");
         return;
       }
-
-      const docente_id = feedbackForm.dataset.docenteId || null;
 
       try {
         const res = await fetch("/guardar_comentario_docente/", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-          },
-          body: JSON.stringify({
-            docente_id: docente_id,
-            estudiante_id: estudiante_id,
-            contenido: contenido,
-          }),
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+          body: JSON.stringify({ docente_id, estudiante_id, contenido }),
         });
         const data = await res.json();
         if (data.success) {

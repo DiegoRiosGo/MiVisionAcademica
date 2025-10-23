@@ -1043,3 +1043,32 @@ def guardar_comentario_docente(request):
     except Exception as e:
         print("Error guardando comentario:", e)
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+    
+
+@csrf_exempt
+def obtener_notas_estudiante_area(request):
+    """Devuelve las notas del estudiante filtradas por área."""
+    try:
+        estudiante_id = request.GET.get("estudiante_id")
+        area = request.GET.get("area")
+
+        if not estudiante_id or not area:
+            return JsonResponse({"success": False, "error": "Faltan parámetros"}, status=400)
+
+        resp = supabase.table("nota")\
+            .select("calificacion, asignatura(nombre_asignatura, area)")\
+            .eq("estudiante_id", int(estudiante_id)).execute()
+
+        filas = [f for f in resp.data if f["asignatura"]["area"] == area]
+        notas = [
+            {"nombre_asignatura": f["asignatura"]["nombre_asignatura"], "calificacion": f["calificacion"]}
+            for f in filas
+        ]
+
+        return JsonResponse({"success": True, "notas": notas})
+    except Exception as e:
+        print("Error obteniendo notas por área:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+
