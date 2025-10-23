@@ -36,4 +36,5 @@ urlpatterns = [
     path('obtener_estudiantes/', views.obtener_estudiantes, name='obtener_estudiantes'),
     path('guardar_comentario_docente/', views.guardar_comentario_docente, name='guardar_comentario_docente'),
     path('obtener_areas/', views.obtener_areas, name='obtener_areas'),
+    path('obtener_notas_estudiante_area/', views.obtener_notas_estudiante_area, name='obtener_notas_estudiante_area'),
 ] 
