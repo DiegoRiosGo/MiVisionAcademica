@@ -773,118 +773,119 @@ def analizar_perfil_ia_free(request):
     if not usuario_id:
         return JsonResponse({"error": "Sesión inválida."}, status=403)
 
-    # Obtener notas (igual que antes) …
-    resp = supabase.table("nota") \
-        .select("calificacion,semestre,acno,asignatura(nombre_asignatura,area),sigla") \
-        .eq("estudiante_id", usuario_id).order("acno", desc=False).execute()
-    notas = resp.data or []
-    if not notas:
-        return JsonResponse({"error": "No hay notas registradas."}, status=400)
-
-    resumen_texto = "\n".join([
-        f"{n.get('acno')} S{n.get('semestre')} | {n.get('sigla')} | "
-        f"{n.get('asignatura', {}).get('nombre_asignatura','Desconocida')} | "
-        f"area: {n.get('asignatura', {}).get('area','Sin área')} | nota: {n.get('calificacion')}"
-        for n in notas
-    ])
-
-    # Construir prompt
-    system_instruction = (
-        "Eres un analista educativo. Analiza las notas del estudiante y responde **solo con un JSON válido**, sin explicaciones, sin comentarios, sin formato Markdown ni texto adicional. "
-        "Usa este formato exacto: "
-        "{\"fortalezas\":[],\"debilidades\":[],\"recomendaciones\":[],\"recomendaciones_laborales\":[],\"herramietas_de_mejora\":[],\"resumen_corto\":\"\",\"recomendaciones_recursos\":[]}"
-    )
-    user_prompt = (
-        f"Historial académico:\n{resumen_texto}\n\n"
-        "Analiza y devuelve en JSON exactamente como: "
-        '{"fortalezas":[],"debilidades":[],"recomendaciones":[],"recomendaciones_laborales":[],"herramietas_de_mejora":[],"resumen_corto":"","recomendaciones_recursos":[]}'
-    )
-
-    # Llamar OpenRouter
-    OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
-    if not OPENROUTER_API_KEY:
-        return JsonResponse({"error": "OPENROUTER_API_KEY no configurada."}, status=500)
-
-    url = "https://openrouter.ai/api/v1/chat/completions"
-    payload = {
-        "model": "mistralai/mistral-7b-instruct:free",  # ejemplo de modelo free
-        "messages": [
-            {"role": "system", "content": system_instruction},
-            {"role": "user", "content": user_prompt}
-        ],
-        "temperature": 0.3,
-        "max_tokens": 500
-    }
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
     try:
-        r = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=30
-        )
-        r.raise_for_status()
+        # === 1️⃣ Obtener notas académicas ===
+        resp_notas = supabase.table("nota") \
+            .select("calificacion,semestre,acno,asignatura(nombre_asignatura,area),sigla") \
+            .eq("estudiante_id", usuario_id).order("acno", desc=False).execute()
+        notas = resp_notas.data or []
+        if not notas:
+            return JsonResponse({"error": "No hay notas registradas."}, status=400)
 
-        print("🟢 Respuesta completa IA:", r.text[:1000])  # 👈 muestra primeros 1000 caracteres
+        resumen_notas = "\n".join([
+            f"{n.get('acno')} S{n.get('semestre')} | {n.get('sigla')} | "
+            f"{n.get('asignatura', {}).get('nombre_asignatura','Desconocida')} "
+            f"(Área: {n.get('asignatura', {}).get('area','Sin área')}) | Nota: {n.get('calificacion')}"
+            for n in notas
+        ])
+
+        # === 2️⃣ Obtener el último test de interés ===
+        resp_test = supabase.table("test_interes") \
+            .select("resultado") \
+            .eq("estudiante_id", usuario_id).order("fecha_realizacion", desc=True).limit(1).execute()
+        test = resp_test.data[0]["resultado"] if resp_test.data else None
+
+        resumen_test = ""
+        if test:
+            try:
+                test_json = json.loads(test)
+                resumen_test = "\n".join([
+                    f"{pregunta}: {', '.join(respuesta) if isinstance(respuesta, list) else respuesta}"
+                    for pregunta, respuesta in test_json.items()
+                ])
+            except Exception as e:
+                print("⚠️ Error al parsear test_interes:", e)
+
+        # === 3️⃣ Obtener retroalimentaciones del docente ===
+        resp_comentarios = supabase.table("comentario_docente") \
+            .select("contenido,fecha") \
+            .eq("estudiante_id", usuario_id).order("fecha", desc=True).execute()
+        comentarios = resp_comentarios.data or []
+        resumen_comentarios = "\n".join([
+            f"{c['fecha'][:10]}: {c['contenido']}" for c in comentarios
+        ]) or "Sin retroalimentaciones registradas."
+
+        # === 4️⃣ Construir el prompt completo ===
+        system_instruction = (
+            "Eres un analista educativo experto en orientación académica y vocacional. "
+            "Analiza de forma integral la información del estudiante considerando su rendimiento (notas), "
+            "sus intereses personales (test_interes) y las observaciones docentes. "
+            "Responde **solo con un JSON válido**, sin comentarios ni formato Markdown. "
+            "Usa el siguiente formato exacto:\n"
+            "{\"fortalezas\":[],\"debilidades\":[],\"recomendaciones\":[],\"recomendaciones_laborales\":[],"
+            "\"herramientas_de_mejora\":[],\"resumen_corto\":\"\",\"recomendaciones_recursos\":[]}"
+        )
+
+        user_prompt = (
+            f"📘 HISTORIAL ACADÉMICO:\n{resumen_notas}\n\n"
+            f"🎯 TEST DE INTERESES (resumen):\n{resumen_test or 'Sin respuestas registradas.'}\n\n"
+            f"🧠 RETROALIMENTACIÓN DOCENTE:\n{resumen_comentarios}\n\n"
+            "Con toda esta información, genera un análisis integral del perfil académico del estudiante."
+        )
+
+        # === 5️⃣ Llamada al modelo IA ===
+        OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+        if not OPENROUTER_API_KEY:
+            return JsonResponse({"error": "OPENROUTER_API_KEY no configurada."}, status=500)
+
+        payload = {
+            "model": "mistralai/mistral-7b-instruct:free",
+            "messages": [
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": user_prompt}
+            ],
+            "temperature": 0.4,
+            "max_tokens": 800
+        }
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=60)
+        r.raise_for_status()
 
         data = r.json()
         content = data["choices"][0]["message"]["content"].strip()
-        print("📄 Contenido IA:", content[:300])
 
-        # 🧩 Limpieza del texto antes de intentar leer el JSON
+        # === 6️⃣ Limpiar y parsear el JSON ===
         import re
-
-        # Elimina tokens extra del modelo (como <s>, [/INST], ```json, ``` etc.)
-        def extract_json_from_text(s):
-            # Primero eliminar tokens comunes
-            s = re.sub(r'(<s>|</s>|\[/?INST\]|```json|```|\\n\\n|\\n)', '', s)
-            s = s.strip()
-            # buscar primer '{' y hacer balance de llaves para extraer bloque JSON completo
-            start = s.find('{')
-            if start == -1:
+        def extract_json(s):
+            s = re.sub(r'(```json|```|<s>|</s>|\[/?INST\]|\\n)', '', s).strip()
+            try:
+                start = s.find('{')
+                end = s.rfind('}') + 1
+                return json.loads(s[start:end])
+            except Exception:
                 return None
-            depth = 0
-            for i in range(start, len(s)):
-                if s[i] == '{':
-                    depth += 1
-                elif s[i] == '}':
-                    depth -= 1
-                    if depth == 0:
-                        candidate = s[start:i+1]
-                        try:
-                            return json.loads(candidate)
-                        except Exception:
-                            # si falla, continuar buscando (por si hay otro bloque más adelante)
-                            continue
-            return None
 
-        # use extractor
-        content_raw = content if isinstance(content, str) else str(content)
-        result_json = extract_json_from_text(content_raw)
-
-        if result_json is None:
-            # fallback heurístico: si el modelo devolvió algo legible, lo ponemos en resumen_corto
-            cleaned = re.sub(r'\s+', ' ', content_raw).strip()
-            result_json = {
+        analisis_json = extract_json(content)
+        if not analisis_json:
+            analisis_json = {
                 "fortalezas": [],
                 "debilidades": [],
                 "recomendaciones": [],
                 "recomendaciones_laborales": [],
-                "herramietas_de_mejora": [],
-                "resumen_corto": cleaned,
+                "herramientas_de_mejora": [],
+                "resumen_corto": "No se pudo generar el análisis automáticamente. Intenta nuevamente.",
                 "recomendaciones_recursos": []
             }
 
-    except Exception as e:
-        print("❌ Error al llamar IA gratuita:", e)
-        return JsonResponse({"error": "Error al generar análisis IA."}, status=500)
+        return JsonResponse({"success": True, "analisis": analisis_json})
 
-    # Devolver resultado al front sin guardar aún
-    return JsonResponse({"success": True, "analisis": result_json})
+    except Exception as e:
+        print("❌ Error en analizar_perfil_ia_free:", e)
+        return JsonResponse({"error": "Error al generar análisis IA."}, status=500)
 
 
 
