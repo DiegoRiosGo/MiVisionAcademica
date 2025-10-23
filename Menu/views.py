@@ -212,31 +212,60 @@ def EstadisticasAsignaturaAlumno(request):
 @login_requerido
 @solo_alumno
 def TestInterestAlumno(request):
-    # 1 Obtener el ID del usuario desde la sesión
-    usuario_id = request.session.get('usuario_id')
+        usuario_id = request.session.get('usuario_id')
 
-    # 2 Buscar la información completa del usuario en Supabase
-    try:
-        response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
-        if not response.data:
-            messages.error(request, "No se encontró la información del usuario.")
+        # --- Obtener información del usuario ---
+        try:
+            response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
+            if not response.data:
+                messages.error(request, "No se encontró la información del usuario.")
+                return redirect('Inicio')
+
+            usuario = response.data[0]
+        except Exception as e:
+            print("Error al obtener usuario:", e)
+            messages.error(request, "Hubo un problema al cargar tu información.")
             return redirect('Inicio')
 
-        usuario = response.data[0]
+        # --- Si se envía el formulario ---
+        if request.method == "POST":
+            try:
+                respuestas = {}
+                for key, value in request.POST.items():
+                    if key not in ["csrfmiddlewaretoken"]:
+                        respuestas[key] = value
 
-        # 3 Preparar los datos para el template
+                # Convertir respuestas a formato pregunta: respuesta
+                resultado = ", ".join([f"{pregunta}: {respuesta}" for pregunta, respuesta in respuestas.items()])
+
+                # Insertar en Supabase
+                from datetime import datetime
+                fecha_actual = datetime.now().isoformat()
+
+                data = {
+                    "estudiante_id": usuario_id,
+                    "fecha_realizacion": fecha_actual,
+                    "resultado": resultado
+                }
+
+                supabase.table("test_interes").insert(data).execute()
+
+                messages.success(request, "✅ Tu test se ha enviado correctamente.")
+                return redirect("test_interest_alumno")
+
+            except Exception as e:
+                print("Error al subir test_interes:", e)
+                messages.error(request, "Ocurrió un error al guardar tus respuestas.")
+                return redirect("test_interest_alumno")
+
+        # --- Render normal (GET) ---
         contexto = {
             "nombre": usuario.get("nombre", ""),
             "apellido": usuario.get("apellido", ""),
-            "foto": usuario.get("foto", None),  # puede ser None si no tiene imagen
+            "foto": usuario.get("foto", None),
         }
-
         return render(request, 'Menu/vista_alumno/test_interest_alumno.html', contexto)
 
-    except Exception as e:
-        print("Error al obtener usuario:", e)
-        messages.error(request, "Hubo un problema al cargar tu información.")
-        return redirect('Inicio')
 
 @login_requerido
 @solo_alumno

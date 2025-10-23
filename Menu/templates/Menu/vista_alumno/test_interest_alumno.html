@@ -51,7 +51,8 @@
       <div class="formulario card p-4 shadow-sm">
         <h5 class="text-center mb-4">Preguntas del Test</h5>
 
-        <form id="testForm">
+        <form id="testForm" method="POST">
+          {% csrf_token %}
           <!--  Preguntas abiertas -->
           <div class="pregunta">
             <p>1. ¿Qué asignatura te ha parecido más importante o interesante en tu carrera, y por qué?</p>
