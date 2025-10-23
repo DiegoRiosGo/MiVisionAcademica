@@ -295,7 +295,19 @@ def InicioDocente(request):
 
         usuario = response.data[0]
 
-        # 3 Preparar los datos para el template
+        # 3 Verificar que exista el docente  
+        try:
+            docente_resp = supabase.table("docente").select("*").eq("usuario_id", usuario_id).execute()
+            if not docente_resp.data:
+                # Crear el docente si no existe
+                supabase.table("docente").insert({
+                    "usuario_id": usuario_id,
+                }).execute()
+                print(f"docente con usuario_id={usuario_id} creado automáticamente.")
+        except Exception as e:
+            print("Error al verificar/crear docente:", e)
+
+        # 4 Preparar los datos para el template
         contexto = {
             "nombre": usuario.get("nombre", ""),
             "apellido": usuario.get("apellido", ""),
