@@ -154,7 +154,7 @@
             function resetDependentSelects(select, message = "--") {
                 if (select) select.innerHTML = `<option value="">${message}</option>`;
             }
-            
+
             // --- Cargar áreas al iniciar ---
             async function cargarAreas() {
                 try {
@@ -178,8 +178,6 @@
                 const area = areaSelect.value;
                 resetDependentSelects(asignaturaSelect, "Cargando...");
                 resetDependentSelects(siglaSelect);
-                resetDependentSelects(estudianteSelect);
-                limpiarGraficos();
 
                 if (!area) {
                     asignaturaSelect.innerHTML = '<option value="">Seleccione un área primero</option>';
