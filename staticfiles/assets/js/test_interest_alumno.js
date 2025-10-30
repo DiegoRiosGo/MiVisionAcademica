@@ -134,7 +134,6 @@
                 const res = await fetch("/obtener_asignaturas/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ area }),
                 });
                 const data = await res.json();
                 if (!data.success) throw new Error(data.error || "Error al obtener asignaturas");
