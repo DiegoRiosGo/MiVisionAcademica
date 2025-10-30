@@ -1190,6 +1190,7 @@ def obtener_notas_estudiante_area(request):
 # ---------------------------------------------------------------------
 # solicitud de Retroalimentacion 
 # ---------------------------------------------------------------------
+@csrf_exempt
 def enviar_solicitud(request):
     if request.method == "POST":
         try:
