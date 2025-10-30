@@ -130,20 +130,87 @@
             btnAbrir.addEventListener("click", () => modal.style.display = "block");
             btnCerrar.addEventListener("click", () => modal.style.display = "none");
 
-            async function cargarAsignaturas() {
-                const res = await fetch("/obtener_asignaturas/", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                });
+
+            // --- Cargar áreas al iniciar ---
+            async function cargarAreas() {
+                try {
+                const res = await fetch("/obtener_areas/");
                 const data = await res.json();
-                if (!data.success) throw new Error(data.error || "Error al obtener asignaturas");
-                const select = document.getElementById("asignaturaSelect");
-                select.innerHTML = '<option value="">Seleccione asignatura</option>';
-                data.asignaturas.forEach(a => {
-                    select.innerHTML += `<option value="${a.nombre_asignatura}">${a.nombre_asignatura}</option>`;
+                if (!data.success) throw new Error(data.error || "Error al cargar áreas");
+                areaSelect.innerHTML = '<option value="">Seleccione un área</option>';
+                data.areas.forEach(a => {
+                    areaSelect.innerHTML += `<option value="${a}">${a}</option>`;
+                });
+                } catch (err) {
+                console.error("Error cargando áreas:", err);
+                areaSelect.innerHTML = '<option value="">Error cargando áreas</option>';
+                }
+            }
+            if (areaSelect) cargarAreas();
+
+            // --- Cargar asignaturas al cambiar el área ---
+            if (areaSelect && asignaturaSelect) {
+                areaSelect.addEventListener("change", async () => {
+                const area = areaSelect.value;
+                resetDependentSelects(asignaturaSelect, "Cargando...");
+                resetDependentSelects(siglaSelect);
+                resetDependentSelects(estudianteSelect);
+                limpiarGraficos();
+
+                if (!area) {
+                    asignaturaSelect.innerHTML = '<option value="">Seleccione un área primero</option>';
+                    return;
+                }
+
+                try {
+                    const res = await fetch("/obtener_asignaturas/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+                        body: JSON.stringify({ area }),
+                    });
+                    
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.error || "Error al obtener asignaturas");
+                    asignaturaSelect.innerHTML = '<option value="">Seleccione una asignatura</option>';
+                    data.asignaturas.forEach(a => {
+                        asignaturaSelect.innerHTML += `<option value="${a.asignatura_id}">${a.nombre_asignatura}</option>`;
+                    });
+                } catch (err) {
+                    console.error("Error cargando asignaturas:", err);
+                    asignaturaSelect.innerHTML = '<option value="">Error cargando</option>';
+                }
                 });
             }
-            cargarAsignaturas();
+
+            // --- Cargar siglas al cambiar asignatura ---
+            if (asignaturaSelect && siglaSelect) {
+                asignaturaSelect.addEventListener("change", async () => {
+                const asignatura_id = asignaturaSelect.value;
+                resetDependentSelects(siglaSelect, "Cargando...");
+
+                if (!asignatura_id) {
+                    siglaSelect.innerHTML = '<option value="">Seleccione asignatura primero</option>';
+                    return;
+                }
+
+                try {
+                    const res = await fetch("/obtener_siglas/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+                    body: JSON.stringify({ asignatura_id }),
+                    });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.error || "Error al obtener siglas");
+                    siglaSelect.innerHTML = '<option value="">Seleccione una sigla</option>';
+                    data.siglas.forEach(s => {
+                    siglaSelect.innerHTML += `<option value="${s}">${s}</option>`;
+                    });
+                } catch (err) {
+                    console.error("Error cargando siglas:", err);
+                    siglaSelect.innerHTML = '<option value="">Error</option>';
+                }
+                });
+            }
 
             btnEnviar.addEventListener("click", async () => {
                 const docente = document.getElementById("buscarDocente").value;
