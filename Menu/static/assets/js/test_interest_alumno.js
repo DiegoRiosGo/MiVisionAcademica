@@ -126,9 +126,29 @@
             const btnAbrir = document.getElementById("btnSolicitud");
             const btnCerrar = document.getElementById("cancelarModal");
             const btnEnviar = document.getElementById("enviarSolicitud");
+            const areaSelect = document.getElementById("subjectSelect");
+            const asignaturaSelect = document.getElementById("asignaturaSelect");
+            const siglaSelect = document.getElementById("siglaSelect");
 
             btnAbrir.addEventListener("click", () => modal.style.display = "block");
             btnCerrar.addEventListener("click", () => modal.style.display = "none");
+
+            // --- Helper CSRF ---
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                    }
+                }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie("csrftoken");
 
 
             // --- Cargar áreas al iniciar ---
