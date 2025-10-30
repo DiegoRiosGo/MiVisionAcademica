@@ -41,6 +41,4 @@ urlpatterns = [
 
     #URL solicitud de retroalimentación
     path("enviar_solicitud/", views.enviar_solicitud, name="enviar_solicitud"),
-    path("obtener_notificaciones_docente/", views.obtener_notificaciones_docente, name="obtener_notificaciones_docente"),
-    path("enviar_retroalimentacion/", views.enviar_retroalimentacion, name="enviar_retroalimentacion"),
 ] 
