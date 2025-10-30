@@ -119,6 +119,54 @@
             });
         });
         });
+    
+        //para retroalimentación
+        document.addEventListener("DOMContentLoaded", () => {
+            const modal = document.getElementById("modalSolicitud");
+            const btnAbrir = document.getElementById("btnSolicitud");
+            const btnCerrar = document.getElementById("cancelarModal");
+            const btnEnviar = document.getElementById("enviarSolicitud");
+
+            btnAbrir.addEventListener("click", () => modal.style.display = "block");
+            btnCerrar.addEventListener("click", () => modal.style.display = "none");
+
+            async function cargarAsignaturas() {
+                const res = await fetch("/obtener_asignaturas/"); 
+                const data = await res.json();
+                const select = document.getElementById("asignaturaSelect");
+                select.innerHTML = '<option value="">Seleccione asignatura</option>';
+                data.asignaturas.forEach(a => {
+                select.innerHTML += `<option value="${a.nombre_asignatura}">${a.nombre_asignatura}</option>`;
+                });
+            }
+            cargarAsignaturas();
+
+            btnEnviar.addEventListener("click", async () => {
+                const docente = document.getElementById("buscarDocente").value;
+                const asignatura = document.getElementById("asignaturaSelect").value;
+                const sigla = document.getElementById("siglaSelect").value;
+                const mensaje = document.getElementById("mensaje").value;
+
+                if (!docente || !asignatura || !sigla || !mensaje) {
+                Swal.fire("Completa todos los campos antes de enviar.");
+                return;
+                }
+
+                const res = await fetch("/enviar_solicitud/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ docente, asignatura, sigla, mensaje }),
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                Swal.fire("Solicitud enviada con éxito");
+                modal.style.display = "none";
+                } else {
+                Swal.fire("Error al enviar la solicitud");
+                }
+            });
+        });
 
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .JS ------------------------------------------

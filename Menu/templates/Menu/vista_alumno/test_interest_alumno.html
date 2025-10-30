@@ -43,8 +43,26 @@
           <h4>Test de Interés</h4>
         </div>
           <p>Aquí podrás responder preguntas que evaluarán tus áreas de interés y habilidades.</p>
+
+          <button id="btnSolicitud" class="btn btn-primary mt-4">
+            Pedir retroalimentación
+          </button>
       </div>
 
+      <!-- solicitud retros  -->
+      <div id="modalSolicitud" class="modal">
+        <div class="modal-content p-3">
+          <h5>Enviar solicitud de retroalimentación</h5>
+          <input type="text" id="buscarDocente" placeholder="Buscar docente..." class="form-control mb-2">
+          <select id="asignaturaSelect" class="form-select mb-2"></select>
+          <select id="siglaSelect" class="form-select mb-2"></select>
+          <textarea id="mensaje" class="form-control mb-3" rows="3" placeholder="Escribe tu mensaje..."></textarea>
+          <div class="text-end">
+            <button class="btn btn-secondary" id="cancelarModal">Cancelar</button>
+            <button class="btn btn-success" id="enviarSolicitud">Enviar</button>
+          </div>
+        </div>
+      </div>
   <!--TITULO FORMULARIO DE INTERES-->
 
     <!-- Bloque del formulario -->
