@@ -131,12 +131,17 @@
             btnCerrar.addEventListener("click", () => modal.style.display = "none");
 
             async function cargarAsignaturas() {
-                const res = await fetch("/obtener_asignaturas/"); 
+                const res = await fetch("/obtener_asignaturas/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+                body: JSON.stringify({ area }),
+                });
                 const data = await res.json();
+                if (!data.success) throw new Error(data.error || "Error al obtener asignaturas");
                 const select = document.getElementById("asignaturaSelect");
                 select.innerHTML = '<option value="">Seleccione asignatura</option>';
                 data.asignaturas.forEach(a => {
-                select.innerHTML += `<option value="${a.nombre_asignatura}">${a.nombre_asignatura}</option>`;
+                    select.innerHTML += `<option value="${a.nombre_asignatura}">${a.nombre_asignatura}</option>`;
                 });
             }
             cargarAsignaturas();
