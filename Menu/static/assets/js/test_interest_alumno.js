@@ -150,7 +150,11 @@
             }
             const csrftoken = getCookie("csrftoken");
 
-
+            // --- Función para resetear selects dependientes ---
+            function resetDependentSelects(select, message = "--") {
+                if (select) select.innerHTML = `<option value="">${message}</option>`;
+            }
+            
             // --- Cargar áreas al iniciar ---
             async function cargarAreas() {
                 try {
