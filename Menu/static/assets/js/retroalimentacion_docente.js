@@ -276,6 +276,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+//mensaje de aviso al estudiante
+document.getElementById("feedbackForm").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const estudiante_id = document.getElementById("studentSelect").value;
+  const contenido = document.getElementById("feedback").value;
+
+  const res = await fetch("/enviar_retroalimentacion/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ estudiante_id, contenido }),
+  });
+  const data = await res.json();
+  if (data.success) Swal.fire("Enviado", "Retroalimentación enviada al estudiante", "success");
+});
 
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN retroalimentacion_docente .JS ----------------------------------------

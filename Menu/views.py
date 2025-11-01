@@ -1239,3 +1239,90 @@ def enviar_solicitud(request):
             return JsonResponse({"success": False, "error": str(e)})
 
     return JsonResponse({"success": False, "error": "Método no permitido"})
+
+
+# 2️⃣ OBTENER NOTIFICACIONES DOCENTE
+def obtener_notificaciones_docente(request):
+    try:
+        docente_usuario_id = request.user.usuario_id  # usuario.id del docente autenticado
+
+        # --- Buscar el id_docente (tabla docente) vinculado a este usuario
+        docente_res = supabase.table("docente").select("usuario_id").eq("usuario_id", docente_usuario_id).execute()
+        if not docente_res.data:
+            return JsonResponse({"success": False, "error": "No se encontró registro de docente"})
+
+        id_docente = docente_res.data[0]["usuario_id"]
+
+        # --- Obtener solicitudes dirigidas a este docente
+        solicitudes_res = supabase.table("solicitud_retroalimentacion") \
+            .select("id_sretro, id_estudiante, asignatura, sigla, mensaje, estado, creado_en") \
+            .eq("id_docente", id_docente) \
+            .neq("estado", "eliminada") \
+            .order("creado_en", desc=True) \
+            .execute()
+
+        solicitudes = []
+        for s in solicitudes_res.data:
+            # Obtener nombre del estudiante (desde usuario)
+            est_res = supabase.table("usuario").select("nombre").eq("id", s["id_estudiante"]).execute()
+            nombre_estudiante = est_res.data[0]["nombre"] if est_res.data else "Desconocido"
+
+            solicitudes.append({
+                "id": s["id_sretro"],
+                "estudiante": nombre_estudiante,
+                "asignatura": s["asignatura"],
+                "sigla": s["sigla"],
+                "mensaje": s["mensaje"],
+                "estado": s["estado"],
+                "creado_en": s["creado_en"]
+            })
+
+        return JsonResponse({"success": True, "solicitudes": solicitudes})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
+    
+
+# 3️⃣ ENVIAR RETROALIMENTACIÓN DESDE DOCENTE
+def enviar_retroalimentacion(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            docente_usuario_id = request.user.id
+            id_sretro = data.get("id_sretro")
+            respuesta = data.get("respuesta")
+
+            # --- Validaciones
+            if not id_sretro or not respuesta:
+                return JsonResponse({"success": False, "error": "Datos incompletos"})
+
+            # --- Confirmar que el docente autenticado sea el propietario de la solicitud
+            validacion = supabase.table("solicitud_retroalimentacion") \
+                .select("id_docente") \
+                .eq("id_sretro", id_sretro) \
+                .execute()
+
+            if not validacion.data:
+                return JsonResponse({"success": False, "error": "Solicitud no encontrada"})
+
+            id_docente_solicitud = validacion.data[0]["id_docente"]
+
+            if id_docente_solicitud != docente_usuario_id:
+                return JsonResponse({"success": False, "error": "No autorizado para responder esta solicitud"})
+
+            # --- Actualizar solicitud con respuesta
+            supabase.table("solicitud_retroalimentacion") \
+                .update({
+                    "respuesta": respuesta,
+                    "estado": "respondida",
+                    "actualizado_en": datetime.now().isoformat()
+                }) \
+                .eq("id_sretro", id_sretro) \
+                .execute()
+
+            return JsonResponse({"success": True})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+
+    return JsonResponse({"success": False, "error": "Método no permitido"})
