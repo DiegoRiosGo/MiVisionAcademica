@@ -264,7 +264,10 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const inputDoc = document.getElementById("buscarDocente");
-  if (!inputDoc) return;
+  if (inputDoc.split(" ").length < 2) {
+  alert("Por favor ingresa nombre y apellido del docente.");
+  return;
+}
 
   // crear wrapper relativo para posicionamiento correcto
   const wrapper = document.createElement("div");
