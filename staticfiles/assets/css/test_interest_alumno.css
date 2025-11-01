@@ -208,6 +208,22 @@
 .sugerencia-item { padding: 8px 12px; cursor: pointer; }
 .sugerencia-item:hover { background: #f5f5f5; }
 .sin-resultados { padding: 8px 12px; color:#777; font-style:italic; }   
+
+.autocomplete-container {
+  position: relative;
+}
+
+#suggestions-list {
+  position: absolute;
+  top: 100%; /* justo debajo del input */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

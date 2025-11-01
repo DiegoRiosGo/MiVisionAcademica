@@ -1226,8 +1226,8 @@ def enviar_solicitud(request):
             # Buscar por nombre y apellido
             nombre_parte, apellido_parte = docente_nombre.split(" ", 1)
             usuarios_res = supabase.table("usuario").select("usuario_id, nombre, apellido") \
-                .ilike("nombre", f"%{nombre_parte.strip()}%") \
-                .ilike("apellido", f"%{apellido_parte.strip()}%") \
+                .eq("nombre", nombre_parte.strip()) \
+                .eq("apellido", apellido_parte.strip()) \
                 .execute()
 
             usuarios_found = usuarios_res.data or []
@@ -1270,8 +1270,12 @@ def enviar_solicitud(request):
             return JsonResponse({"success": False, "error": "Error al insertar en la base de datos."}, status=500)
 
     except Exception as e:
-        # Evita duplicar errores ya controlados
         print("ERROR enviar_solicitud:", e)
+
+        # Detectar errores conocidos para no mostrar duplicados
+        if "Docente no encontrado" in str(e):
+            return JsonResponse({"success": False, "error": "Docente no encontrado. Usa la selección de sugerencias."}, status=404)
+
         return JsonResponse({"success": False, "error": "Error inesperado al procesar la solicitud."}, status=500)
 
 
@@ -1296,15 +1300,18 @@ def obtener_notificaciones_docente(request):
         solicitudes = []
         for s in solicitudes_res.data or []:
             est_res = supabase.table("usuario").select("nombre, apellido").eq("usuario_id", s["id_estudiante"]).execute()
+            nombre_est = "Desconocido"
             if est_res.data:
                 nombre_est = f"{est_res.data[0]['nombre']} {est_res.data[0]['apellido']}"
-            else:
-                nombre_est = "Desconocido"
+
+            # Obtener nombre real de asignatura
+            asig_res = supabase.table("asignatura").select("nombre_asignatura").eq("id_asignatura", s["asignatura"]).execute()
+            nombre_asig = asig_res.data[0]["nombre_asignatura"] if asig_res.data else f"Asignatura ID {s['asignatura']}"
 
             solicitudes.append({
                 "id": s["id_sretro"],
                 "estudiante": nombre_est,
-                "asignatura": s["asignatura"],
+                "asignatura": nombre_asig,
                 "sigla": s["sigla"],
                 "mensaje": s["mensaje"],
                 "estado": s["estado"],
@@ -1323,7 +1330,7 @@ def enviar_retroalimentacion(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            docente_usuario_id = request.user.id
+            docente_usuario_id = request.session.get("usuario_id") or getattr(request.user, "usuario_id", None)
             id_sretro = data.get("id_sretro")
             respuesta = data.get("respuesta")
 
@@ -1378,7 +1385,7 @@ def buscar_docentes(request):
         usuarios_res = supabase.table("usuario") \
             .select("usuario_id, nombre, apellido") \
             .or_(f"nombre.ilike.%{q}%,apellido.ilike.%{q}%") \
-            .execute()
+            .execute()  
 
         usuarios = usuarios_res.data or []
         if not usuarios:

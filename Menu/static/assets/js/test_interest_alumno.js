@@ -264,10 +264,12 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const inputDoc = document.getElementById("buscarDocente");
-  if (inputDoc.split(" ").length < 2) {
-  alert("Por favor ingresa nombre y apellido del docente.");
-  return;
-}
+
+  // No validar aquí, se validará al enviar el formulario
+  if (!inputDoc) {
+    console.error("No se encontró el campo buscarDocente.");
+    return;
+  }
 
   // crear wrapper relativo para posicionamiento correcto
   const wrapper = document.createElement("div");

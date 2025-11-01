@@ -264,7 +264,12 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const inputDoc = document.getElementById("buscarDocente");
-  if (!inputDoc) return;
+
+  // No validar aquí, se validará al enviar el formulario
+  if (!inputDoc) {
+    console.error("No se encontró el campo buscarDocente.");
+    return;
+  }
 
   // crear wrapper relativo para posicionamiento correcto
   const wrapper = document.createElement("div");
