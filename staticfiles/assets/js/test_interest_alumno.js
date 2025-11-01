@@ -247,7 +247,7 @@
 
                 const res = await fetch("/enviar_solicitud/", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken  },
                 body: JSON.stringify({ docente, asignatura, sigla, mensaje }),
                 });
 

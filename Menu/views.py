@@ -1230,6 +1230,7 @@ def enviar_solicitud(request):
                 "creado_en": datetime.now().isoformat()
             }).execute()
 
+            print("DEBUG ENVIAR_SOLICITUD:", data)
             if response.data:
                 return JsonResponse({"success": True})
             else:
