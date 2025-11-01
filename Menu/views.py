@@ -1192,54 +1192,61 @@ def obtener_notas_estudiante_area(request):
 # ---------------------------------------------------------------------
 @csrf_exempt
 def enviar_solicitud(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            id_estudiante = request.user.usuario_id  # usuario_id del estudiante autenticado
-            docente_nombre = data.get("docente")
-            asignatura = data.get("asignatura")
-            sigla = data.get("sigla")
-            mensaje = data.get("mensaje")
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Método no permitido"})
 
-            # --- Validar datos básicos
-            if not (docente_nombre and asignatura and sigla and mensaje):
-                return JsonResponse({"success": False, "error": "Faltan campos obligatorios"})
+    try:
+        data = json.loads(request.body)
+        docente_nombre = data.get("docente")
+        asignatura = data.get("asignatura")
+        sigla = data.get("sigla")
+        mensaje = data.get("mensaje")
 
-            # --- Buscar el docente en la tabla usuario
-            docente_res = supabase.table("usuario").select("usuario_id").ilike("nombre", f"%{docente_nombre}%").execute()
-            if not docente_res.data:
-                return JsonResponse({"success": False, "error": "Docente no encontrado en la tabla usuario"})
+        # ⚠️ Ajustar este campo según tu modelo de sesión
+        id_estudiante = getattr(request.user, "usuario_id", None) or request.user.id
+        print("DEBUG ENVIAR_SOLICITUD:", data)
+        # --- Validar datos
+        if not all([docente_nombre, asignatura, sigla, mensaje]):
+            return JsonResponse({"success": False, "error": "Faltan campos obligatorios"})
+        
+        # --- Buscar docente en la tabla usuario (usa usuario_id como PK)
+        docente_res = supabase.table("usuario") \
+            .select("usuario_id") \
+            .ilike("nombre", f"%{docente_nombre}%") \
+            .execute()
 
-            usuario_id_docente = docente_res.data[0]["id"]
+        if not docente_res.data:
+            return JsonResponse({"success": False, "error": "Docente no encontrado en la tabla usuario"})
 
-            # --- Buscar el registro correspondiente en la tabla docente (usa usuario_id)
-            docente_id_res = supabase.table("docente").select("usuario_id").eq("usuario_id", usuario_id_docente).execute()
-            if not docente_id_res.data:
-                return JsonResponse({"success": False, "error": "El usuario no está registrado como docente"})
+        usuario_id_docente = docente_res.data[0]["usuario_id"]
 
-            id_docente = docente_id_res.data[0]["usuario_id"]
+        # --- Verificar si realmente es un docente registrado
+        docente_check = supabase.table("docente").select("usuario_id").eq("usuario_id", usuario_id_docente).execute()
+        if not docente_check.data:
+            return JsonResponse({"success": False, "error": "El usuario no está registrado como docente"})
 
-            # --- Insertar solicitud
-            response = supabase.table("solicitud_retroalimentacion").insert({
-                "id_estudiante": id_estudiante,
-                "id_docente": id_docente,
-                "asignatura": asignatura,
-                "sigla": sigla,
-                "mensaje": mensaje,
-                "estado": "pendiente",
-                "creado_en": datetime.now().isoformat()
-            }).execute()
+        id_docente = docente_check.data[0]["usuario_id"]
+        print("DEBUG ENVIAR_SOLICITUD2:", data)
+        # --- Insertar solicitud en Supabase
+        insercion = {
+            "id_estudiante": id_estudiante,
+            "id_docente": id_docente,
+            "asignatura": asignatura,
+            "sigla": sigla,
+            "mensaje": mensaje,
+            "estado": "pendiente",
+            "creado_en": datetime.now().isoformat()
+        }
 
-            print("DEBUG ENVIAR_SOLICITUD:", data)
-            if response.data:
-                return JsonResponse({"success": True})
-            else:
-                return JsonResponse({"success": False, "error": "Error al insertar en Supabase"})
+        insert_res = supabase.table("solicitud_retroalimentacion").insert(insercion).execute()
 
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
+        if insert_res.data:
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "Error al insertar solicitud en Supabase"})
 
-    return JsonResponse({"success": False, "error": "Método no permitido"})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
 
 
 # 2️⃣ OBTENER NOTIFICACIONES DOCENTE
