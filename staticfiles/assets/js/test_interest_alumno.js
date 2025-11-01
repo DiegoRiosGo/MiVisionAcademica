@@ -261,6 +261,52 @@
             });
         });
 
+        
+document.addEventListener("DOMContentLoaded", () => {
+  const inputDocente = document.getElementById("buscarDocente");
+  const listaSugerencias = document.createElement("div");
+  listaSugerencias.className = "sugerencias-docente";
+  inputDocente.parentNode.appendChild(listaSugerencias);
+
+  inputDocente.addEventListener("input", async () => {
+    const query = inputDocente.value.trim();
+    listaSugerencias.innerHTML = "";
+
+    if (query.length < 2) return; // Esperar al menos 2 letras antes de buscar
+
+    try {
+      const res = await fetch(`/buscar_docentes/?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      if (data.docentes && data.docentes.length > 0) {
+        data.docentes.forEach((doc) => {
+          const item = document.createElement("div");
+          item.className = "sugerencia-item";
+          item.textContent = doc.nombre;
+          item.addEventListener("click", () => {
+            inputDocente.value = doc.nombre;
+            listaSugerencias.innerHTML = "";
+          });
+          listaSugerencias.appendChild(item);
+        });
+      } else {
+        const noRes = document.createElement("div");
+        noRes.className = "sin-resultados";
+        noRes.textContent = "No se encontraron docentes";
+        listaSugerencias.appendChild(noRes);
+      }
+    } catch (error) {
+      console.error("Error al buscar docentes:", error);
+    }
+  });
+
+  // Ocultar sugerencias al hacer clic fuera
+  document.addEventListener("click", (e) => {
+    if (!inputDocente.contains(e.target)) {
+      listaSugerencias.innerHTML = "";
+    }
+  });
+});
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .JS ------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

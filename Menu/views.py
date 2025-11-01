@@ -1197,13 +1197,12 @@ def enviar_solicitud(request):
 
     try:
         data = json.loads(request.body)
+        id_estudiante = request.user.usuario_id
         docente_nombre = data.get("docente")
         asignatura = data.get("asignatura")
         sigla = data.get("sigla")
         mensaje = data.get("mensaje")
 
-        # ⚠️ Ajustar este campo según tu modelo de sesión
-        id_estudiante = getattr(request.user, "usuario_id", None) or request.user.id
         print("DEBUG ENVIAR_SOLICITUD:", data)
         # --- Validar datos
         if not all([docente_nombre, asignatura, sigla, mensaje]):
@@ -1334,3 +1333,44 @@ def enviar_retroalimentacion(request):
             return JsonResponse({"success": False, "error": str(e)})
 
     return JsonResponse({"success": False, "error": "Método no permitido"})
+
+
+@csrf_exempt
+def buscar_docentes(request):
+    """
+    Retorna una lista de nombres de docentes que coincidan con el texto buscado.
+    Se usa para el autocompletado del campo 'buscarDocente'.
+    """
+    query = request.GET.get("q", "").strip()
+
+    if not query:
+        return JsonResponse({"docentes": []})
+
+    try:
+        # Buscar coincidencias en la tabla usuario (nombre + apellido)
+        usuarios_res = supabase.table("usuario") \
+            .select("usuario_id, nombre, apellido") \
+            .ilike("nombre", f"%{query}%") \
+            .execute()
+
+        if not usuarios_res.data:
+            return JsonResponse({"docentes": []})
+
+        # Filtrar solo los que estén en la tabla docente
+        usuarios_ids = [u["usuario_id"] for u in usuarios_res.data]
+        docentes_res = supabase.table("docente") \
+            .select("usuario_id") \
+            .in_("usuario_id", usuarios_ids) \
+            .execute()
+
+        docentes_ids = {d["usuario_id"] for d in docentes_res.data}
+
+        docentes_filtrados = [
+            {"nombre": f"{u['nombre']} {u['apellido']}"}
+            for u in usuarios_res.data if u["usuario_id"] in docentes_ids
+        ]
+
+        return JsonResponse({"docentes": docentes_filtrados})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
