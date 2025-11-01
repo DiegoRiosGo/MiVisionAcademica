@@ -1193,59 +1193,96 @@ def obtener_notas_estudiante_area(request):
 @csrf_exempt
 def enviar_solicitud(request):
     if request.method != "POST":
-        return JsonResponse({"success": False, "error": "Método no permitido"})
-
+        return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
     try:
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode("utf-8") or "{}")
+
+        # Obtener id del estudiante desde sesión (fallback a request.user si aplica)
         id_estudiante = request.user.usuario_id
-        docente_nombre = data.get("docente")
+        if not id_estudiante:
+            return JsonResponse({"success": False, "error": "Sesión inválida."}, status=403)
+
+        id_docente = data.get("id_docente")  # preferido: viene desde el autocompletado
+        docente_nombre = data.get("docente")  # fallback (nombre completo)
         asignatura = data.get("asignatura")
         sigla = data.get("sigla")
         mensaje = data.get("mensaje")
 
-        print("DEBUG ENVIAR_SOLICITUD:", data)
-        # --- Validar datos
-        if not all([docente_nombre, asignatura, sigla, mensaje]):
-            return JsonResponse({"success": False, "error": "Faltan campos obligatorios"})
-        
-        # --- Buscar docente en la tabla usuario (usa usuario_id como PK)
-        docente_res = supabase.table("usuario") \
-            .select("usuario_id") \
-            .ilike("nombre", f"%{docente_nombre}%") \
-            .execute()
+        # validaciones básicas
+        if not (asignatura and sigla and mensaje):
+            return JsonResponse({"success": False, "error": "Faltan campos obligatorios (asignatura/sigla/mensaje)."}, status=400)
 
-        if not docente_res.data:
-            return JsonResponse({"success": False, "error": "Docente no encontrado en la tabla usuario"})
+        # Si llega id_docente, validar que existe y que es docente
+        if id_docente:
+            doc_check = supabase.table("docente").select("usuario_id").eq("usuario_id", int(id_docente)).execute()
+            if not doc_check.data:
+                return JsonResponse({"success": False, "error": "Docente (id) no registrado como docente."}, status=400)
+            id_doc = int(id_docente)
+        else:
+            # Fallback: buscar por nombre completo (docente_nombre)
+            if not docente_nombre:
+                return JsonResponse({"success": False, "error": "Debe indicar el docente (selección)."}, status=400)
 
-        usuario_id_docente = docente_res.data[0]["usuario_id"]
+            # Intentar parsear nombre y apellido (buscando coincidencias)
+            partes = [p.strip() for p in docente_nombre.split() if p.strip()]
+            usuarios_found = []
 
-        # --- Verificar si realmente es un docente registrado
-        docente_check = supabase.table("docente").select("usuario_id").eq("usuario_id", usuario_id_docente).execute()
-        if not docente_check.data:
-            return JsonResponse({"success": False, "error": "El usuario no está registrado como docente"})
+            if len(partes) >= 2:
+                nombre_parte = partes[0]
+                apellido_parte = partes[-1]
+                usuarios_res = supabase.table("usuario") \
+                    .select("usuario_id, nombre, apellido") \
+                    .ilike("nombre", f"%{nombre_parte}%") \
+                    .ilike("apellido", f"%{apellido_parte}%") \
+                    .execute()
+                usuarios_found = usuarios_res.data or []
+            else:
+                # buscar por nombre o apellido parcial
+                usuarios_res = supabase.table("usuario") \
+                    .select("usuario_id, nombre, apellido") \
+                    .or_(f"nombre.ilike.%{docente_nombre}%,apellido.ilike.%{docente_nombre}%") \
+                    .execute()
+                usuarios_found = usuarios_res.data or []
 
-        id_docente = docente_check.data[0]["usuario_id"]
-        print("DEBUG ENVIAR_SOLICITUD2:", data)
-        # --- Insertar solicitud en Supabase
-        insercion = {
-            "id_estudiante": id_estudiante,
-            "id_docente": id_docente,
+            if not usuarios_found:
+                return JsonResponse({"success": False, "error": "Docente no encontrado. Usa la selección de sugerencias."}, status=404)
+
+            # Filtrar solo los que estén en tabla docente
+            usuario_ids = [u["usuario_id"] for u in usuarios_found]
+            docentes_res = supabase.table("docente").select("usuario_id").in_("usuario_id", usuario_ids).execute()
+            docentes_ids = {d["usuario_id"] for d in (docentes_res.data or [])}
+            candidatos = [u for u in usuarios_found if u["usuario_id"] in docentes_ids]
+
+            if not candidatos:
+                return JsonResponse({"success": False, "error": "El usuario encontrado no está registrado como docente."}, status=404)
+
+            if len(candidatos) > 1:
+                # pedir selección más precisa
+                nombres = [f"{c.get('nombre','')} {c.get('apellido','')}" for c in candidatos]
+                return JsonResponse({"success": False, "error": "Varios docentes coinciden. Selecciona el nombre completo desde las sugerencias.", "candidatos": nombres}, status=409)
+
+            id_doc = candidatos[0]["usuario_id"]
+
+        # Insertar solicitud
+        resp = supabase.table("solicitud_retroalimentacion").insert({
+            "id_estudiante": int(id_estudiante),
+            "id_docente": int(id_doc),
             "asignatura": asignatura,
             "sigla": sigla,
             "mensaje": mensaje,
             "estado": "pendiente",
             "creado_en": datetime.now().isoformat()
-        }
+        }).execute()
 
-        insert_res = supabase.table("solicitud_retroalimentacion").insert(insercion).execute()
-
-        if insert_res.data:
+        if resp.data:
             return JsonResponse({"success": True})
         else:
-            return JsonResponse({"success": False, "error": "Error al insertar solicitud en Supabase"})
+            return JsonResponse({"success": False, "error": "Error al insertar en la base de datos."}, status=500)
 
     except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)})
+        # para debugging puedes imprimir/loguear e
+        print("ERROR enviar_solicitud:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 # 2️⃣ OBTENER NOTIFICACIONES DOCENTE
@@ -1338,39 +1375,35 @@ def enviar_retroalimentacion(request):
 @csrf_exempt
 def buscar_docentes(request):
     """
-    Retorna una lista de nombres de docentes que coincidan con el texto buscado.
-    Se usa para el autocompletado del campo 'buscarDocente'.
+    Retorna lista de docentes que coincidan con el texto (para autocompletado).
+    Devuelve: [{"usuario_id": 123, "nombre": "Juan Pérez"}, ...]
     """
-    query = request.GET.get("q", "").strip()
-
-    if not query:
+    q = request.GET.get("q", "").strip()
+    if not q:
         return JsonResponse({"docentes": []})
 
     try:
-        # Buscar coincidencias en la tabla usuario (nombre + apellido)
+        # Buscar coincidencias en nombre o apellido (ilike)
         usuarios_res = supabase.table("usuario") \
             .select("usuario_id, nombre, apellido") \
-            .ilike("nombre", f"%{query}%") \
+            .or_(f"nombre.ilike.%{q}%,apellido.ilike.%{q}%") \
             .execute()
 
-        if not usuarios_res.data:
+        usuarios = usuarios_res.data or []
+        if not usuarios:
             return JsonResponse({"docentes": []})
 
-        # Filtrar solo los que estén en la tabla docente
-        usuarios_ids = [u["usuario_id"] for u in usuarios_res.data]
-        docentes_res = supabase.table("docente") \
-            .select("usuario_id") \
-            .in_("usuario_id", usuarios_ids) \
-            .execute()
+        # Filtrar solo aquellos que están en la tabla docente
+        usuario_ids = [u["usuario_id"] for u in usuarios]
+        docentes_res = supabase.table("docente").select("usuario_id").in_("usuario_id", usuario_ids).execute()
+        docentes_ids = {d["usuario_id"] for d in (docentes_res.data or [])}
 
-        docentes_ids = {d["usuario_id"] for d in docentes_res.data}
-
-        docentes_filtrados = [
-            {"nombre": f"{u['nombre']} {u['apellido']}"}
-            for u in usuarios_res.data if u["usuario_id"] in docentes_ids
+        docentes = [
+            {"usuario_id": u["usuario_id"], "nombre": f"{u.get('nombre','').strip()} {u.get('apellido','').strip()}"}
+            for u in usuarios if u["usuario_id"] in docentes_ids
         ]
 
-        return JsonResponse({"docentes": docentes_filtrados})
+        return JsonResponse({"docentes": docentes})
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
