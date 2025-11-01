@@ -261,51 +261,150 @@
             });
         });
 
-        
+
 document.addEventListener("DOMContentLoaded", () => {
-  const inputDocente = document.getElementById("buscarDocente");
-  const listaSugerencias = document.createElement("div");
-  listaSugerencias.className = "sugerencias-docente";
-  inputDocente.parentNode.appendChild(listaSugerencias);
+  const inputDoc = document.getElementById("buscarDocente");
+  if (!inputDoc) return;
 
-  inputDocente.addEventListener("input", async () => {
-    const query = inputDocente.value.trim();
-    listaSugerencias.innerHTML = "";
+  // crear wrapper relativo para posicionamiento correcto
+  const wrapper = document.createElement("div");
+  wrapper.className = "autocomplete-wrapper";
+  wrapper.style.position = "relative";
+  inputDoc.parentNode.insertBefore(wrapper, inputDoc);
+  wrapper.appendChild(inputDoc);
 
-    if (query.length < 2) return; // Esperar al menos 2 letras antes de buscar
+  // crear campo hidden para almacenar usuario_id seleccionado
+  let hiddenId = document.getElementById("docenteIdSelected");
+  if (!hiddenId) {
+    hiddenId = document.createElement("input");
+    hiddenId.type = "hidden";
+    hiddenId.id = "docenteIdSelected";
+    hiddenId.name = "docente_id";
+    wrapper.appendChild(hiddenId);
+  }
 
-    try {
-      const res = await fetch(`/buscar_docentes/?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
+  const sugerencias = document.createElement("div");
+  sugerencias.className = "sugerencias-docente";
+  // estilos basicos para que quede debajo del input
+  sugerencias.style.position = "absolute";
+  sugerencias.style.left = "0";
+  sugerencias.style.right = "0";
+  sugerencias.style.top = (inputDoc.offsetHeight + 6) + "px";
+  sugerencias.style.zIndex = "9999";
+  sugerencias.style.background = "#fff";
+  sugerencias.style.border = "1px solid #ddd";
+  sugerencias.style.borderRadius = "6px";
+  sugerencias.style.maxHeight = "220px";
+  sugerencias.style.overflowY = "auto";
+  sugerencias.style.display = "none";
+  wrapper.appendChild(sugerencias);
 
-      if (data.docentes && data.docentes.length > 0) {
-        data.docentes.forEach((doc) => {
-          const item = document.createElement("div");
-          item.className = "sugerencia-item";
-          item.textContent = doc.nombre;
-          item.addEventListener("click", () => {
-            inputDocente.value = doc.nombre;
-            listaSugerencias.innerHTML = "";
+  let lastTimeout = null;
+  inputDoc.addEventListener("input", () => {
+    const q = inputDoc.value.trim();
+    hiddenId.value = ""; // reset selection when user edits text
+    sugerencias.innerHTML = "";
+    sugerencias.style.display = "none";
+
+    if (lastTimeout) clearTimeout(lastTimeout);
+    if (q.length < 2) return;
+
+    lastTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/buscar_docentes/?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (data.docentes && data.docentes.length > 0) {
+          sugerencias.style.display = "block";
+          data.docentes.forEach(d => {
+            const item = document.createElement("div");
+            item.className = "sugerencia-item";
+            item.style.padding = "8px 12px";
+            item.style.cursor = "pointer";
+            item.textContent = d.nombre;
+            item.dataset.id = d.usuario_id;
+            item.addEventListener("click", () => {
+              inputDoc.value = d.nombre;
+              hiddenId.value = d.usuario_id;
+              sugerencias.innerHTML = "";
+              sugerencias.style.display = "none";
+            });
+            sugerencias.appendChild(item);
           });
-          listaSugerencias.appendChild(item);
-        });
-      } else {
-        const noRes = document.createElement("div");
-        noRes.className = "sin-resultados";
-        noRes.textContent = "No se encontraron docentes";
-        listaSugerencias.appendChild(noRes);
+        } else {
+          sugerencias.style.display = "block";
+          const no = document.createElement("div");
+          no.className = "sin-resultados";
+          no.style.padding = "8px 12px";
+          no.style.color = "#666";
+          no.textContent = "No se encontraron docentes";
+          sugerencias.appendChild(no);
+        }
+      } catch (err) {
+        console.error("Error buscar_docentes:", err);
       }
-    } catch (error) {
-      console.error("Error al buscar docentes:", error);
+    }, 250); // debounce 250ms
+  });
+
+  // click fuera cierra
+  document.addEventListener("click", (ev) => {
+    if (!wrapper.contains(ev.target)) {
+      sugerencias.innerHTML = "";
+      sugerencias.style.display = "none";
     }
   });
 
-  // Ocultar sugerencias al hacer clic fuera
-  document.addEventListener("click", (e) => {
-    if (!inputDocente.contains(e.target)) {
-      listaSugerencias.innerHTML = "";
-    }
-  });
+  // Manejo del envío: usar id en lugar de nombre si existe
+  const btnEnviar = document.getElementById("enviarSolicitud");
+  if (btnEnviar) {
+    btnEnviar.addEventListener("click", async () => {
+      const id_docente = document.getElementById("docenteIdSelected").value;
+      const docente_text = document.getElementById("buscarDocente").value.trim();
+      const asignatura = document.getElementById("asignaturaSelect").value;
+      const sigla = document.getElementById("siglaSelect").value;
+      const mensaje = document.getElementById("mensaje").value.trim();
+
+      if ((!id_docente && !docente_text) || !asignatura || !sigla || !mensaje) {
+        Swal.fire("Completa todos los campos antes de enviar.");
+        return;
+      }
+
+      const payload = {
+        id_docente: id_docente || null,
+        docente: (!id_docente ? docente_text : null),
+        asignatura,
+        sigla,
+        mensaje
+      };
+
+      try {
+        const res = await fetch("/enviar_solicitud/", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          Swal.fire("Solicitud enviada con éxito");
+          document.getElementById("modalSolicitud").style.display = "none";
+          // limpiar
+          document.getElementById("buscarDocente").value = "";
+          document.getElementById("docenteIdSelected").value = "";
+          document.getElementById("mensaje").value = "";
+        } else {
+          // mostrar error detallado si lo hay
+          const errMsg = data.error || "Error al enviar la solicitud";
+          let html = errMsg;
+          if (data.candidatos) {
+            html += "<br><br>Coincidencias encontradas:<ul>" + data.candidatos.map(c => `<li>${c}</li>`).join("") + "</ul>";
+          }
+          Swal.fire({ icon: "error", title: "No se pudo enviar", html });
+        }
+      } catch (err) {
+        console.error("Error fetch enviar_solicitud:", err);
+        Swal.fire("Error al enviar la solicitud (problema de conexión).");
+      }
+    });
+  }
 });
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .JS ------------------------------------------

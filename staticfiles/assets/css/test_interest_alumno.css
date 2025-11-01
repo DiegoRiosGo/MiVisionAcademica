@@ -191,33 +191,23 @@
     }
 
 
+.autocomplete-wrapper { position: relative; }
 .sugerencias-docente {
   position: absolute;
-  background: white;
-  border: 1px solid #ccc;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  margin-top: 4px;
-  width: 100%;
-  z-index: 999;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
-  max-height: 200px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  z-index: 9999;
+  max-height: 220px;
   overflow-y: auto;
 }
-
-.sugerencia-item {
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.sugerencia-item:hover {
-  background: #f0f0f0;
-}
-
-.sin-resultados {
-  padding: 8px 12px;
-  color: #999;
-  font-style: italic;
-}
+.sugerencia-item { padding: 8px 12px; cursor: pointer; }
+.sugerencia-item:hover { background: #f5f5f5; }
+.sin-resultados { padding: 8px 12px; color:#777; font-style:italic; }   
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

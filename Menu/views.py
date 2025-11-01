@@ -1198,7 +1198,7 @@ def enviar_solicitud(request):
         data = json.loads(request.body.decode("utf-8") or "{}")
 
         # Obtener id del estudiante desde sesión (fallback a request.user si aplica)
-        id_estudiante = request.user.usuario_id
+        id_estudiante = request.session.get("usuario_id") or getattr(request.user, "usuario_id", None)
         if not id_estudiante:
             return JsonResponse({"success": False, "error": "Sesión inválida."}, status=403)
 
