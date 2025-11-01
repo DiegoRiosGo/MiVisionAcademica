@@ -1278,7 +1278,7 @@ def enviar_solicitud(request):
 # 2️⃣ OBTENER NOTIFICACIONES DOCENTE
 def obtener_notificaciones_docente(request):
     try:
-        docente_usuario_id = request.user.usuario_id
+        docente_usuario_id = request.session.get("usuario_id") or getattr(request.user, "usuario_id", None)
 
         docente_res = supabase.table("docente").select("usuario_id").eq("usuario_id", docente_usuario_id).execute()
         if not docente_res.data:
