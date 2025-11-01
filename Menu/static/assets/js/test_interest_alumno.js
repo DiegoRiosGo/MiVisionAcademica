@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!inputDoc) {
     console.error("No se encontró el campo buscarDocente.");
     return;
-  }
+  } 
 
   // crear wrapper relativo para posicionamiento correcto
   const wrapper = document.createElement("div");
@@ -360,8 +360,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Manejo del envío: usar id en lugar de nombre si existe
   const btnEnviar = document.getElementById("enviarSolicitud");
-  if (btnEnviar) {
-    btnEnviar.addEventListener("click", async () => {
+  if (btnEnviar && !btnEnviar.dataset.listenerAdded) {
+    btnEnviar.dataset.listenerAdded = true;
+    btnEnviar.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const id_docente = document.getElementById("docenteIdSelected").value;
       const docente_text = document.getElementById("buscarDocente").value.trim();
       const asignatura = document.getElementById("asignaturaSelect").value;
@@ -382,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const res = await fetch("/enviar_solicitud/", {
+        const res = await fetch(`${window.location.origin}/enviar_solicitud/`, {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify(payload)

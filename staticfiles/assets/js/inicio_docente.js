@@ -35,14 +35,18 @@
         const lista = document.getElementById("listaNotificaciones");
         lista.innerHTML = "";
 
+        if (!data.success || !data.solicitudes) {
+            lista.innerHTML = `<li class="sin-solicitudes">No hay solicitudes nuevas.</li>`;
+            return;
+        }
+
         data.solicitudes.forEach(s => {
             const li = document.createElement("li");
-            li.innerHTML = `<strong>${s.estudiante}</strong> pide retroalimentación en <em>${s.asignatura}</em> (${s.sigla})<br>${s.mensaje}`;
+            li.innerHTML = `<strong>${s.estudiante}</strong> pide retroalimentación en 
+            <em>${s.asignatura}</em> (${s.sigla})<br>${s.mensaje}`;
             lista.appendChild(li);
         });
     }
-    cargarNotificaciones();
-    setInterval(cargarNotificaciones, 15000);
 /* --------------------------------------------------------------------------------------------------------------
    ---------------------------------------- FIN inicio_docente .JS ----------------------------------------------
    -------------------------------------------------------------------------------------------------------------- */        
