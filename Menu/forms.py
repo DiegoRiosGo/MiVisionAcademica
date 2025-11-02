@@ -51,10 +51,11 @@ class RegistroForm(forms.Form):
         elif correo.endswith('@duocuc.cl'):
             rol = 2
         else:
-            raise forms.ValidationError("El correo debe ser institucional de Duoc UC:\n"
-                                            "🎓 @duocuc.cl\n"
-                                            "👨‍🏫 @profesor.duoc.cl\n"
-                                            "🏫 @duoc.cl\n")
+            raise forms.ValidationError(
+                "El correo debe ser institucional de Duoc UC:\n"
+                "🎓 @duocuc.cl\n"
+                "👨‍🏫 @profesor.duoc.cl\n"
+                "🏫 @duoc.cl\n")
 
         # Validar si ya existe
         existing_user = supabase.table("usuario").select("*").eq("correo", correo).execute()
