@@ -109,8 +109,6 @@
                 icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
                 title: "{{ message|escapejs }}",
                 confirmButtonText: "Aceptar",
-                timer: 4000,
-                timerProgressBar: true,
                 customClass: {
                     popup: 'mi-popup',
                     confirmButton: 'mi-boton',
