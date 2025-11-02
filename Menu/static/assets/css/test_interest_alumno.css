@@ -228,8 +228,8 @@
 }
 
 /* Botón violeta por ID */
-#procesarPdfBtn,
-#enviarSolicitud {
+.Enviar-btn,
+#btnSolicitud {
   background-color: #5d2fb2 !important;
   color: #fff !important;
   border: none;
@@ -242,8 +242,8 @@
 }
 
 /* Hover para ambos */
-#procesarPdfBtn:hover,
-#enviarSolicitud:hover {
+.Enviar-btn:hover,
+#btnSolicitud:hover {
   background-color: #b23ad3 !important;
   transform: scale(1.03);
   cursor: pointer;
