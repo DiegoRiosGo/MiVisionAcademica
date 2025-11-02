@@ -300,6 +300,45 @@
   background-color: #9c7fdc;
 }
 
+body.swal2-height-auto {
+  height: unset;
+}
+
+
+.swal2-error-fix {
+  background-color: transparent;
+}
+
+.swal2-error-mark {
+  background: none;
+  box-shadow: none;
+}
+.swal2-error-x-mark {
+  position: relative;
+  display: block;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  top: -10px; /* 💫 Subimos la X */
+}
+
+.swal2-error-line {
+  position: absolute;
+  height: 5px;
+  width: 45px;
+  background-color: #9c7fdc; /* Tu violeta personalizado */
+  top: 27px;
+  left: 7px;
+  border-radius: 2px;
+}
+
+.swal2-error-line:first-child {
+  transform: rotate(45deg);
+}
+
+.swal2-error-line:last-child {
+  transform: rotate(-45deg);
+}
 
 
 /* -------------------------------------------------------------------------------------------------------------
