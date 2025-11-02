@@ -332,6 +332,12 @@ div.swal2-icon.swal2-error .swal2-x-mark-line-right {
   display: block !important;
 }
 
+.swal2-error-fix {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+
 
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN inicio .CSS ------------------------------------------------------
