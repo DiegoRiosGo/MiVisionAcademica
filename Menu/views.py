@@ -507,7 +507,7 @@ def registrar_usuario(request):
             }
 
             supabase.table("usuario").insert(nuevo_usuario).execute()
-            messages.success(request, "✅ Registro exitoso. Ya puedes iniciar sesión.")
+            messages.success(request, "Registro exitoso. Ya puedes iniciar sesión.")
             return redirect('Inicio')
         else:
             for error in form.errors.values():

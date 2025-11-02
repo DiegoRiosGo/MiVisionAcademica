@@ -101,6 +101,32 @@
         transform: scale(0.98);
     }
 
+    .btn btn-success{
+            background-color: #5d2fb2 !important; /* violeta intenso */
+            color: #fff !important;
+            border: none;
+            padding: 8px 16px;
+            font-size: 15px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-block;
+            text-align: center;
+    }
+
+    .btn btn-success:hover{
+        background-color: #b23ad3 !important; /* violeta claro */
+        transform: scale(1.03);
+        cursor: pointer;
+    }
+
+
+
+
+
+
+
+
+
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
     @media (max-width: 768px) {
     .content {
@@ -118,6 +144,8 @@
         height: auto;
     }
     }
+
+
 
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN inicio_alumno .CSS -----------------------------------------------
