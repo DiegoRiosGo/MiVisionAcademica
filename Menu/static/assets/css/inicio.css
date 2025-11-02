@@ -269,7 +269,7 @@
     }
 
     .mi-boton {
-    background-color: #eee0f8;
+    background-color: #d1b0e9;
     color: white;
     font-weight: bold;
     border: none;
@@ -307,11 +307,11 @@
 div.swal2-icon.swal2-error [class^="swal2-x-mark-line"] {
   display: block;
   position: absolute;
-  top: 28px; /* Ajustado para que la X esté centrada verticalmente */
+  top: 0 !important; 
   width: 47px;
   height: 5px;
   border-radius: 2px;
-  background-color: #9c7fdc; /* Tu violeta personalizado */
+  background-color: #ef4c4c;
 }
 
 div.swal2-icon.swal2-error .swal2-x-mark-line-left {
@@ -322,6 +322,11 @@ div.swal2-icon.swal2-error .swal2-x-mark-line-left {
 div.swal2-icon.swal2-error .swal2-x-mark-line-right {
   transform: rotate(-45deg);
   right: 7px;
+}
+
+.swal2-error-fix {
+  background-color: transparent;
+  box-shadow: none;
 }
 
 
