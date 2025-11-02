@@ -159,6 +159,59 @@
         list-style-type: disc;
         padding-left: 20px;
     }
+
+    /* Alineación horizontal */
+    .botones-ia {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    /* Botón 1: hover como color principal */
+    #btnPruebaIAFree {
+        background-color: #b23ad3 !important; /* violeta claro como base */
+        color: #fff !important;
+        border: none;
+        padding: 8px 16px;
+        font-size: 15px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #btnPruebaIAFree:hover {
+        background-color: #5d2fb2 !important; /* violeta intenso al pasar el mouse */
+        transform: scale(1.03);
+        cursor: pointer;
+    }
+
+    /* Botón 2: violeta intenso como base */
+    #btnGuardarPDF {
+        background-color: #5d2fb2 !important;
+        color: #fff !important;
+        border: none;
+        padding: 8px 16px;
+        font-size: 15px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    /* Hover solo si está habilitado */
+    #btnGuardarPDF:hover:enabled {
+        background-color: #b23ad3 !important;
+        transform: scale(1.03);
+        cursor: pointer;
+    }
+
+    /* Estilo visual cuando está deshabilitado */
+    #btnGuardarPDF:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+
+
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN informe_alumno .CSS ----------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */    
