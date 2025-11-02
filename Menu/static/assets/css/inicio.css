@@ -324,9 +324,12 @@ div.swal2-icon.swal2-error .swal2-x-mark-line-right {
   right: 7px;
 }
 
+
 .swal2-error-fix {
-  background-color: transparent;
-  box-shadow: none;
+  background-color: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+  display: block !important;
 }
 
 
