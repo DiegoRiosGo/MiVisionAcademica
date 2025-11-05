@@ -388,30 +388,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
 
         if (data.success) {
-          Swal.fire({
-            icon: "success",
-            title: "Solicitud enviada con éxito",
-            timer: 2500,
-            showConfirmButton: false,
-          });
-          document.getElementById("modalSolicitud").style.display = "none";
+          Swal.fire("Solicitud enviada con éxito");
+          modal.style.display = "none";
           document.getElementById("buscarDocente").value = "";
           document.getElementById("docenteIdSelected").value = "";
           document.getElementById("mensaje").value = "";
         } else {
-          const errMsg = data.error || "Error al enviar la solicitud.";
-          let html = errMsg;
-          if (data.candidatos) {
-            html +=
-              "<br><br>Coincidencias encontradas:<ul>" +
-              data.candidatos.map((c) => `<li>${c}</li>`).join("") +
-              "</ul>";
-          }
-          Swal.fire({
-            icon: "error",
-            title: "No se pudo enviar",
-            html,
-          });
+          Swal.fire("Error al enviar la solicitud");
         }
       } catch (err) {
         console.error("Error fetch enviar_solicitud:", err);
