@@ -57,7 +57,7 @@
                         data-estudiante="${s.estudiante}">
                     <i class="fas fa-reply"></i> Responder
                 </button>
-                <button class="btn btn-sm btn-danger eliminar-solicitud" data-id="${s.id}">
+                <button class="btn btn-sm btn-danger mt-2 eliminar-solicitud" data-id="${s.id}">
                     <i class="fas fa-trash-alt"></i> Eliminar
                 </button>
             </div>
