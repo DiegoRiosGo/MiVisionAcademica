@@ -365,6 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnEnviar.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
+
       const id_docente = document.getElementById("docenteIdSelected").value;
       const docente_text = document.getElementById("buscarDocente").value.trim();
       const asignatura = document.getElementById("asignaturaSelect").value;
@@ -378,38 +379,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const payload = {
         id_docente: id_docente || null,
-        docente: (!id_docente ? docente_text : null),
+        docente: !id_docente ? docente_text : null,
         asignatura,
         sigla,
-        mensaje
+        mensaje,
       };
 
       try {
         const res = await fetch(`${window.location.origin}/enviar_solicitud/`, {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         });
+
+        // ✅ Comprobamos si la respuesta HTTP es exitosa
+        if (!res.ok) {
+          Swal.fire({
+            icon: "error",
+            title: "No se pudo enviar la solicitud",
+            text: `Error HTTP ${res.status}: ${res.statusText}`,
+          });
+          return;
+        }
+
         const data = await res.json();
+
         if (data.success) {
-          Swal.fire("Solicitud enviada con éxito");
+          Swal.fire({
+            icon: "success",
+            title: "Solicitud enviada con éxito",
+            timer: 2500,
+            showConfirmButton: false,
+          });
           document.getElementById("modalSolicitud").style.display = "none";
-          // limpiar
           document.getElementById("buscarDocente").value = "";
           document.getElementById("docenteIdSelected").value = "";
           document.getElementById("mensaje").value = "";
         } else {
-          // mostrar error detallado si lo hay
-          const errMsg = data.error || "Error al enviar la solicitud";
+          const errMsg = data.error || "Error al enviar la solicitud.";
           let html = errMsg;
           if (data.candidatos) {
-            html += "<br><br>Coincidencias encontradas:<ul>" + data.candidatos.map(c => `<li>${c}</li>`).join("") + "</ul>";
+            html +=
+              "<br><br>Coincidencias encontradas:<ul>" +
+              data.candidatos.map((c) => `<li>${c}</li>`).join("") +
+              "</ul>";
           }
-          Swal.fire({ icon: "error", title: "No se pudo enviar", html });
+          Swal.fire({
+            icon: "error",
+            title: "No se pudo enviar",
+            html,
+          });
         }
       } catch (err) {
         console.error("Error fetch enviar_solicitud:", err);
-        Swal.fire("Error al enviar la solicitud (problema de conexión).");
+        Swal.fire({
+          icon: "error",
+          title: "Error de conexión",
+          text: "No se pudo conectar con el servidor.",
+        });
       }
     });
   }

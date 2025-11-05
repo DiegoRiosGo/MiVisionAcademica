@@ -135,6 +135,20 @@
   text-align: center;
   padding: 10px;
 }
+
+.eliminar-solicitud {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.eliminar-solicitud:hover {
+  background: #b02a37;
+}
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN inicio_docente .CSS ----------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */    

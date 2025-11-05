@@ -1324,8 +1324,33 @@ def obtener_notificaciones_docente(request):
         print("ERROR obtener_notificaciones_docente:", e)
         return JsonResponse({"success": False, "error": "Error al obtener las notificaciones del docente."}, status=500)
     
+# 3️⃣ ELIMINAR SOLICITUD (cambia estado a 'eliminada')
+@csrf_exempt
+def eliminar_solicitud(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+    try:
+        data = json.loads(request.body.decode("utf-8") or "{}")
+        solicitud_id = data.get("id_sretro")
 
-# 3️⃣ ENVIAR RETROALIMENTACIÓN DESDE DOCENTE
+        if not solicitud_id:
+            return JsonResponse({"success": False, "error": "Falta el ID de solicitud"}, status=400)
+
+        # Actualizamos estado en Supabase
+        resp = supabase.table("solicitud_retroalimentacion").update({
+            "estado": "eliminada",
+            "actualizado_en": datetime.now().isoformat()
+        }).eq("id_sretro", int(solicitud_id)).execute()
+
+        if resp.data:
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "No se pudo eliminar la solicitud"}, status=400)
+    except Exception as e:
+        print("ERROR eliminar_solicitud:", e)
+        return JsonResponse({"success": False, "error": "Error al eliminar la solicitud"}, status=500)
+    
+# 4 ENVIAR RETROALIMENTACIÓN DESDE DOCENTE
 def enviar_retroalimentacion(request):
     if request.method == "POST":
         try:

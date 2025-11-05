@@ -2,81 +2,81 @@
      ------------------------------------- INICIO inicio_docente .HTML ------------------------------------------
      ------------------------------------------------------------------------------------------------------------ -->
 
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inicio Docente</title>
-  <link rel="icon" type="image/png" href="{% static 'assets/imagenes/logo1.png' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/inicio_docente.css' %}">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<!--TITULO BODY-->
-<body>
+  {% load static %}
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio Docente</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/imagenes/logo1.png' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/inicio_docente.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <!--TITULO BODY-->
+  <body>
 
-  <!-- TITULO BARRA LATERAL -->
-
-    
-    <nav class="sidebar">
-      <div class="profile text-center p-3">
-        {% if foto %}
-          <img src="{{ foto }}" alt="Perfil">
-        {% else %}
-          <img src="https://i.pinimg.com/736x/f6/d5/b4/f6d5b458bf7aa0276c81a666c916de18.jpg" alt="Perfil">
-        {% endif %}
-        <h5 class="text-white">{{ nombre }} {{ apellido }}</h5>
-      </div>
-      <ul class="nav flex-column">
-        <li><a href="{% url 'InicioDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'InicioDocente' %}active{% endif %}"><i class="fas fa-home me-2"></i>Inicio</a></li>
-        <li><a href="{% url 'PerfilDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'PerfilDocente' %}active{% endif %}"><i class="fas fa-user-tie me-2"></i>Perfil</a></li>
-        <li><a href="{% url 'RetroalimentacionDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'RetroalimentacionDocente' %}active{% endif %}"><i class="fas fa-comments me-2"></i>Retroalimentación</a></li>
-        <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
-      </ul>
-    </nav>
-
-  <!--TITULO BIENVENIDA-->
-   
-      <div class="content">
-        <div class="topbar">
-          <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4>
-        </div>
-        <div class="card p-4 mb-4">
-          <p>Desde aquí podrás acceder a tu perfil, poder ver el rendimiento por asignatura, 
-            además de los estudiantes, poder enviar retroalimentación y revisar gráficos con rendimiento por estudiantes.</p>
-        </div>
-
-        <div id="notificaciones" class="notif-container">
-          <h4>Solicitudes de Retroalimentación</h4>
-          <ul id="listaNotificaciones"></ul>
-        </div>
-      </div>
+    <!-- TITULO BARRA LATERAL -->
 
       
-      <!--llamado al js de inicio_docente-->
-      <script src="{% static 'assets/js/inicio_docente.js' %}"></script>
+      <nav class="sidebar">
+        <div class="profile text-center p-3">
+          {% if foto %}
+            <img src="{{ foto }}" alt="Perfil">
+          {% else %}
+            <img src="https://i.pinimg.com/736x/f6/d5/b4/f6d5b458bf7aa0276c81a666c916de18.jpg" alt="Perfil">
+          {% endif %}
+          <h5 class="text-white">{{ nombre }} {{ apellido }}</h5>
+        </div>
+        <ul class="nav flex-column">
+          <li><a href="{% url 'InicioDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'InicioDocente' %}active{% endif %}"><i class="fas fa-home me-2"></i>Inicio</a></li>
+          <li><a href="{% url 'PerfilDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'PerfilDocente' %}active{% endif %}"><i class="fas fa-user-tie me-2"></i>Perfil</a></li>
+          <li><a href="{% url 'RetroalimentacionDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'RetroalimentacionDocente' %}active{% endif %}"><i class="fas fa-comments me-2"></i>Retroalimentación</a></li>
+          <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+        </ul>
+      </nav>
 
-      <!--mensajes emergentes-->
-    {% if messages %}
-      {% for message in messages %}
-      <script>
-          Swal.fire({
-              icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
-              title: "{{ message|escapejs }}",
-              confirmButtonText: "Aceptar",
-              confirmButtonColor: "#3085d6",
-              timer: 4000,
-              timerProgressBar: true
-          });
-      </script>
-      {% endfor %}
-    {% endif %}
+    <!--TITULO BIENVENIDA-->
+    
+        <div class="content">
+          <div class="topbar">
+            <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4>
+          </div>
+          <div class="card p-4 mb-4">
+            <p>Desde aquí podrás acceder a tu perfil, poder ver el rendimiento por asignatura, 
+              además de los estudiantes, poder enviar retroalimentación y revisar gráficos con rendimiento por estudiantes.</p>
+          </div>
 
-</body>
-</html>
+          <div id="notificaciones" class="notif-container">
+            <h4>Solicitudes de Retroalimentación</h4>
+            <ul id="listaNotificaciones"></ul>
+          </div>
+        </div>
+
+        
+        <!--llamado al js de inicio_docente-->
+        <script src="{% static 'assets/js/inicio_docente.js' %}"></script>
+
+        <!--mensajes emergentes-->
+      {% if messages %}
+        {% for message in messages %}
+        <script>
+            Swal.fire({
+                icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{{ message|escapejs }}",
+                confirmButtonText: "Aceptar",
+                confirmButtonColor: "#3085d6",
+                timer: 4000,
+                timerProgressBar: true
+            });
+        </script>
+        {% endfor %}
+      {% endif %}
+
+  </body>
+  </html>
 <!-- ------------------------------------------------------------------------------------------------------------
      ------------------------------------- FIN inicio_docente .HTML ----------------------------------------------
      ------------------------------------------------------------------------------------------------------------ -->

@@ -30,25 +30,66 @@
     });
 
     async function cargarNotificaciones() {
+    try {
         const res = await fetch("/obtener_notificaciones_docente/");
         const data = await res.json();
         const lista = document.getElementById("listaNotificaciones");
         lista.innerHTML = "";
 
-        if (!data.success || !data.solicitudes) {
-            lista.innerHTML = `<li class="sin-solicitudes">No hay solicitudes nuevas.</li>`;
-            return;
+        if (!data.success || !data.solicitudes || data.solicitudes.length === 0) {
+        lista.innerHTML = `<li class="sin-solicitudes">No hay solicitudes nuevas.</li>`;
+        return;
         }
 
-        data.solicitudes.forEach(s => {
-            const li = document.createElement("li");
-            li.innerHTML = `<strong>${s.estudiante}</strong> pide retroalimentación en 
-            <em>${s.asignatura}</em> (${s.sigla})<br>${s.mensaje}`;
-            lista.appendChild(li);
+        data.solicitudes.forEach((s) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <div>
+            <strong>${s.estudiante}</strong> pide retroalimentación en 
+            <em>${s.asignatura}</em> (${s.sigla})<br>
+            ${s.mensaje}
+            </div>
+            <button class="btn btn-sm btn-danger mt-2 eliminar-solicitud" data-id="${s.id}">
+            <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
+        `;
+        lista.appendChild(li);
         });
+
+        // Asignar eventos a los botones eliminar
+        document.querySelectorAll(".eliminar-solicitud").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const id = btn.dataset.id;
+            const confirm = await Swal.fire({
+            title: "¿Eliminar solicitud?",
+            text: "Esta solicitud se ocultará del listado.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+            });
+            if (confirm.isConfirmed) {
+            const res = await fetch("/eliminar_solicitud/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id_sretro: id }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                Swal.fire("Eliminada", "La solicitud fue eliminada correctamente.", "success");
+                cargarNotificaciones(); // refrescar lista
+            } else {
+                Swal.fire("Error", data.error || "No se pudo eliminar", "error");
+            }
+            }
+        });
+        });
+    } catch (err) {
+        console.error("Error cargando notificaciones:", err);
+    }
     }
     cargarNotificaciones();
-    setInterval(cargarNotificaciones, 15000);
+    setInterval(cargarNotificaciones, 1000);
 /* --------------------------------------------------------------------------------------------------------------
    ---------------------------------------- FIN inicio_docente .JS ----------------------------------------------
    -------------------------------------------------------------------------------------------------------------- */        
