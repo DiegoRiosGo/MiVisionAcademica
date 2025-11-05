@@ -1305,7 +1305,7 @@ def obtener_notificaciones_docente(request):
                 nombre_est = f"{est_res.data[0]['nombre']} {est_res.data[0]['apellido']}"
 
             # Obtener nombre real de asignatura
-            asig_res = supabase.table("asignatura").select("nombre_asignatura").eq("id_asignatura", s["asignatura"]).execute()
+            asig_res = supabase.table("asignatura").select("nombre_asignatura").eq("asignatura_id", s["asignatura"]).execute()
             nombre_asig = asig_res.data[0]["nombre_asignatura"] if asig_res.data else f"Asignatura ID {s['asignatura']}"
 
             solicitudes.append({
