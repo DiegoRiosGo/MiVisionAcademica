@@ -360,10 +360,10 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const res = await fetch(`${window.location.origin}/enviar_solicitud/`, {
+        const res = await fetch("/enviar_solicitud/", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken  },
+          body: JSON.stringify({ docente, asignatura, sigla, mensaje }),
         });
 
         // ✅ Comprobamos si la respuesta HTTP es exitosa
