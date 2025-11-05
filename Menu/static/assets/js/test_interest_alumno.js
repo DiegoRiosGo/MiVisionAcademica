@@ -302,8 +302,9 @@ document.addEventListener("DOMContentLoaded", () => {
             item.textContent = d.nombre;
             item.dataset.id = d.usuario_id;
             item.addEventListener("click", () => {
-              inputDoc.value = d.nombre;
-              hiddenId.value = d.usuario_id;
+              inputDoc.value = `${d.nombre}`.trim();
+              hiddenId.value = String(d.usuario_id).trim(); // ✅ aseguramos valor
+              inputDoc.dataset.selected = "true"; // marcamos que fue seleccionada
               sugerencias.innerHTML = "";
               sugerencias.style.display = "none";
             });
@@ -370,6 +371,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Si el usuario no seleccionó desde sugerencias, invalidar
+      if (!hiddenId.value && !inputDoc.dataset.selected) {
+        Swal.fire({
+          icon: "warning",
+          title: "Selecciona un docente desde las sugerencias",
+          text: "Por favor, asegúrate de elegir un docente válido.",
+        });
+        return;
+      }
+      
       const payload = {
         id_docente: id_docente || null,
         docente: !id_docente ? docente_text : null,
