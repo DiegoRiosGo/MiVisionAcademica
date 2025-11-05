@@ -385,15 +385,6 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(payload), // ✅ corregido
         });
 
-        if (!res.ok) {
-          Swal.fire({
-            icon: "error",
-            title: "No se pudo enviar la solicitud",
-            text: `Error HTTP ${res.status}: ${res.statusText}`,
-          });
-          return;
-        }
-
         const data = await res.json();
 
         if (data.success) {
