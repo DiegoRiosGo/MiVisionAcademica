@@ -45,13 +45,22 @@
         const li = document.createElement("li");
         li.innerHTML = `
             <div>
-            <strong>${s.estudiante}</strong> pide retroalimentación en 
-            <em>${s.asignatura}</em> (${s.sigla})<br>
-            ${s.mensaje}
+                <strong>${s.estudiante}</strong> pide retroalimentación en 
+                <em>${s.asignatura}</em> (${s.sigla})<br>
+                ${s.mensaje}
             </div>
-            <button class="btn btn-sm btn-danger mt-2 eliminar-solicitud" data-id="${s.id}">
-            <i class="fas fa-trash-alt"></i> Eliminar
-            </button>
+            <div class="mt-2">
+                <button class="btn btn-sm btn-primary responder-solicitud me-2" 
+                        data-area="${s.area || ''}" 
+                        data-asignatura="${s.asignatura}" 
+                        data-sigla="${s.sigla}" 
+                        data-estudiante="${s.estudiante}">
+                    <i class="fas fa-reply"></i> Responder
+                </button>
+                <button class="btn btn-sm btn-danger eliminar-solicitud" data-id="${s.id}">
+                    <i class="fas fa-trash-alt"></i> Eliminar
+                </button>
+            </div>
         `;
         lista.appendChild(li);
         });
@@ -83,6 +92,19 @@
             }
             }
         });
+        });
+
+        // --- Evento para responder ---
+        document.querySelectorAll(".responder-solicitud").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const area = encodeURIComponent(btn.dataset.area || "");
+                const asignatura = encodeURIComponent(btn.dataset.asignatura || "");
+                const sigla = encodeURIComponent(btn.dataset.sigla || "");
+                const estudiante = encodeURIComponent(btn.dataset.estudiante || "");
+
+                const url = `/retroalimentacion_docente/?area=${area}&asignatura=${asignatura}&sigla=${sigla}&estudiante=${estudiante}`;
+                window.location.href = url;
+            });
         });
     } catch (err) {
         console.error("Error cargando notificaciones:", err);

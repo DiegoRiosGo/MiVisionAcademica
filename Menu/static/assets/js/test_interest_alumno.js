@@ -233,32 +233,6 @@
                 }
                 });
             }
-
-            btnEnviar.addEventListener("click", async () => {
-                const docente = document.getElementById("buscarDocente").value;
-                const asignatura = document.getElementById("asignaturaSelect").value;
-                const sigla = document.getElementById("siglaSelect").value;
-                const mensaje = document.getElementById("mensaje").value;
-
-                if (!docente || !asignatura || !sigla || !mensaje) {
-                Swal.fire("Completa todos los campos antes de enviar.");
-                return;
-                }
-
-                const res = await fetch("/enviar_solicitud/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken  },
-                body: JSON.stringify({ docente, asignatura, sigla, mensaje }),
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                Swal.fire("Solicitud enviada con éxito");
-                modal.style.display = "none";
-                } else {
-                Swal.fire("Error al enviar la solicitud");
-                }
-            });
         });
 
 
@@ -393,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // ✅ Comprobamos si la respuesta HTTP es exitosa
-        /*if (!res.ok) {
+        if (!res.ok) {
           Swal.fire({
             icon: "error",
             title: "No se pudo enviar la solicitud",
@@ -401,8 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           return;
         }
-        */
-       
+
         const data = await res.json();
 
         if (data.success) {

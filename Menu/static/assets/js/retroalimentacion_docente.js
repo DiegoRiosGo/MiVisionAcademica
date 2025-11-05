@@ -19,6 +19,59 @@ document.addEventListener("DOMContentLoaded", () => {
   const feedbackTextarea = document.getElementById("feedback");
   const resetBtn = document.getElementById("resetFilters");
 
+  // --- Autocompletar si vienen datos por URL ---
+  const params = new URLSearchParams(window.location.search);
+  const areaParam = params.get("area");
+  const asignaturaParam = params.get("asignatura");
+  const siglaParam = params.get("sigla");
+  const estudianteParam = params.get("estudiante");
+
+  async function precargarCampos() {
+    if (areaParam) {
+      await cargarAreas();
+      areaSelect.value = areaParam;
+
+      // Cargar asignaturas de esa área
+      const resA = await fetch("/obtener_asignaturas/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+        body: JSON.stringify({ area: areaParam }),
+      });
+      const dataA = await resA.json();
+      if (dataA.success) {
+        asignaturaSelect.innerHTML = '<option value="">Seleccione una asignatura</option>';
+        dataA.asignaturas.forEach(a => {
+          const selected = a.nombre_asignatura === asignaturaParam ? "selected" : "";
+          asignaturaSelect.innerHTML += `<option value="${a.asignatura_id}" ${selected}>${a.nombre_asignatura}</option>`;
+        });
+      }
+
+      // Cargar siglas de la asignatura seleccionada
+      if (asignaturaSelect.value) {
+        const resS = await fetch("/obtener_siglas/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+          body: JSON.stringify({ asignatura_id: asignaturaSelect.value }),
+        });
+        const dataS = await resS.json();
+        if (dataS.success) {
+          siglaSelect.innerHTML = '<option value="">Seleccione una sigla</option>';
+          dataS.siglas.forEach(s => {
+            const selected = s === siglaParam ? "selected" : "";
+            siglaSelect.innerHTML += `<option value="${s}" ${selected}>${s}</option>`;
+          });
+        }
+      }
+    }
+
+    // Estudiante
+    if (estudianteParam) {
+      estudianteSelect.innerHTML = `<option value="${estudianteParam}" selected>${estudianteParam}</option>`;
+    }
+  }
+
+  precargarCampos();
+  
   // Gráficos globales
   let lineChart = null;
   let radarChart = null;
