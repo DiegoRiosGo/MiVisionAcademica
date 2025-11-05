@@ -1329,9 +1329,8 @@ def obtener_notificaciones_docente(request):
                         .execute()
                     )
                     s["area"] = asig.data["area"] if asig.data else None
-                except Exception as e:
-                    print("Error area:", e)
-                    return JsonResponse({"success": False, "error": str(e)}, status=500)
+                except Exception:
+                    s["area"] = None
                     
         return JsonResponse({"success": True, "solicitudes": solicitudes})
 

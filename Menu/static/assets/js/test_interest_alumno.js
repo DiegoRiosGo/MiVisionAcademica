@@ -342,7 +342,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const id_docente = document.getElementById("docenteIdSelected").value;
       const docente_text = document.getElementById("buscarDocente").value.trim();
-      const asignatura = document.getElementById("asignaturaSelect").value;
+
+      const asignaturaSelectEl = document.getElementById("asignaturaSelect");
+      const asignatura = asignaturaSelectEl.options[asignaturaSelectEl.selectedIndex]?.text || "";
+
       const sigla = document.getElementById("siglaSelect").value;
       const mensaje = document.getElementById("mensaje").value.trim();
 
@@ -382,14 +385,30 @@ document.addEventListener("DOMContentLoaded", () => {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
           },
-          body: JSON.stringify(payload), // ✅ corregido
+          body: JSON.stringify(payload),
         });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          console.error("Error backend:", txt);
+          Swal.fire({
+            icon: "error",
+            title: `Error ${res.status}`,
+            text: txt || "Error desconocido",
+          });
+          return;
+        }
 
         const data = await res.json();
 
         if (data.success) {
-          Swal.fire("Solicitud enviada con éxito");
-          modal.style.display = "none";
+          Swal.fire({
+            icon: "success",
+            title: "Solicitud enviada con éxito",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          document.getElementById("modalSolicitud").style.display = "none";
           document.getElementById("buscarDocente").value = "";
           document.getElementById("docenteIdSelected").value = "";
           document.getElementById("mensaje").value = "";

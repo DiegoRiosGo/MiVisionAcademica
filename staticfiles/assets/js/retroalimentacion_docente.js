@@ -29,7 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
   async function precargarCampos() {
     if (areaParam) {
       await cargarAreas();
-      areaSelect.value = areaParam;
+      if ([...areaSelect.options].some(opt => opt.value === areaParam)) {
+        areaSelect.value = areaParam;
+      }
 
       // Cargar asignaturas de esa área
       const resA = await fetch("/obtener_asignaturas/", {
@@ -46,6 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
+      await new Promise(r => setTimeout(r, 300));
+      
       // Cargar siglas de la asignatura seleccionada
       if (asignaturaSelect.value) {
         const resS = await fetch("/obtener_siglas/", {
@@ -71,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   precargarCampos();
-  
+
   // Gráficos globales
   let lineChart = null;
   let radarChart = null;
