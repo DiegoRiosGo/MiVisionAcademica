@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("/enviar_solicitud/", {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken  },
-          body: JSON.stringify({ id_docente, asignatura, sigla, mensaje }),
+          body: JSON.stringify({ docente_text, asignatura, sigla, mensaje }),
         });
 
         // ✅ Comprobamos si la respuesta HTTP es exitosa
