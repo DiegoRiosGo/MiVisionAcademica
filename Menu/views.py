@@ -1318,6 +1318,20 @@ def obtener_notificaciones_docente(request):
                 "creado_en": s["creado_en"]
             })
 
+            # Si hay solicitudes, obtener áreas asociadas
+            for s in solicitudes:
+                try:
+                    asig = (
+                        supabase.table("asignatura")
+                        .select("area")
+                        .eq("nombre_asignatura", s.get("asignatura"))
+                        .maybe_single()
+                        .execute()
+                    )
+                    s["area"] = asig.data["area"] if asig.data else None
+                except Exception:
+                    s["area"] = None
+                    
         return JsonResponse({"success": True, "solicitudes": solicitudes})
 
     except Exception as e:

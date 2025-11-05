@@ -346,7 +346,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const sigla = document.getElementById("siglaSelect").value;
       const mensaje = document.getElementById("mensaje").value.trim();
 
-      // --- Helper CSRF ---
       function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
@@ -379,11 +378,13 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch("/enviar_solicitud/", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken  },
-          body: JSON.stringify({ docente_text, asignatura, sigla, mensaje }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+          body: JSON.stringify(payload), // ✅ corregido
         });
 
-        // ✅ Comprobamos si la respuesta HTTP es exitosa
         if (!res.ok) {
           Swal.fire({
             icon: "error",
