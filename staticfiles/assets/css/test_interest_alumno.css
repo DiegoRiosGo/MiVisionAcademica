@@ -116,10 +116,12 @@
     }
 
     .formulario {
-    background-color: #ffffff;
-    border-radius: 12px;
-    max-width: 900px;
-    margin: 0 auto;
+        margin-left: 240px; /* Igual que .content */
+        margin-right: auto;
+        max-width: 900px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
     }
 
     .pregunta {
@@ -224,6 +226,29 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+
+/* Botón violeta por ID */
+.Enviar-btn,
+#btnSolicitud {
+  background-color: #5d2fb2 !important;
+  color: #fff !important;
+  border: none;
+  padding: 8px 16px;
+  font-size: 15px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Hover para ambos */
+.Enviar-btn:hover,
+#btnSolicitud:hover {
+  background-color: #b23ad3 !important;
+  transform: scale(1.03);
+  cursor: pointer;
+}
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

@@ -220,7 +220,7 @@
 
 /* --- Medidor de fuerza de contraseña --- */
 #password-strength {
-    width: 100%;
+    width: 50%;
     height: 8px;
     background-color: #ddd;
     border-radius: 5px;
@@ -242,6 +242,91 @@
     color: #444;
     font-weight: 500;
 }
+
+/* MENSAJES EMERGENTES */
+
+    .mi-popup {
+    width: 480px;
+    padding: 35px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #333;
+    }
+
+    .mi-titulo {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #4b0082;
+    }
+
+    .mi-texto {
+    font-size: 17px;
+    margin-bottom: 25px;
+    color: #444;
+    }
+
+    .mi-boton {
+    background-color: #d1b0e9;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 17px;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background-color 0.3s ease;
+    }
+
+    .mi-boton:hover {
+    background-color: #9c7fdc;
+    }
+
+    .mi-icono {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 25px auto;
+    width: 80px;
+    height: 80px;
+    }
+
+    /* Colores del check */
+    .swal2-success-line-tip,
+    .swal2-success-line-long {
+    background-color: #9c7fdc;
+    }
+
+    body.swal2-height-auto {
+    height: unset;
+    }
+
+div.swal2-icon.swal2-error [class^="swal2-x-mark-line"] {
+  display: block;
+  position: absolute;
+  top: 0 !important; 
+  width: 47px;
+  height: 5px;
+  border-radius: 2px;
+  background-color: #ef4c4c;
+}
+
+div.swal2-icon.swal2-error .swal2-x-mark-line-left {
+  transform: rotate(45deg);
+  left: 7px;
+}
+
+div.swal2-icon.swal2-error .swal2-x-mark-line-right {
+  transform: rotate(-45deg);
+  right: 7px;
+}
+
+
+
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN inicio .CSS ------------------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

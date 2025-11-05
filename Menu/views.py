@@ -1210,10 +1210,10 @@ def enviar_solicitud(request):
         # Validaciones base
         if not all([asignatura, sigla, mensaje]):
             return JsonResponse({"success": False, "error": "Faltan campos obligatorios."}, status=400)
-
-        # ✅ Debe tener nombre y apellido
-        if not docente_nombre or len(docente_nombre.split()) < 2:
+            # ✅ Debe tener nombre y apellido
+        elif not docente_nombre or len(docente_nombre.split()) < 2:
             return JsonResponse({"success": False, "error": "Debes ingresar el nombre y apellido completos del docente."}, status=400)
+        
 
         # Si viene el id_docente (por autocompletado)
         if id_docente:
