@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function precargarCampos() {
     if (areaParam) {
       await cargarAreas();
+      await new Promise(r => setTimeout(r, 600));
       if ([...areaSelect.options].some(opt => opt.value === areaParam)) {
         areaSelect.value = areaParam;
       }
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       await new Promise(r => setTimeout(r, 300));
-      
+
       // Cargar siglas de la asignatura seleccionada
       if (asignaturaSelect.value) {
         const resS = await fetch("/obtener_siglas/", {

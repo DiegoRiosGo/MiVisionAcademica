@@ -302,8 +302,9 @@ document.addEventListener("DOMContentLoaded", () => {
             item.textContent = d.nombre;
             item.dataset.id = d.usuario_id;
             item.addEventListener("click", () => {
-              inputDoc.value = d.nombre;
-              hiddenId.value = d.usuario_id;
+              inputDoc.value = `${d.nombre}`.trim();
+              hiddenId.value = String(d.usuario_id).trim(); // ✅ aseguramos valor
+              inputDoc.dataset.selected = "true"; // marcamos que fue seleccionada
               sugerencias.innerHTML = "";
               sugerencias.style.display = "none";
             });
@@ -342,9 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const id_docente = document.getElementById("docenteIdSelected").value;
       const docente_text = document.getElementById("buscarDocente").value.trim();
-
-      const asignaturaSelectEl = document.getElementById("asignaturaSelect");
-      const asignatura = asignaturaSelectEl.options[asignaturaSelectEl.selectedIndex]?.text || "";
+      const asignatura = document.getElementById("asignaturaSelect").value;
 
       const sigla = document.getElementById("siglaSelect").value;
       const mensaje = document.getElementById("mensaje").value.trim();
@@ -367,6 +366,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if ((!id_docente && !docente_text) || !asignatura || !sigla || !mensaje) {
         Swal.fire("Completa todos los campos antes de enviar.");
+        return;
+      }
+
+      // Si el usuario no seleccionó desde sugerencias, invalidar
+      if (!hiddenId.value && !inputDoc.dataset.selected) {
+        Swal.fire({
+          icon: "warning",
+          title: "Selecciona un docente desde las sugerencias",
+          text: "Por favor, asegúrate de elegir un docente válido.",
+        });
         return;
       }
 

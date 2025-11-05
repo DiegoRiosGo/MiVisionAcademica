@@ -343,9 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const id_docente = document.getElementById("docenteIdSelected").value;
       const docente_text = document.getElementById("buscarDocente").value.trim();
-
-      const asignaturaSelectEl = document.getElementById("asignaturaSelect");
-      const asignatura = asignaturaSelectEl.options[asignaturaSelectEl.selectedIndex]?.text || "";
+      const asignatura = document.getElementById("asignaturaSelect").value;
 
       const sigla = document.getElementById("siglaSelect").value;
       const mensaje = document.getElementById("mensaje").value.trim();
@@ -380,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         return;
       }
-      
+
       const payload = {
         id_docente: id_docente || null,
         docente: !id_docente ? docente_text : null,
