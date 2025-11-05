@@ -393,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // ✅ Comprobamos si la respuesta HTTP es exitosa
-        if (!res.ok) {
+        /*if (!res.ok) {
           Swal.fire({
             icon: "error",
             title: "No se pudo enviar la solicitud",
@@ -401,7 +401,8 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           return;
         }
-
+        */
+       
         const data = await res.json();
 
         if (data.success) {
