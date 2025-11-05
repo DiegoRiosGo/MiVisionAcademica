@@ -19,6 +19,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const feedbackTextarea = document.getElementById("feedback");
   const resetBtn = document.getElementById("resetFilters");
 
+
+  // Gráficos globales
+  let lineChart = null;
+  let radarChart = null;
+
+  // --- Función para limpiar gráficos ---
+  function limpiarGraficos() {
+    if (lineChart) {
+      lineChart.destroy();
+      lineChart = null;
+    }
+    if (radarChart) {
+      radarChart.destroy();
+      radarChart = null;
+    }
+  }
+  
   // --- Autocompletar si vienen datos por URL ---
   const params = new URLSearchParams(window.location.search);
   const areaParam = params.get("area");
@@ -130,14 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
-    
+
   }
 
   precargarCampos();
-
-  // Gráficos globales
-  let lineChart = null;
-  let radarChart = null;
 
   // --- Helper CSRF ---
   function getCookie(name) {
@@ -159,18 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Función para resetear selects dependientes ---
   function resetDependentSelects(select, message = "--") {
     if (select) select.innerHTML = `<option value="">${message}</option>`;
-  }
-
-  // --- Función para limpiar gráficos ---
-  function limpiarGraficos() {
-    if (lineChart) {
-      lineChart.destroy();
-      lineChart = null;
-    }
-    if (radarChart) {
-      radarChart.destroy();
-      radarChart = null;
-    }
   }
 
   // --- Cargar áreas al iniciar ---
