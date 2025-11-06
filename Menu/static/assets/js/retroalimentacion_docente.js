@@ -89,63 +89,60 @@ document.addEventListener("DOMContentLoaded", () => {
     // Estudiante
     if (estudianteParam) {
       estudianteSelect.innerHTML = `<option value="${estudianteParam}" selected>${estudianteParam}</option>`;
-    }
-
-    if (estudianteSelect) {
-      estudianteSelect.addEventListener("change", async () => {
-        const estudiante_id = estudianteSelect.value;
-        const area = areaSelect.value;
+    
+      // 👇 Ejecutar generación de gráficos automáticamente al precargar estudiante
+      try {
+        const estudiante_id = estudianteParam;
+        const area = areaParam;
 
         limpiarGraficos();
-
-        if (!estudiante_id || !area) return;
-
-        try {
+        
+        if (estudiante_id && area) {
           const res = await fetch(`/obtener_notas_estudiante_area/?estudiante_id=${estudiante_id}&area=${encodeURIComponent(area)}`);
           const data = await res.json();
-          if (!data.success) throw new Error(data.error || "Error al obtener notas");
+          if (data.success) {
+            const etiquetas = data.notas.map(n => n.nombre_asignatura);
+            const valores = data.notas.map(n => n.calificacion);
 
-          const etiquetas = data.notas.map(n => n.nombre_asignatura);
-          const valores = data.notas.map(n => n.calificacion);
+            // --- Gráfico de línea ---
+            const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
+            lineChart = new Chart(ctxLine, {
+              type: "line",
+              data: {
+                labels: etiquetas,
+                datasets: [{
+                  label: "Evolución de notas",
+                  data: valores,
+                  borderColor: '#5d2fb2',
+                  backgroundColor: '#9c7fdc',
+                  tension: 0.3,
+                  fill: true
+                }]
+              },
+              options: { responsive: true, scales: { y: { beginAtZero: true, max: 7 } } }
+            });
 
-          // --- Gráfico de línea ---
-          const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
-          lineChart = new Chart(ctxLine, {
-            type: "line",
-            data: {
-              labels: etiquetas,
-              datasets: [{
-                label: "Evolución de notas",
-                data: valores,
-                borderColor: '#5d2fb2',
-                backgroundColor: '#9c7fdc',
-                tension: 0.3,
-                fill: true
-              }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true, max: 7 } } }
-          });
-
-          // --- Gráfico de radar ---
-          const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
-          radarChart = new Chart(ctxRadar, {
-            type: "radar",
-            data: {
-              labels: etiquetas,
-              datasets: [{
-                label: "Desempeño por asignatura",
-                data: valores,
-                backgroundColor: 'rgba(124,96,186,0.5)',
-                borderColor: '#7c60ba'
-              }]
-            },
-            options: { responsive: true, scales: { r: { min: 2, max: 7 } } }
-          });
-
-        } catch (err) {
-          console.error("Error generando gráficos:", err);
+            // --- Gráfico de radar ---
+            const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
+            radarChart = new Chart(ctxRadar, {
+              type: "radar",
+              data: {
+                labels: etiquetas,
+                datasets: [{
+                  label: "Desempeño por asignatura",
+                  data: valores,
+                  backgroundColor: 'rgba(124,96,186,0.5)',
+                  borderColor: '#7c60ba'
+                }]
+              },
+              options: { responsive: true, scales: { r: { min: 2, max: 7 } } }
+            });
+          }
         }
-      });
+      } catch (err) {
+        console.error("Error generando gráficos precargados:", err);
+      }
+    
     }
 
   }
