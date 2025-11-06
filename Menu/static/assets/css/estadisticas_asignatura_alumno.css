@@ -204,27 +204,42 @@
 
 
 
-/* Reorganizar los gráficos: 2 arriba, 1 abajo */
+/* Distribuir los gráficos: 2 arriba, 1 abajo */
 .container.text-center {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 30px;
   justify-items: center;
-  max-width: 1200px;
+  align-items: start;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 20px;
 }
 
-/* Ajustar tamaño de cada gráfico */
+/* Ajustar tamaño y estilo de cada gráfico */
 .chart-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 480px;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 16px;
+  box-shadow: 0 0 8px #c5b2e6;
 }
 
 /* El tercer gráfico ocupa toda la fila */
 .container.text-center .chart-container:nth-child(3) {
   grid-column: span 2;
+  max-width: 700px;
 }
+
+/* Canvas más compacto */
+.chart-container canvas {
+  width: 100% !important;
+  height: 280px !important;
+}
+
+
+
 @media (max-width: 768px) {
   .container.text-center {
     grid-template-columns: 1fr;
@@ -232,8 +247,14 @@
 
   .container.text-center .chart-container:nth-child(3) {
     grid-column: span 1;
+    max-width: 100%;
+  }
+
+  .chart-container canvas {
+    height: 220px !important;
   }
 }
+
 
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .CSS ----------------------------------
