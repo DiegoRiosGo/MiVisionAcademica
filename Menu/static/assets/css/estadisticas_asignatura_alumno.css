@@ -70,7 +70,7 @@
 /* TITULO APARTADO GRAFICOS*/
     .content {
         flex-grow: 1;
-        padding: 20px;
+        padding: 50px;
         margin-left: 250px; /* ancho barra lateral */
     }
 

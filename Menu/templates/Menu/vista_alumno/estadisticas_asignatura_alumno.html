@@ -42,30 +42,31 @@
         </ul>
       </nav>
 
-      <div class="content">
+    <div class="content">
         <div class="topbar">
           <h4>Estadísticas Académicas</h4>
         </div>
           <p>Aquí podrás encontrar tus estadísticas académicas por año y asignatura para observar tu rendimiento personal</p>
-      </div>
+      
 
-  <!-- TITULO APARTADO GRAFICOS -->
-   <div>
-      <div class="filtros">
+      <!-- TITULO APARTADO GRAFICOS -->
         <div>
-          <label for="filtroAnio">Filtrar por año:</label>
-          <select id="filtroAnio" class="form-select"></select>
-        </div>
-        <div>
-          <label for="filtroArea">Filtrar por área:</label>
-          <select id="filtroArea" class="form-select"></select>
-        </div>
-        <button id="btnRestablecer">Restablecer Filtros</button>
-      </div>   
-  </div>
+          <div class="filtros">
+            <div>
+              <label for="filtroAnio">Filtrar por año:</label>
+              <select id="filtroAnio" class="form-select"></select>
+            </div>
+            <div>
+              <label for="filtroArea">Filtrar por área:</label>
+              <select id="filtroArea" class="form-select"></select>
+            </div>
+            <button id="btnRestablecer">Restablecer Filtros</button>
+          </div>   
+        </div>  
+    </div>
 
+    
       <main class="content">
-
         <div class="container text-center">
           <div class="chart-container">
             <canvas id="graficoEvolucion"></canvas>
