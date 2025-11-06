@@ -88,61 +88,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Estudiante
     if (estudianteParam) {
-    estudianteSelect.innerHTML = `<option value="${estudianteParam}" selected>${estudianteParam}</option>`;
+      // Cargar estudiantes reales si hay sigla seleccionada
+      if (siglaParam && asignaturaSelect.value) {
+        try {
+          const resE = await fetch("/obtener_estudiantes/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+            body: JSON.stringify({
+              asignatura_id: asignaturaSelect.value,
+              sigla: siglaParam
+            }),
+          });
+          const dataE = await resE.json();
 
-    const estudiante_id = estudianteSelect.value; // ✅ CORREGIDO
-    const area = areaParam;
+          if (dataE.success && dataE.estudiantes.length > 0) {
+            estudianteSelect.innerHTML = '<option value="">Seleccione estudiante</option>';
 
-    limpiarGraficos();
+            dataE.estudiantes.forEach(e => {
+              const selected = e.nombre === estudianteParam ? "selected" : "";
+              estudianteSelect.innerHTML += `<option value="${e.id}" ${selected}>${e.nombre}</option>`;
+            });
+          }
+        } catch (err) {
+          console.error("Error cargando estudiantes en precarga:", err);
+        }
+      } else {
+        // Si no hay sigla, al menos mostrar el nombre temporalmente
+        estudianteSelect.innerHTML = `<option value="">${estudianteParam}</option>`;
+      }
 
-    if (!estudiante_id || !area) return;
+      // Obtener el ID real del estudiante seleccionado
+      const estudiante_id = estudianteSelect.value;
+      const area = areaParam;
 
-    try {
-      const res = await fetch(`/obtener_notas_estudiante_area/?estudiante_id=${estudiante_id}&area=${encodeURIComponent(area)}`);
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error || "Error al obtener notas");
+      limpiarGraficos();
 
-      const etiquetas = data.notas.map(n => n.nombre_asignatura);
-      const valores = data.notas.map(n => n.calificacion);
+      if (!estudiante_id || !area) return;
 
-      // --- Gráfico de línea ---
-      const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
-      lineChart = new Chart(ctxLine, {
-        type: "line",
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: "Evolución de notas",
-            data: valores,
-            borderColor: '#5d2fb2',
-            backgroundColor: '#9c7fdc',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true, max: 7 } } }
-      });
+      try {
+        const res = await fetch(
+          `/obtener_notas_estudiante_area/?estudiante_id=${estudiante_id}&area=${encodeURIComponent(area)}`
+        );
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || "Error al obtener notas");
 
-      // --- Gráfico de radar ---
-      const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
-      radarChart = new Chart(ctxRadar, {
-        type: "radar",
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: "Desempeño por asignatura",
-            data: valores,
-            backgroundColor: 'rgba(124,96,186,0.5)',
-            borderColor: '#7c60ba'
-          }]
-        },
-        options: { responsive: true, scales: { r: { min: 2, max: 7 } } }
-      });
+        const etiquetas = data.notas.map(n => n.nombre_asignatura);
+        const valores = data.notas.map(n => n.calificacion);
 
-    } catch (err) {
-      console.error("Error generando gráficos precargados:", err);
+        // --- Gráfico de línea ---
+        const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
+        lineChart = new Chart(ctxLine, {
+          type: "line",
+          data: {
+            labels: etiquetas,
+            datasets: [{
+              label: "Evolución de notas",
+              data: valores,
+              borderColor: '#5d2fb2',
+              backgroundColor: '#9c7fdc',
+              tension: 0.3,
+              fill: true
+            }]
+          },
+          options: { responsive: true, scales: { y: { beginAtZero: true, max: 7 } } }
+        });
+
+        // --- Gráfico de radar ---
+        const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
+        radarChart = new Chart(ctxRadar, {
+          type: "radar",
+          data: {
+            labels: etiquetas,
+            datasets: [{
+              label: "Desempeño por asignatura",
+              data: valores,
+              backgroundColor: 'rgba(124,96,186,0.5)',
+              borderColor: '#7c60ba'
+            }]
+          },
+          options: { responsive: true, scales: { r: { min: 2, max: 7 } } }
+        });
+
+      } catch (err) {
+        console.error("Error generando gráficos precargados:", err);
+      }
     }
-  }
 
   }
 
