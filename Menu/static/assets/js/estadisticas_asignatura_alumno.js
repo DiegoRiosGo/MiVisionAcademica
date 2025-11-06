@@ -126,7 +126,7 @@ function crearGraficoEvolucion(datos) {
             datasets: [{
                 label: "Promedio por semestre",
                 data: Object.values(datos),
-                borderColor: "rgba(75,192,192,1)",
+                borderColor: "rgba(138, 53, 195, 1)",
                 backgroundColor: "rgba(75,192,192,0.2)",
                 tension: 0.3
             }]
@@ -140,6 +140,8 @@ function crearGraficoEvolucion(datos) {
 
 function crearGraficoRadar(datos) {
     const ctx = document.getElementById("graficoRadar");
+    // Dividir etiquetas largas en múltiples líneas
+    const etiquetas = Object.keys(datos).map(etiqueta => etiqueta.split(' '));
     return new Chart(ctx, {
         type: "radar",
         data: {
@@ -147,7 +149,7 @@ function crearGraficoRadar(datos) {
             datasets: [{
                 label: "Promedio por área",
                 data: Object.values(datos),
-                borderColor: "rgba(54,162,235,1)",
+                borderColor: "rgba(167, 78, 239, 1)",
                 backgroundColor: "rgba(54,162,235,0.2)"
             }]
         },

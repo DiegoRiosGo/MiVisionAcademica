@@ -166,7 +166,6 @@
         justify-content: center;
         align-items: flex-end;
         gap: 1rem;
-        margin: 0 auto 2rem auto;
         background-color: #ffffff;
         padding: 15px 25px;
         border-radius: 10px;
@@ -255,6 +254,16 @@
   }
 }
 
+/* Ajuste específico para el radar chart */
+#graficoRadar {
+  height: 320px !important;
+  max-height: 320px;
+}
+
+/* Opcional: si quieres que el contenedor sea más ancho */
+.chart-container:nth-child(2) {
+  max-width: 600px;
+}
 
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .CSS ----------------------------------
