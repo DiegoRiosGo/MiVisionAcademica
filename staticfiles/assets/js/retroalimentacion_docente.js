@@ -92,11 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
       // 👇 Ejecutar generación de gráficos automáticamente al precargar estudiante
       try {
-        const estudiante_id = estudianteParam;
+        const estudiante_id = estudianteSelect;
         const area = areaParam;
 
         limpiarGraficos();
-        
+
         if (estudiante_id && area) {
           const res = await fetch(`/obtener_notas_estudiante_area/?estudiante_id=${estudiante_id}&area=${encodeURIComponent(area)}`);
           const data = await res.json();
