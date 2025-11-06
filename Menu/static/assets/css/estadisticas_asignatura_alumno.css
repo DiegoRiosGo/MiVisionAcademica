@@ -71,13 +71,14 @@
     .content {
         flex-grow: 1;
         padding: 50px;
-        margin-left: 250px; /* ancho barra lateral */
+        padding-bottom: 5px;
+        margin-left: 220px; /* ancho barra lateral */
     }
 
     .content-graficos {
         flex-grow: 1;
         padding: 10px;
-        margin-left: 250px; /* ancho barra lateral */
+        margin-left: 220px; /* ancho barra lateral */
     }
 
     .chart-container {
