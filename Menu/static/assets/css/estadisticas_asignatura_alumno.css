@@ -76,10 +76,10 @@
 
     .chart-container {
         margin: 30px auto;
-        background: #161b22;
+        background: #f9f9fa;
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        box-shadow: 0 0 10px #9c7fdc;
         max-width: 800px;
     }
 
