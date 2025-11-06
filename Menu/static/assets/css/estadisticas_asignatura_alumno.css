@@ -109,6 +109,41 @@
         margin-bottom: 30px;
         line-height: 1.6;
     }
+        
+    /* Distribuir los gráficos: 2 arriba, 1 abajo */
+    .container.text-center {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        justify-items: center;
+        align-items: start;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Ajustar tamaño y estilo de cada gráfico */
+    .chart-container {
+        width: 100%;
+        max-width: 480px;
+        background: #ffffff;
+        padding: 15px;
+        border-radius: 16px;
+        box-shadow: 0 0 8px #c5b2e6;
+    }
+
+    /* El tercer gráfico ocupa toda la fila */
+    .container.text-center .chart-container:nth-child(3) {
+        grid-column: span 2;
+        max-width: 700px;
+    }
+
+    /* Canvas más compacto */
+    .chart-container canvas {
+        width: 100% !important;
+        height: 280px !important;
+    }
+
 
 /* TITULO SELECTOR DE ASIGNATURA */  
     #subjectSelect {
@@ -171,6 +206,7 @@
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         max-width: 800px;
+        justify-self: center;
     }
 
     .filtros label {
@@ -198,61 +234,22 @@
         background-color: #9c7fdc;
     }
 
+        
+    @media (max-width: 768px) {
+    .container.text-center {
+        grid-template-columns: 1fr;
+    }
 
+    .container.text-center .chart-container:nth-child(3) {
+        grid-column: span 1;
+        max-width: 100%;
+    }
 
+    .chart-container canvas {
+        height: 220px !important;
+    }
+    }
 
-
-
-/* Distribuir los gráficos: 2 arriba, 1 abajo */
-.container.text-center {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  justify-items: center;
-  align-items: start;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-/* Ajustar tamaño y estilo de cada gráfico */
-.chart-container {
-  width: 100%;
-  max-width: 480px;
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 16px;
-  box-shadow: 0 0 8px #c5b2e6;
-}
-
-/* El tercer gráfico ocupa toda la fila */
-.container.text-center .chart-container:nth-child(3) {
-  grid-column: span 2;
-  max-width: 700px;
-}
-
-/* Canvas más compacto */
-.chart-container canvas {
-  width: 100% !important;
-  height: 280px !important;
-}
-
-
-
-@media (max-width: 768px) {
-  .container.text-center {
-    grid-template-columns: 1fr;
-  }
-
-  .container.text-center .chart-container:nth-child(3) {
-    grid-column: span 1;
-    max-width: 100%;
-  }
-
-  .chart-container canvas {
-    height: 220px !important;
-  }
-}
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .CSS ----------------------------------
    ------------------------------------------------------------------------------------------------------------- */        

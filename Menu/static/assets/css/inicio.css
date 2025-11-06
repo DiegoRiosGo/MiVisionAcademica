@@ -327,6 +327,58 @@ div.swal2-icon.swal2-error .swal2-x-mark-line-right {
 
 
 
+
+/* Botón de ayuda sin fondo */
+.boton-interrogacion {
+    background: none;
+    color: #7c60ba; /* morado elegante */
+    font-size: 1.2rem;
+    border: none;
+    cursor: pointer;
+    padding: 0 6px;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+/* Posicionamiento dentro del input container */
+.container-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Tooltip */
+.boton-interrogacion::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1f2937;
+    color: white;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    white-space: normal;
+    min-width: 140px;
+    max-width: calc(100vw - 40px);
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 110;
+}
+
+/* Mostrar tooltip al pasar el mouse */
+.boton-interrogacion:hover::after {
+    opacity: 1;
+}
+.boton-interrogacion::after {
+    content: attr(data-tooltip);
+    white-space: pre-line; 
+}
+
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN inicio .CSS ------------------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */
