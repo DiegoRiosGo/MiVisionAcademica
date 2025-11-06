@@ -253,18 +253,6 @@
     height: 220px !important;
   }
 }
-
-/* Ajuste específico para el radar chart */
-#graficoRadar {
-  height: 320px !important;
-  max-height: 320px;
-}
-
-/* Opcional: si quieres que el contenedor sea más ancho */
-.chart-container:nth-child(2) {
-  max-width: 600px;
-}
-
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .CSS ----------------------------------
    ------------------------------------------------------------------------------------------------------------- */        

@@ -140,8 +140,7 @@ function crearGraficoEvolucion(datos) {
 
 function crearGraficoRadar(datos) {
     const ctx = document.getElementById("graficoRadar");
-    // Dividir etiquetas largas en múltiples líneas
-    const etiquetas = Object.keys(datos).map(etiqueta => etiqueta.split(' '));
+    
     return new Chart(ctx, {
         type: "radar",
         data: {
