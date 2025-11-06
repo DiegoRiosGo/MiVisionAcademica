@@ -200,6 +200,41 @@
     }
 
 
+
+
+
+
+/* Reorganizar los gráficos: 2 arriba, 1 abajo */
+.container.text-center {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  justify-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Ajustar tamaño de cada gráfico */
+.chart-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+/* El tercer gráfico ocupa toda la fila */
+.container.text-center .chart-container:nth-child(3) {
+  grid-column: span 2;
+}
+@media (max-width: 768px) {
+  .container.text-center {
+    grid-template-columns: 1fr;
+  }
+
+  .container.text-center .chart-container:nth-child(3) {
+    grid-column: span 1;
+  }
+}
+
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .CSS ----------------------------------
    ------------------------------------------------------------------------------------------------------------- */        
