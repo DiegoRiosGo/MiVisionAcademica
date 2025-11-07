@@ -154,25 +154,6 @@
         background-color: #e9ddfd !important;
     }
 
-    /* boton aceptar */
-    .mi-boton {
-    background-color: #d1b0e9;
-    color: white;
-    font-weight: bold;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-size: 17px;
-    cursor: pointer;
-    box-shadow: none;
-    transition: background-color 0.3s ease;
-    }
-
-    .mi-boton:hover {
-    background-color: #9c7fdc;
-    }
-
-
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
     @media (max-width: 768px) {
