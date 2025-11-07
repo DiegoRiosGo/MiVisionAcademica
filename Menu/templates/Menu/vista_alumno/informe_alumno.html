@@ -138,10 +138,8 @@
 
         const btn = document.getElementById("btnPruebaIAFree");
         const out = document.getElementById("outputIAFree");
-        const loading = document.getElementById("loadingBar");
         btn.disabled = true;
         btn.innerText = "Generando análisis...";
-        loading.style.display = "inline-block";
 
         try {
           const res = await fetch("{% url 'analizar_perfil_ia_free' %}", { 
@@ -162,7 +160,6 @@
         } finally {
           btn.disabled = false;
           btn.innerText = "Ejecutar IA";
-          loading.style.display = "none";
         }
       });
 
