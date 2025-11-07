@@ -119,9 +119,31 @@
         cursor: pointer;
     }
 
+    /* clase para botones morado claro */
+    .btn-morado-claro {
+        color: #6a1b9a;
+        border: 1px solid #ba68c8;
+        background-color: #f3e5f5;
+    }
 
+    .btn-morado-claro:hover {
+        background-color: #e1bee7;
+        border-color: #ab47bc;
+        color: #4a148c;
+    }
 
+    /* clase para botones morado oscuro */
+    .btn-morado-oscuro {
+        color: #ffffff;
+        background-color: #7b1fa2;
+        border: 1px solid #6a1b9a;
+    }
 
+    .btn-morado-oscuro:hover {
+        background-color: #6a1b9a;
+        border-color: #4a148c;
+        color: #ffffff;
+    }
 
 
 
