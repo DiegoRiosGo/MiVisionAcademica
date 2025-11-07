@@ -211,6 +211,13 @@
         cursor: not-allowed;
     }
 
+    #outputIAFree {
+        display: none; /* oculta el JSON crudo */
+    }
+
+    .spinner-border.text-purple {
+        color: #b23ad3;
+    }
 
 
 
