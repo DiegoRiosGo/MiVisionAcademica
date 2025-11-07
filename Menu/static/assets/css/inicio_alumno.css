@@ -121,32 +121,38 @@
 
     /* clase para botones morado claro */
     .btn-color1 {
-        color: #6a1b9a !important;
-        border: 1px solid #ba68c8 !important;
-        background-color: #f3e5f5 !important;
+        color: #ffffff !important;
+        border: 1px solid #5d2fb2 !important;
+        background-color: #5d2fb2 !important;
     }
 
     .btn-color1:hover {
-        background-color: #e1bee7 !important;
-        border-color: #ab47bc !important;
-        color: #4a148c !important;
+        background-color: #b23ad3 !important;
+        border-color: #b23ad3 !important;
+        color: #ffffff !important;
     }
 
     /* clase para botones morado oscuro */
     .btn-color2 {
         color: #ffffff !important;
-        background-color: #7b1fa2 !important;
-        border: 1px solid #6a1b9a !important;
+        background-color: #b23ad3 !important;
+        border: 1px solid #b23ad3 !important;
     }
 
     .btn-color2:hover {
-        background-color: #6a1b9a !important;
-        border-color: #4a148c !important;
+        background-color: #5d2fb2 !important;
+        border-color: #5d2fb2 !important;
         color: #ffffff !important;
     }
 
+    /* cabeceras de informe y asignaturas */
+    .color-cabecera{
+        background-color: #f1bdff !important;
+    }
 
-
+    .cabecera-asignaturas{
+        background-color: #f1bdff !important;
+    }
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
     @media (max-width: 768px) {
