@@ -84,7 +84,7 @@
                     <td>{{ pdf.fecha_subida}}</td>
                     <td>
                       <!-- Botón para visualizar -->
-                      <button class="btn btn-morado-claro btn-sm ver-pdf-btn" 
+                      <button class="btn btn-color1 ver-pdf-btn" 
                               data-base64="{{ pdf.ruta_archivo }}" 
                               data-nombre="{{ pdf.nombre_archivo|default:'Informe.pdf' }}">
                         <i class="fas fa-eye"></i> Ver
@@ -93,7 +93,7 @@
                       <!-- Botón para descargar -->
                       <a href="data:application/pdf;base64,{{ pdf.ruta_archivo }}" 
                         download="{{ pdf.nombre_archivo|default:'Informe.pdf' }}" 
-                        class="btn btn-morado-oscuro btn-sm ms-2">
+                        class="btn btn-color2 ms-2">
                         <i class="fas fa-download"></i> Descargar
                       </a>
                     </td>
