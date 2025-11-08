@@ -133,6 +133,14 @@
             btnAbrir.addEventListener("click", () => modal.style.display = "block");
             btnCerrar.addEventListener("click", () => modal.style.display = "none");
 
+
+            const btnCerrarTop = document.getElementById("cerrarModalTop");
+            if (btnCerrarTop && modal) {
+              btnCerrarTop.addEventListener("click", () => modal.classList.remove("show"));
+            }
+
+
+
             // --- Helper CSRF ---
             function getCookie(name) {
                 let cookieValue = null;

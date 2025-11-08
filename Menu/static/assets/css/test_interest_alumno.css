@@ -88,6 +88,7 @@
         z-index: 1000 !important;
         justify-content: center !important;
         align-items: center !important;
+        
     }
 
     /* mostrar modal */
@@ -106,7 +107,6 @@
         animation: fadeIn 0.3s ease-in-out !important;
         position: relative !important;
     }
-
 
 
     /* animación suave */
@@ -185,6 +185,24 @@
         background-color: #e0d7f5;
     }
 
+    /* botón de cierre arriba */
+    .cerrar-modal {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #5d2fb2;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.2s ease;
+    }
+
+    .cerrar-modal:hover {
+    transform: scale(1.2);
+    color: #b23ad3;
+    }
 
 
 
