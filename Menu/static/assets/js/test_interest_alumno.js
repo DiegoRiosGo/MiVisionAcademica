@@ -139,6 +139,12 @@
               btnCerrarTop.addEventListener("click", () => modal.classList.remove("show"));
             }
 
+            if (btnAbrir && modal) {
+              btnAbrir.addEventListener("click", () => {
+                modal.classList.add("show");
+              });
+            }
+
 
 
             // --- Helper CSRF ---
