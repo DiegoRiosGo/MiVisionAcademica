@@ -77,6 +77,116 @@
         color: #18233f;
     }   
 
+    /* modal base */
+    .modal {
+        display: none; /* oculto por defecto */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* fondo oscuro translúcido */
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* mostrar modal (puedes activarlo con JS) */
+    .modal.show {
+        display: flex;
+    }
+
+    /* contenido del modal */
+    .modal-content {
+        background-color: #fff;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        padding: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* animación suave */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* título */
+    .modal-content h5 {
+        font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: #5a2a82; /* tono púrpura elegante */
+    }
+
+    /* inputs y selects */
+    .modal-content .form-control,
+    .modal-content .form-select {
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 0.95rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    /* textarea */
+    #mensaje {
+        resize: none;
+    }
+
+    /* botones */
+    .modal-content .btn {
+        min-width: 100px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+
+    /* botón cancelar */
+    #cancelarModal {
+        background-color: #b23ad3;
+        border: none;
+        color: white;
+        margin-right: 0.5rem;
+    }
+    #cancelarModal:hover{
+        background-color: #5d2fb2;
+        color: white;
+    }
+
+    /* botón enviar */
+    #enviarSolicitud {
+        background-color: #5d2fb2; /* púrpura vibrante */
+        border: none;
+        color: white;
+    }
+
+    #enviarSolicitud:hover{
+        background-color: #b23ad3;
+        color: white;
+    }
+
+    /* lista de sugerencias */
+    #suggestions-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 1rem;
+    }
+    #suggestions-list li {
+        padding: 0.5rem;
+        background-color: #f3f3f3;
+        border-radius: 6px;
+        margin-bottom: 0.3rem;
+        cursor: pointer;
+    }
+    #suggestions-list li:hover {
+        background-color: #e0d7f5;
+    }
+
+
+
+
+
 /* TITULO FORMULARIO DE INTERES */
 
 /* sin codigo */
