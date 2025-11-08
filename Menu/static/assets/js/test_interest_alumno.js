@@ -111,7 +111,12 @@
             icon: "question",
             showCancelButton: true,
             confirmButtonText: "Sí, enviar",
-            cancelButtonText: "Cancelar"
+            cancelButtonText: "Cancelar",
+            customClass: {
+              confirmButton: "btn-confirmar",
+              cancelButton: "btn-cancelar"
+            },
+            buttonsStyling: false
             }).then((res) => {
             if (res.isConfirmed) {
                 form.submit();

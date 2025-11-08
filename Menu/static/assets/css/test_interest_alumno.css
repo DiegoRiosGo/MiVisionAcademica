@@ -88,7 +88,7 @@
         z-index: 1000 !important;
         justify-content: center !important;
         align-items: center !important;
-        
+
     }
 
     /* mostrar modal */
@@ -187,23 +187,59 @@
 
     /* botón de cierre arriba */
     .cerrar-modal {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background-color: transparent;
-    border: none;
-    font-size: 1.2rem;
-    color: #5d2fb2;
-    cursor: pointer;
-    z-index: 10;
-    transition: transform 0.2s ease;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: transparent;
+        border: none;
+        font-size: 1.2rem;
+        color: #5d2fb2;
+        cursor: pointer;
+        z-index: 10;
+        transition: transform 0.2s ease;
     }
 
     .cerrar-modal:hover {
-    transform: scale(1.2);
-    color: #b23ad3;
+        transform: scale(1.2);
+        color: #b23ad3;
     }
 
+    /* botón confirmar */
+    .btn-confirmar {
+        background-color: #b23ad3;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-confirmar:hover {
+        background-color: #5d2fb2;
+    }
+
+    /* botón cancelar */
+    .btn-cancelar {
+        background-color: #5d2fb2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #b23ad3;
+    }
+
+    div:where(.swal2-icon).swal2-question {
+        border-color: #a887bd;
+        color: #a887bd;
+    }
 
 
 
