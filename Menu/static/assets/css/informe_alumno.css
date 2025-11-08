@@ -215,6 +215,10 @@
         display: none; /* oculta el JSON crudo */
     }
 
+        /* cabeceras de informe y asignaturas */
+    .cabecera-informe{
+        background-color: #e9ddfd !important;
+    }
 
 
 /* -------------------------------------------------------------------------------------------------------------
