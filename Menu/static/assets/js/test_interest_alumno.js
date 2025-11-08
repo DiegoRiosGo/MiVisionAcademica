@@ -131,7 +131,7 @@
             const siglaSelect = document.getElementById("siglaSelect");
 
             btnAbrir.addEventListener("click", () => modal.style.display = "block");
-            btnCerrar.addEventListener("click", () => modal.classList.remove("show"));
+            btnCerrar.addEventListener("click", () => modal.style.display = "none");
 
             // --- Helper CSRF ---
             function getCookie(name) {
