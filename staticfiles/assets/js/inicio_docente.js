@@ -9,21 +9,20 @@
 // TITULO BARRA LATERAL
 
 document.addEventListener('DOMContentLoaded', function () {
-  // pestañas
   const tabPendientes = document.getElementById('tabPendientes');
   const tabDescartadas = document.getElementById('tabDescartadas');
   const tabFinalizadas = document.getElementById('tabFinalizadas');
   const lista = document.getElementById('listaNotificaciones');
 
-  let estadoActual = 'pendiente'; // estado por defecto
-  let cargando = false; // bandera para bloquear mientras se actualiza
+  let estadoActual = 'pendiente';
+  let cargando = false;
+  let cacheSolicitudes = []; // 🔹 cache local para comparar cambios
 
   function setActiveTab(btn) {
     [tabPendientes, tabDescartadas, tabFinalizadas].forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
   }
 
-  // 🔹 NUEVA FUNCIÓN: muestra animación de carga
   function mostrarCargando() {
     lista.innerHTML = `
       <li class="sin-solicitudes text-center text-muted" style="padding: 20px;">
@@ -35,41 +34,52 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
   }
 
-  // listeners pestañas
-  tabPendientes.addEventListener('click', () => cambiarEstado('pendiente', tabPendientes));
-  tabDescartadas.addEventListener('click', () => cambiarEstado('eliminada', tabDescartadas));
-  tabFinalizadas.addEventListener('click', () => cambiarEstado('finalizada', tabFinalizadas));
-
-  async function cambiarEstado(estado, boton) {
-    if (cargando) return; // bloquea clicks múltiples
-    estadoActual = estado;
-    setActiveTab(boton);
-    await cargarSolicitudes(true);
+  // 🔹 Comparar si hay cambios reales antes de recargar
+  function hayCambios(nuevas, antiguas) {
+    if (nuevas.length !== antiguas.length) return true;
+    for (let i = 0; i < nuevas.length; i++) {
+      if (nuevas[i].id !== antiguas[i].id || nuevas[i].estado !== antiguas[i].estado) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  async function cargarSolicitudes(forceRefresh = false) {
+  async function cambiarEstado(estado, boton) {
+    if (cargando) return;
+    estadoActual = estado;
+    setActiveTab(boton);
+    await cargarSolicitudes(true); // loader visible solo en cambio manual
+  }
+
+  async function cargarSolicitudes(showLoader = false) {
     try {
       cargando = true;
-      mostrarCargando(); // 🔹 Muestra spinner inmediatamente
+      if (showLoader) mostrarCargando();
 
       const res = await fetch(`/obtener_solicitudes_docente/?estado=${encodeURIComponent(estadoActual)}`);
       const data = await res.json();
 
-      // pequeña pausa opcional para suavizar transición visual (200ms)
-      await new Promise(r => setTimeout(r, 200));
+      const nuevasSolicitudes = (data.solicitudes || []).sort((a, b) => b.id - a.id);
 
+      // 🔹 Si no hay cambios, no tocar el DOM
+      if (!hayCambios(nuevasSolicitudes, cacheSolicitudes)) {
+        cargando = false;
+        return;
+      }
+
+      cacheSolicitudes = nuevasSolicitudes;
       lista.innerHTML = "";
 
-      if (!data.success || !data.solicitudes || data.solicitudes.length === 0) {
+      if (!data.success || nuevasSolicitudes.length === 0) {
         lista.innerHTML = `<li class="sin-solicitudes">No hay solicitudes (${estadoActual}).</li>`;
         cargando = false;
         return;
       }
 
-      data.solicitudes.forEach((s) => {
+      nuevasSolicitudes.forEach((s) => {
         const li = document.createElement("li");
-        li.className = "solicitud-item mb-2 p-2";
-
+        li.className = "solicitud-item mb-2 p-2 fade-in"; // animación sutil
         li.innerHTML = `
           <div>
             <strong>${s.estudiante}</strong> pide retroalimentación en 
@@ -83,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
         controls.className = 'mt-2';
 
         if (estadoActual === 'pendiente') {
-          // Responder
           const btnResponder = document.createElement('button');
           btnResponder.className = 'btn btn-sm btn-primary me-2';
           btnResponder.innerHTML = '<i class="fas fa-reply"></i> Responder';
@@ -97,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           controls.appendChild(btnResponder);
 
-          // Finalizar
           const btnFinalizar = document.createElement('button');
           btnFinalizar.className = 'btn btn-sm btn-success me-2';
           btnFinalizar.innerHTML = '<i class="fas fa-check"></i> Finalizar';
@@ -125,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           controls.appendChild(btnFinalizar);
 
-          // Descartar
           const btnDescartar = document.createElement('button');
           btnDescartar.className = 'btn btn-sm btn-danger';
           btnDescartar.innerHTML = '<i class="fas fa-trash-alt"></i> Descartar';
@@ -185,17 +192,16 @@ document.addEventListener('DOMContentLoaded', function () {
       cargando = false;
     } catch (err) {
       console.error("Error cargando solicitudes:", err);
-      lista.innerHTML = `<li class="sin-solicitudes">Error cargando solicitudes.</li>`;
       cargando = false;
     }
   }
 
-  // carga inicial
   setActiveTab(tabPendientes);
-  cargarSolicitudes();
-  // refrescar cada 10s solo la pestaña actual
+  cargarSolicitudes(true);
+
+  // 🔹 actualización silenciosa cada 10s
   setInterval(() => {
-    if (!cargando) cargarSolicitudes();
+    if (!cargando) cargarSolicitudes(false);
   }, 10000);
 });
 /* --------------------------------------------------------------------------------------------------------------
