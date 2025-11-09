@@ -16,25 +16,53 @@ document.addEventListener('DOMContentLoaded', function () {
   const lista = document.getElementById('listaNotificaciones');
 
   let estadoActual = 'pendiente'; // estado por defecto
+  let cargando = false; // bandera para bloquear mientras se actualiza
 
   function setActiveTab(btn) {
     [tabPendientes, tabDescartadas, tabFinalizadas].forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
   }
 
-  // listeners pestañas
-  tabPendientes.addEventListener('click', () => { estadoActual = 'pendiente'; setActiveTab(tabPendientes); cargarSolicitudes(); });
-  tabDescartadas.addEventListener('click', () => { estadoActual = 'eliminada'; setActiveTab(tabDescartadas); cargarSolicitudes(); });
-  tabFinalizadas.addEventListener('click', () => { estadoActual = 'finalizada'; setActiveTab(tabFinalizadas); cargarSolicitudes(); });
+  // 🔹 NUEVA FUNCIÓN: muestra animación de carga
+  function mostrarCargando() {
+    lista.innerHTML = `
+      <li class="sin-solicitudes text-center text-muted" style="padding: 20px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Cargando solicitudes (${estadoActual})...</p>
+      </li>
+    `;
+  }
 
-  async function cargarSolicitudes() {
+  // listeners pestañas
+  tabPendientes.addEventListener('click', () => cambiarEstado('pendiente', tabPendientes));
+  tabDescartadas.addEventListener('click', () => cambiarEstado('eliminada', tabDescartadas));
+  tabFinalizadas.addEventListener('click', () => cambiarEstado('finalizada', tabFinalizadas));
+
+  async function cambiarEstado(estado, boton) {
+    if (cargando) return; // bloquea clicks múltiples
+    estadoActual = estado;
+    setActiveTab(boton);
+    await cargarSolicitudes(true);
+  }
+
+  async function cargarSolicitudes(forceRefresh = false) {
     try {
+      cargando = true;
+      mostrarCargando(); // 🔹 Muestra spinner inmediatamente
+
       const res = await fetch(`/obtener_solicitudes_docente/?estado=${encodeURIComponent(estadoActual)}`);
       const data = await res.json();
+
+      // pequeña pausa opcional para suavizar transición visual (200ms)
+      await new Promise(r => setTimeout(r, 200));
+
       lista.innerHTML = "";
 
       if (!data.success || !data.solicitudes || data.solicitudes.length === 0) {
         lista.innerHTML = `<li class="sin-solicitudes">No hay solicitudes (${estadoActual}).</li>`;
+        cargando = false;
         return;
       }
 
@@ -42,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const li = document.createElement("li");
         li.className = "solicitud-item mb-2 p-2";
 
-        // contenido base
         li.innerHTML = `
           <div>
             <strong>${s.estudiante}</strong> pide retroalimentación en 
@@ -55,19 +82,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const controls = document.createElement('div');
         controls.className = 'mt-2';
 
-        // comportamiento por estado:
         if (estadoActual === 'pendiente') {
           // Responder
           const btnResponder = document.createElement('button');
           btnResponder.className = 'btn btn-sm btn-primary me-2';
           btnResponder.innerHTML = '<i class="fas fa-reply"></i> Responder';
           btnResponder.addEventListener('click', () => {
-            // pasar datos y redirigir a retroalimentacion_docente
             const area = encodeURIComponent(s.area || '');
             const asignatura = encodeURIComponent(s.asignatura || '');
             const sigla = encodeURIComponent(s.sigla || '');
             const estudiante = encodeURIComponent(s.estudiante || '');
-            // si deseas pasar id_estudiante o id_sretro, puedes agregarlo
             const url = `/retroalimentacion_docente/?area=${area}&asignatura=${asignatura}&sigla=${sigla}&estudiante=${estudiante}&id_sretro=${s.id}`;
             window.location.href = url;
           });
@@ -129,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           controls.appendChild(btnDescartar);
         } else if (estadoActual === 'eliminada') {
-          // Restaurar -> volver a pendiente
           const btnRestaurar = document.createElement('button');
           btnRestaurar.className = 'btn btn-sm btn-outline-primary';
           btnRestaurar.innerHTML = '<i class="fas fa-undo"></i> Restaurar';
@@ -149,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           controls.appendChild(btnRestaurar);
         } else if (estadoActual === 'finalizada') {
-          // opcional: mostrar fecha finalizado, sin acciones
           const badge = document.createElement('span');
           badge.className = 'text-success small';
           badge.textContent = 'Finalizada';
@@ -159,9 +181,12 @@ document.addEventListener('DOMContentLoaded', function () {
         li.appendChild(controls);
         lista.appendChild(li);
       });
+
+      cargando = false;
     } catch (err) {
       console.error("Error cargando solicitudes:", err);
       lista.innerHTML = `<li class="sin-solicitudes">Error cargando solicitudes.</li>`;
+      cargando = false;
     }
   }
 
@@ -169,7 +194,9 @@ document.addEventListener('DOMContentLoaded', function () {
   setActiveTab(tabPendientes);
   cargarSolicitudes();
   // refrescar cada 10s solo la pestaña actual
-  setInterval(cargarSolicitudes, 10000);
+  setInterval(() => {
+    if (!cargando) cargarSolicitudes();
+  }, 10000);
 });
 /* --------------------------------------------------------------------------------------------------------------
    ---------------------------------------- FIN inicio_docente .JS ----------------------------------------------
