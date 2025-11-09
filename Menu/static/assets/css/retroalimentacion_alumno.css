@@ -1,0 +1,422 @@
+/* -------------------------------------------------------------------------------------------------------------
+   ------------------------------------- INICIO test_interes_alumno .CSS ---------------------------------------
+   ------------------------------------------------------------------------------------------------------------- */
+    
+/* fuente de letra */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* TITULO BODY */
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+    }
+    body {
+        margin: 0;
+        background-color: #f4f6f8;
+    }
+
+
+/* TITULO BARRA LATERAL  */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 220px;
+        height: 100%;
+        background-color: #7c60ba;
+        padding-top: 20px;
+        overflow-y: auto;
+    }
+
+    .sidebar .profile img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+    }
+
+    .sidebar .profile h5 {
+        color: white;
+        margin: 0;
+    }
+
+    .sidebar .nav {
+        margin-top: 20px;
+    }
+
+    .sidebar .nav-link {
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+        background-color: #9c7fdc;
+        color: white;
+        border-radius: 5px;
+    }
+
+    .sidebar .nav-link.active i {
+        color: white;
+    }
+
+
+    /* animación suave */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* título */
+    .modal-content h5 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: #5a2a82; /* tono púrpura elegante */
+    }
+
+    /* inputs y selects */
+    .modal-content .form-control,
+    .modal-content .form-select {
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 0.95rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    /* textarea */
+    #mensaje {
+        resize: none;
+    }
+
+    /* botones */
+    .modal-content .btn {
+        min-width: 100px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+
+    /* botón cancelar */
+    #cancelarModal {
+        background-color: #b23ad3;
+        border: none;
+        color: white;
+        margin-right: 0.5rem;
+    }
+    #cancelarModal:hover{
+        background-color: #5d2fb2;
+        color: white;
+    }
+
+    /* botón enviar */
+    #enviarSolicitud {
+        background-color: #5d2fb2; /* púrpura vibrante */
+        border: none;
+        color: white;
+    }
+
+    #enviarSolicitud:hover{
+        background-color: #b23ad3;
+        color: white;
+    }
+
+    /* lista de sugerencias */
+    #suggestions-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 1rem;
+    }
+    #suggestions-list li {
+        padding: 0.5rem;
+        background-color: #f3f3f3;
+        border-radius: 6px;
+        margin-bottom: 0.3rem;
+        cursor: pointer;
+    }
+    #suggestions-list li:hover {
+        background-color: #e0d7f5;
+    }
+
+    /* botón de cierre arriba */
+    .cerrar-modal {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: transparent;
+        border: none;
+        font-size: 1.2rem;
+        color: #5d2fb2;
+        cursor: pointer;
+        z-index: 10;
+        transition: transform 0.2s ease;
+    }
+
+    .cerrar-modal:hover {
+        transform: scale(1.2);
+        color: #b23ad3;
+    }
+
+    /* botón confirmar */
+    .btn-confirmar {
+        background-color: #b23ad3;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-confirmar:hover {
+        background-color: #5d2fb2;
+    }
+
+    /* botón cancelar */
+    .btn-cancelar {
+        background-color: #5d2fb2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #b23ad3;
+    }
+
+    div:where(.swal2-icon).swal2-question {
+        border-color: #a887bd;
+        color: #a887bd;
+    }
+
+
+
+/* TITULO FORMULARIO DE INTERES */
+
+/* sin codigo */
+
+
+/* TITULO DISEÑO RESPONSIVE PARA MOVILES */
+    @media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .graphs-container {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+    }
+
+
+    .content {
+        margin-left: 240px; /* Evita sobreponerse del sidebar */
+        padding: 20px;
+    }
+
+    .container {
+    max-width: 900px;
+    }
+
+    .intro {
+    background-color: #ffffff;
+    border-radius: 12px;
+    }
+
+    .formulario {
+        margin-left: 240px; /* Igual que .content */
+        margin-right: auto;
+        max-width: 900px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .pregunta {
+    margin-bottom: 25px;
+    }
+
+    .pregunta p {
+    font-weight: 600;
+    margin-bottom: 10px;
+    }
+
+    .opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    }
+
+    .opciones label {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    }
+
+    .opciones input {
+    margin-right: 8px;
+    }
+
+    .opciones label:hover {
+    background-color: #f0e8ff;
+    border-color: #a26bfa;
+    }
+
+    .opciones label.selected {
+    background-color: #a26bfa;
+    color: white;
+    border-color: #8c52ff;
+    }
+
+    textarea {
+    resize: vertical;
+    }
+
+    /* Botón morado */
+    .btn-morado {
+    background-color: #a26bfa;
+    border-color: #8c52ff;
+    color: white;
+    }
+
+    .btn-morado:hover {
+    background-color: #8c52ff;
+    border-color: #6e3edb;
+    color: white;
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+    .content {
+        margin-left: 0; /* sidebar colapsa o desaparece */
+        padding: 15px;
+    }
+    }
+
+    @media (max-width: 576px) {
+    .container {
+        padding: 0 15px;
+    }
+    }
+
+
+.autocomplete-wrapper { position: relative; }
+.sugerencias-docente {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  z-index: 9999;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.sugerencia-item { padding: 8px 12px; cursor: pointer; }
+.sugerencia-item:hover { background: #f5f5f5; }
+.sin-resultados { padding: 8px 12px; color:#777; font-style:italic; }   
+
+.autocomplete-container {
+  position: relative;
+}
+
+#suggestions-list {
+  position: absolute;
+  top: 100%; /* justo debajo del input */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Botón violeta por ID */
+.Enviar-btn,
+#btnSolicitud {
+  background-color: #5d2fb2 !important;
+  color: #fff !important;
+  border: none;
+  padding: 8px 16px;
+  font-size: 15px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Hover para ambos */
+.Enviar-btn:hover,
+#btnSolicitud:hover {
+  background-color: #b23ad3 !important;
+  transform: scale(1.03);
+  cursor: pointer;
+}
+
+
+/* ====== TABLA DE RETROALIMENTACIONES ====== */
+.table-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: #5d2fb2;
+  color: white;
+}
+
+.table th, .table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table tr:hover {
+  background-color: #f7f3ff;
+}
+
+.estado-pendiente {
+  color: #d48806;
+  font-weight: 600;
+}
+
+.estado-respondida {
+  color: #389e0d;
+  font-weight: 600;
+}
+
+.estado-descartada {
+  color: #cf1322;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------------------------------------------
+   -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
+   ------------------------------------------------------------------------------------------------------------- */

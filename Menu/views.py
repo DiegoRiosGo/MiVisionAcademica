@@ -323,6 +323,32 @@ def TestInterestAlumno(request):
         }
         return render(request, 'Menu/vista_alumno/test_interest_alumno.html', contexto)
 
+@login_requerido
+@solo_alumno
+def retroalimentacion_alumno(request):
+        usuario_id = request.session.get('usuario_id')
+
+        # --- Obtener información del usuario ---
+        try:
+            response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
+            if not response.data:
+                messages.error(request, "No se encontró la información del usuario.")
+                return redirect('Inicio')
+
+            usuario = response.data[0]
+        except Exception as e:
+            print("Error al obtener usuario:", e)
+            messages.error(request, "Hubo un problema al cargar tu información.")
+            return redirect('Inicio')
+
+
+        # GET -> render
+        contexto = {
+            "nombre": usuario.get("nombre", ""),
+            "apellido": usuario.get("apellido", ""),
+            "foto": usuario.get("foto", None),
+        }
+        return render(request, 'Menu/vista_alumno/retroalimentacion_alumno.html', contexto)
 
 @login_requerido
 @solo_alumno
@@ -1368,7 +1394,45 @@ def actualizar_estado_solicitud(request):
         print("ERROR actualizar_estado_solicitud:", e)
         return JsonResponse({"success": False, "error": "Error al actualizar el estado."}, status=500)
 
-    
+
+@csrf_exempt
+def obtener_retroalimentaciones_alumno(request):
+    try:
+        id_estudiante = request.session.get("usuario_id") or getattr(request.user, "usuario_id", None)
+
+        # Obtener solicitudes del estudiante
+        solicitudes = supabase.table("solicitud_retroalimentacion") \
+            .select("id_sretro, id_docente, asignatura, sigla, mensaje, respuesta, estado, creado_en") \
+            .eq("id_estudiante", id_estudiante) \
+            .order("creado_en", desc=True).execute().data
+
+        retroalimentaciones = []
+
+        for s in solicitudes:
+            # Obtener nombre del docente
+            docente_data = supabase.table("usuario").select("nombre, apellido") \
+                .eq("usuario_id", s["id_docente"]).execute().data
+            docente = (
+                f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}"
+                if docente_data else "Desconocido"
+            )
+
+            retroalimentaciones.append({
+                "docente": docente,
+                "asignatura": s["asignatura"],
+                "sigla": s["sigla"],
+                "mensaje": s["mensaje"],
+                "respuesta": s.get("respuesta"),
+                "estado": s.get("estado", "pendiente"),
+                "creado_en": s["creado_en"],
+            })
+
+        return JsonResponse({"success": True, "retroalimentaciones": retroalimentaciones})
+
+    except Exception as e:
+        print("Error obtener_retroalimentaciones_alumno:", e)
+        return JsonResponse({"success": False, "error": str(e)})
+     
 # 4 ENVIAR RETROALIMENTACIÓN DESDE DOCENTE
 def enviar_retroalimentacion(request):
     if request.method == "POST":
