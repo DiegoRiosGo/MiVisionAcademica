@@ -34,6 +34,11 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
   }
 
+  // listeners pestañas
+  tabPendientes.addEventListener('click', () => cambiarEstado('pendiente', tabPendientes));
+  tabDescartadas.addEventListener('click', () => cambiarEstado('eliminada', tabDescartadas));
+  tabFinalizadas.addEventListener('click', () => cambiarEstado('finalizada', tabFinalizadas));
+
   // 🔹 Comparar si hay cambios reales antes de recargar
   function hayCambios(nuevas, antiguas) {
     if (nuevas.length !== antiguas.length) return true;
@@ -52,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
     await cargarSolicitudes(true); // loader visible solo en cambio manual
   }
 
-  async function cargarSolicitudes(showLoader = false) {
+  async function cargarSolicitudes(showLoader = false) { //forceRefresh 
     try {
       cargando = true;
       if (showLoader) mostrarCargando();
