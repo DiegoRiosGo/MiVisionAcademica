@@ -1282,89 +1282,92 @@ def enviar_solicitud(request):
 
 
 # 2️⃣ OBTENER NOTIFICACIONES DOCENTE
-def obtener_notificaciones_docente(request):
+def obtener_solicitudes_docente(request):
     try:
         docente_usuario_id = request.session.get("usuario_id") or getattr(request.user, "usuario_id", None)
-
         docente_res = supabase.table("docente").select("usuario_id").eq("usuario_id", docente_usuario_id).execute()
         if not docente_res.data:
             return JsonResponse({"success": False, "error": "No se encontró registro de docente."}, status=404)
 
         id_docente = docente_res.data[0]["usuario_id"]
 
+        # recibir estado por query param (por defecto 'pendiente')
+        estado = request.GET.get("estado", "pendiente")
+        # validar estado aceptado
+        if estado not in ("pendiente", "eliminada", "finalizada"):
+            return JsonResponse({"success": False, "error": "Estado inválido."}, status=400)
+
         solicitudes_res = supabase.table("solicitud_retroalimentacion") \
             .select("id_sretro, id_estudiante, asignatura, sigla, mensaje, estado, creado_en") \
             .eq("id_docente", id_docente) \
-            .neq("estado", "eliminada") \
+            .eq("estado", estado) \
             .order("creado_en", desc=True) \
             .execute()
 
         solicitudes = []
         for s in solicitudes_res.data or []:
-            est_res = supabase.table("usuario").select("nombre, apellido").eq("usuario_id", s["id_estudiante"]).execute()
-            nombre_est = "Desconocido"
+            # obtener nombre del estudiante
+            est_res = supabase.table("usuario").select("usuario_id, nombre, apellido").eq("usuario_id", s["id_estudiante"]).maybe_single().execute()
             if est_res.data:
-                nombre_est = f"{est_res.data[0]['nombre']} {est_res.data[0]['apellido']}"
+                nombre_est = f"{est_res.data.get('nombre','')} {est_res.data.get('apellido','')}".strip()
+            else:
+                nombre_est = "Desconocido"
 
-            # Obtener nombre real de asignatura
-            asig_res = supabase.table("asignatura").select("nombre_asignatura").eq("asignatura_id", s["asignatura"]).execute()
-            nombre_asig = asig_res.data[0]["nombre_asignatura"] if asig_res.data else f"Asignatura ID {s['asignatura']}"
+            # obtener nombre asignatura
+            asig_res = supabase.table("asignatura").select("asignatura_id, nombre_asignatura, area").eq("asignatura_id", s["asignatura"]).maybe_single().execute()
+            if asig_res.data:
+                nombre_asig = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {s['asignatura']}"
+                area_asig = asig_res.data.get("area")
+            else:
+                nombre_asig = f"Asignatura ID {s['asignatura']}"
+                area_asig = None
 
             solicitudes.append({
                 "id": s["id_sretro"],
+                "estudiante_id": s["id_estudiante"],
                 "estudiante": nombre_est,
+                "asignatura_id": s["asignatura"],
                 "asignatura": nombre_asig,
                 "sigla": s["sigla"],
                 "mensaje": s["mensaje"],
                 "estado": s["estado"],
-                "creado_en": s["creado_en"]
+                "creado_en": s["creado_en"],
+                "area": area_asig
             })
 
-            # Si hay solicitudes, obtener áreas asociadas
-            for s in solicitudes:
-                try:
-                    asig = (
-                        supabase.table("asignatura")
-                        .select("area")
-                        .eq("nombre_asignatura", s.get("asignatura"))
-                        .maybe_single()
-                        .execute()
-                    )
-                    s["area"] = asig.data["area"] if asig.data else None
-                except Exception:
-                    s["area"] = None
-                    
         return JsonResponse({"success": True, "solicitudes": solicitudes})
-
     except Exception as e:
-        print("ERROR obtener_notificaciones_docente:", e)
-        return JsonResponse({"success": False, "error": "Error al obtener las notificaciones del docente."}, status=500)
-    
-# 3️⃣ ELIMINAR SOLICITUD (cambia estado a 'eliminada')
+        print("ERROR obtener_solicitudes_docente:", e)
+        return JsonResponse({"success": False, "error": "Error al obtener las solicitudes del docente."}, status=500)
+
+# 3 actualizar_estado_solicitud (genérico para cambiar estado)
 @csrf_exempt
-def eliminar_solicitud(request):
+def actualizar_estado_solicitud(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
     try:
         data = json.loads(request.body.decode("utf-8") or "{}")
-        solicitud_id = data.get("id_sretro")
+        id_sretro = data.get("id_sretro")
+        nuevo_estado = data.get("nuevo_estado")
 
-        if not solicitud_id:
-            return JsonResponse({"success": False, "error": "Falta el ID de solicitud"}, status=400)
+        if not id_sretro or not nuevo_estado:
+            return JsonResponse({"success": False, "error": "Faltan parámetros."}, status=400)
+        if nuevo_estado not in ("pendiente", "eliminada", "finalizada"):
+            return JsonResponse({"success": False, "error": "Estado inválido."}, status=400)
 
-        # Actualizamos estado en Supabase
         resp = supabase.table("solicitud_retroalimentacion").update({
-            "estado": "eliminada",
+            "estado": nuevo_estado,
             "actualizado_en": datetime.now().isoformat()
-        }).eq("id_sretro", int(solicitud_id)).execute()
+        }).eq("id_sretro", int(id_sretro)).execute()
 
         if resp.data:
             return JsonResponse({"success": True})
         else:
-            return JsonResponse({"success": False, "error": "No se pudo eliminar la solicitud"}, status=400)
+            return JsonResponse({"success": False, "error": "No se pudo actualizar el estado."}, status=400)
     except Exception as e:
-        print("ERROR eliminar_solicitud:", e)
-        return JsonResponse({"success": False, "error": "Error al eliminar la solicitud"}, status=500)
+        print("ERROR actualizar_estado_solicitud:", e)
+        return JsonResponse({"success": False, "error": "Error al actualizar el estado."}, status=500)
+
     
 # 4 ENVIAR RETROALIMENTACIÓN DESDE DOCENTE
 def enviar_retroalimentacion(request):

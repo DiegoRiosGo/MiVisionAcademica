@@ -111,7 +111,12 @@
             icon: "question",
             showCancelButton: true,
             confirmButtonText: "Sí, enviar",
-            cancelButtonText: "Cancelar"
+            cancelButtonText: "Cancelar",
+            customClass: {
+              confirmButton: "btn-confirmar",
+              cancelButton: "btn-cancelar"
+            },
+            buttonsStyling: false
             }).then((res) => {
             if (res.isConfirmed) {
                 form.submit();
@@ -132,6 +137,20 @@
 
             btnAbrir.addEventListener("click", () => modal.style.display = "block");
             btnCerrar.addEventListener("click", () => modal.style.display = "none");
+
+
+            const btnCerrarTop = document.getElementById("cerrarModalTop");
+            if (btnCerrarTop && modal) {
+              btnCerrarTop.addEventListener("click", () => modal.classList.remove("show"));
+            }
+
+            if (btnAbrir && modal) {
+              btnAbrir.addEventListener("click", () => {
+                modal.classList.add("show");
+              });
+            }
+
+
 
             // --- Helper CSRF ---
             function getCookie(name) {
