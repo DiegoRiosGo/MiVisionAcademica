@@ -387,35 +387,47 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Enviar retroalimentación ---
   if (feedbackForm) {
     feedbackForm.addEventListener("submit", async (ev) => {
-      ev.preventDefault();
-      const docente_id = feedbackForm.dataset.docenteId || null;
-      const estudiante_id = estudianteSelect ? estudianteSelect.value : null;
-      const asignatura_id = asignaturaSelect ? asignaturaSelect.value : null;
-      const contenido = feedbackTextarea ? feedbackTextarea.value.trim() : "";
+    ev.preventDefault();
 
-      if (!docente_id || !estudiante_id || !contenido || !asignatura_id) {
-        Swal.fire("Atención", "Selecciona todos los campos y escribe la retroalimentación.", "warning");
-        return;
-      }
+    const docente_id = feedbackForm.dataset.docenteId;
+    const estudiante_id = estudianteSelect?.value;
+    const asignatura_id = asignaturaSelect?.value;
+    const contenido = feedbackTextarea?.value.trim();
+    const id_sretro = feedbackForm.dataset.idSretro || null; // <-- nuevo
 
-      try {
-        const res = await fetch("/guardar_comentario_docente/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-          body: JSON.stringify({ docente_id, estudiante_id, contenido, asignatura_id }),
-        });
-        const data = await res.json();
-        if (data.success) {
-          Swal.fire("✅", "Retroalimentación enviada correctamente.", "success");
-          feedbackTextarea.value = "";
-        } else {
-          Swal.fire("❌", data.error || "No se pudo guardar la retroalimentación.", "error");
-        }
-      } catch (err) {
-        console.error("Error guardando retroalimentación:", err);
-        Swal.fire("❌", "Ocurrió un error al enviar la retroalimentación.", "error");
+    if (!docente_id || !estudiante_id || !contenido || !asignatura_id) {
+      Swal.fire("Atención", "Completa todos los campos.", "warning");
+      return;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+    // Si existe id_sretro, entonces es una respuesta formal
+    const url = id_sretro ? "/enviar_retroalimentacion/" : "/guardar_comentario_docente/";
+
+    const bodyData = id_sretro
+      ? { id_sretro, respuesta: contenido } // <-- respuesta formal
+      : { docente_id, estudiante_id, contenido, asignatura_id }; // <-- retro libre
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+        body: JSON.stringify(bodyData),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        Swal.fire("✅", id_sretro ? "Respuesta enviada correctamente." : "Retroalimentación guardada.", "success");
+        feedbackTextarea.value = "";
+      } else {
+        Swal.fire("❌", data.error || "Error al guardar la retroalimentación.", "error");
       }
-    });
+    } catch (err) {
+      console.error("Error:", err);
+      Swal.fire("❌", "Error inesperado al enviar la retroalimentación.", "error");
+    }
+  });
   }
 });
 

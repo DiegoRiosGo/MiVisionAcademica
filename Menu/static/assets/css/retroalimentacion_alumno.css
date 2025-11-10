@@ -417,6 +417,22 @@
   font-weight: 600;
 }
 
+.retro-item {
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.retro-item blockquote {
+  margin: 10px 0;
+  padding: 10px 15px;
+  background: #f9f4ff;
+  border-left: 5px solid #7443ff;
+  border-radius: 6px;
+  font-style: italic;
+}
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

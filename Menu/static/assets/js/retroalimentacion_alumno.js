@@ -366,43 +366,38 @@ document.addEventListener("DOMContentLoaded", () => {
 // =====================
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const tabla = document.querySelector("#tablaRetroalimentaciones tbody");
+  const retroList = document.getElementById("retroList");
 
   async function cargarRetroalimentaciones() {
     try {
       const res = await fetch("/obtener_retroalimentaciones_alumno/");
       const data = await res.json();
+      retroList.innerHTML = "";
 
-      if (!data.success) throw new Error(data.error || "Error al cargar retroalimentaciones");
-
-      tabla.innerHTML = "";
-
-      if (data.retroalimentaciones.length === 0) {
-        tabla.innerHTML = `<tr><td colspan="7" class="text-center">No tienes solicitudes registradas.</td></tr>`;
+      if (!data.success || data.retroalimentaciones.length === 0) {
+        retroList.innerHTML = `<p class="text-muted text-center">Aún no tienes retroalimentaciones.</p>`;
         return;
       }
 
       data.retroalimentaciones.forEach(r => {
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-          <td>${r.docente || "Desconocido"}</td>
-          <td>${r.asignatura}</td>
-          <td>${r.sigla}</td>
-          <td>${r.mensaje}</td>
-          <td>${r.respuesta ? r.respuesta : '<em>Sin respuesta</em>'}</td>
-          <td><span class="estado-${r.estado}">${r.estado}</span></td>
-          <td>${new Date(r.creado_en).toLocaleDateString()}</td>
+        const div = document.createElement("div");
+        div.className = "retro-item";
+        div.innerHTML = `
+          <p>Tu solicitud al docente <strong>${r.docente}</strong> por la asignatura 
+          <strong>${r.asignatura}</strong> (${r.sigla}) fue respondida:</p>
+          <blockquote>${r.respuesta || "<em>Sin respuesta aún...</em>"}</blockquote>
+          <p class="text-muted small">Enviada el ${new Date(r.creado_en).toLocaleString()}</p>
         `;
-        tabla.appendChild(fila);
+        retroList.appendChild(div);
       });
     } catch (err) {
-      console.error("Error cargando retroalimentaciones:", err);
-      tabla.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error al cargar los datos.</td></tr>`;
+      console.error(err);
+      retroList.innerHTML = `<p class="text-danger text-center">Error al cargar retroalimentaciones.</p>`;
     }
   }
 
   cargarRetroalimentaciones();
-  setInterval(cargarRetroalimentaciones, 15000); // cada 15s para actualizar sin molestar
+  setInterval(cargarRetroalimentaciones, 20000);
 });
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .JS ------------------------------------------

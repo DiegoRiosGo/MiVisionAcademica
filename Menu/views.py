@@ -1398,26 +1398,22 @@ def actualizar_estado_solicitud(request):
 @csrf_exempt
 def obtener_retroalimentaciones_alumno(request):
     try:
-        id_estudiante = request.session.get("usuario_id") or getattr(request.user, "usuario_id", None)
+        id_estudiante = request.session.get("usuario_id")
 
-        # Obtener solicitudes del estudiante
+        # --- Solicitudes respondidas ---
         solicitudes = supabase.table("solicitud_retroalimentacion") \
-            .select("id_sretro, id_docente, asignatura, sigla, mensaje, respuesta, estado, creado_en") \
-            .eq("id_estudiante", id_estudiante) \
-            .order("creado_en", desc=True).execute().data
+            .select("id_sretro, id_docente, asignatura, sigla, mensaje, respuesta, estado, creado_en, actualizado_en") \
+            .eq("id_estudiante", id_estudiante).execute().data or []
 
         retroalimentaciones = []
 
         for s in solicitudes:
-            # Obtener nombre del docente
             docente_data = supabase.table("usuario").select("nombre, apellido") \
                 .eq("usuario_id", s["id_docente"]).execute().data
-            docente = (
-                f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}"
-                if docente_data else "Desconocido"
-            )
+            docente = f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}" if docente_data else "Desconocido"
 
             retroalimentaciones.append({
+                "tipo": "respuesta_solicitud",
                 "docente": docente,
                 "asignatura": s["asignatura"],
                 "sigla": s["sigla"],
@@ -1425,7 +1421,32 @@ def obtener_retroalimentaciones_alumno(request):
                 "respuesta": s.get("respuesta"),
                 "estado": s.get("estado", "pendiente"),
                 "creado_en": s["creado_en"],
+                "actualizado_en": s.get("actualizado_en"),
             })
+
+        # --- Comentarios libres ---
+        comentarios = supabase.table("comentario_docente") \
+            .select("docente_id, contenido, fecha, asignatura_id") \
+            .eq("estudiante_id", id_estudiante).execute().data or []
+
+        for c in comentarios:
+            docente_data = supabase.table("usuario").select("nombre, apellido") \
+                .eq("usuario_id", c["docente_id"]).execute().data
+            docente = f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}" if docente_data else "Desconocido"
+
+            retroalimentaciones.append({
+                "tipo": "comentario_libre",
+                "docente": docente,
+                "asignatura": c.get("asignatura_id", "No especificada"),
+                "sigla": "-",
+                "mensaje": "",
+                "respuesta": c["contenido"],
+                "estado": "independiente",
+                "creado_en": c["fecha"],
+                "actualizado_en": c["fecha"],
+            })
+
+        retroalimentaciones.sort(key=lambda x: x["creado_en"], reverse=True)
 
         return JsonResponse({"success": True, "retroalimentaciones": retroalimentaciones})
 
