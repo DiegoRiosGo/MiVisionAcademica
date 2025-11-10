@@ -1400,33 +1400,38 @@ def obtener_retroalimentaciones_alumno(request):
     try:
         id_estudiante = request.session.get("usuario_id")
 
-        # --- Solicitudes respondidas ---
+        retroalimentaciones = []
+
+        # --- 1. Solicitudes con respuesta o en curso ---
         solicitudes = supabase.table("solicitud_retroalimentacion") \
             .select("id_sretro, id_docente, asignatura, sigla, mensaje, respuesta, estado, creado_en, actualizado_en") \
             .eq("id_estudiante", id_estudiante).execute().data or []
-
-        retroalimentaciones = []
 
         for s in solicitudes:
             docente_data = supabase.table("usuario").select("nombre, apellido") \
                 .eq("usuario_id", s["id_docente"]).execute().data
             docente = f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}" if docente_data else "Desconocido"
 
+            # obtener nombre de la asignatura
+            asignatura_data = supabase.table("asignatura").select("nombre, sigla") \
+                .eq("nombre", s["asignatura"]).execute().data
+            nombre_asignatura = asignatura_data[0]["nombre"] if asignatura_data else s["asignatura"]
+            sigla = asignatura_data[0]["sigla"] if asignatura_data else s.get("sigla", "-")
+
             retroalimentaciones.append({
                 "tipo": "respuesta_solicitud",
                 "docente": docente,
-                "asignatura": s["asignatura"],
-                "sigla": s["sigla"],
+                "asignatura": nombre_asignatura,
+                "sigla": sigla,
                 "mensaje": s["mensaje"],
                 "respuesta": s.get("respuesta"),
                 "estado": s.get("estado", "pendiente"),
                 "creado_en": s["creado_en"],
-                "actualizado_en": s.get("actualizado_en"),
             })
 
-        # --- Comentarios libres ---
+        # --- 2. Comentarios libres del docente ---
         comentarios = supabase.table("comentario_docente") \
-            .select("docente_id, contenido, fecha, asignatura_id") \
+            .select("docente_id, contenido, fecha, asignatura_id, sigla") \
             .eq("estudiante_id", id_estudiante).execute().data or []
 
         for c in comentarios:
@@ -1434,16 +1439,18 @@ def obtener_retroalimentaciones_alumno(request):
                 .eq("usuario_id", c["docente_id"]).execute().data
             docente = f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}" if docente_data else "Desconocido"
 
+            asignatura_data = supabase.table("asignatura").select("nombre, sigla") \
+                .eq("asignatura_id", c.get("asignatura_id")).execute().data
+            nombre_asignatura = asignatura_data[0]["nombre"] if asignatura_data else "No especificada"
+            sigla = asignatura_data[0]["sigla"] if asignatura_data else c.get("sigla", "-")
+
             retroalimentaciones.append({
                 "tipo": "comentario_libre",
                 "docente": docente,
-                "asignatura": c.get("asignatura_id", "No especificada"),
-                "sigla": "-",
-                "mensaje": "",
+                "asignatura": nombre_asignatura,
+                "sigla": sigla,
                 "respuesta": c["contenido"],
-                "estado": "independiente",
                 "creado_en": c["fecha"],
-                "actualizado_en": c["fecha"],
             })
 
         retroalimentaciones.sort(key=lambda x: x["creado_en"], reverse=True)

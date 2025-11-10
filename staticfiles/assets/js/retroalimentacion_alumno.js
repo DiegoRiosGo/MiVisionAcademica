@@ -382,16 +382,40 @@ document.addEventListener("DOMContentLoaded", async () => {
       data.retroalimentaciones.forEach(r => {
         const div = document.createElement("div");
         div.className = "retro-item";
-        div.innerHTML = `
-          <p>Tu solicitud al docente <strong>${r.docente}</strong> por la asignatura 
-          <strong>${r.asignatura}</strong> (${r.sigla}) fue respondida:</p>
-          <blockquote>${r.respuesta || "<em>Sin respuesta aún...</em>"}</blockquote>
-          <p class="text-muted small">Enviada el ${new Date(r.creado_en).toLocaleString()}</p>
-        `;
+
+        // Diferenciar por tipo
+        if (r.tipo === "respuesta_solicitud") {
+          div.innerHTML = `
+            <p>
+              Tu solicitud <strong>"${r.mensaje}"</strong> al docente 
+              <strong>${r.docente}</strong> por la asignatura 
+              <strong>${r.asignatura}</strong> (${r.sigla}) está en estado: 
+              <span class="estado-${r.estado}">${r.estado.toUpperCase()}</span>.
+            </p>
+            ${
+              r.respuesta
+                ? `<blockquote class="respuesta">${r.respuesta}</blockquote>`
+                : `<p class="text-muted"><em>Sin respuesta aún...</em></p>`
+            }
+            <p class="text-muted small">Enviada el ${new Date(r.creado_en).toLocaleString()}</p>
+          `;
+        } 
+        else if (r.tipo === "comentario_libre") {
+          div.innerHTML = `
+            <p>
+              Le ha llegado una retroalimentación del docente 
+              <strong>${r.docente}</strong> para la asignatura 
+              <strong>${r.asignatura}</strong> (${r.sigla}):
+            </p>
+            <blockquote class="respuesta">${r.respuesta}</blockquote>
+            <p class="text-muted small">Enviada el ${new Date(r.creado_en).toLocaleString()}</p>
+          `;
+        }
+
         retroList.appendChild(div);
       });
     } catch (err) {
-      console.error(err);
+      console.error("Error al cargar retroalimentaciones:", err);
       retroList.innerHTML = `<p class="text-danger text-center">Error al cargar retroalimentaciones.</p>`;
     }
   }
