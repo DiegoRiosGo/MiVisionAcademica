@@ -1394,7 +1394,7 @@ def actualizar_estado_solicitud(request):
         print("ERROR actualizar_estado_solicitud:", e)
         return JsonResponse({"success": False, "error": "Error al actualizar el estado."}, status=500)
 
-
+# 4
 @csrf_exempt
 def obtener_retroalimentaciones_alumno(request):
     try:
@@ -1408,21 +1408,24 @@ def obtener_retroalimentaciones_alumno(request):
             .eq("id_estudiante", id_estudiante).execute().data or []
 
         for s in solicitudes:
+            # obtener nombre del docente
             docente_data = supabase.table("usuario").select("nombre, apellido") \
                 .eq("usuario_id", s["id_docente"]).execute().data
             docente = f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}" if docente_data else "Desconocido"
 
-            # obtener nombre de la asignatura
-            asignatura_data = supabase.table("asignatura").select("nombre, sigla") \
-                .eq("nombre", s["asignatura"]).execute().data
-            nombre_asignatura = asignatura_data[0]["nombre"] if asignatura_data else s["asignatura"]
-            sigla = asignatura_data[0]["sigla"] if asignatura_data else s.get("sigla", "-")
+            # obtener nombre de la asignatura (usando asignatura_id correctamente)
+            asig_res = supabase.table("asignatura").select("asignatura_id, nombre_asignatura, area") \
+                .eq("asignatura_id", s["asignatura"]).maybe_single().execute()
+            if asig_res.data:
+                nombre_asignatura = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {s['asignatura']}"
+            else:
+                nombre_asignatura = f"Asignatura ID {s['asignatura']}"
 
             retroalimentaciones.append({
                 "tipo": "respuesta_solicitud",
                 "docente": docente,
                 "asignatura": nombre_asignatura,
-                "sigla": sigla,
+                "sigla": s.get("sigla", "-"),
                 "mensaje": s["mensaje"],
                 "respuesta": s.get("respuesta"),
                 "estado": s.get("estado", "pendiente"),
@@ -1439,20 +1442,23 @@ def obtener_retroalimentaciones_alumno(request):
                 .eq("usuario_id", c["docente_id"]).execute().data
             docente = f"{docente_data[0]['nombre']} {docente_data[0]['apellido']}" if docente_data else "Desconocido"
 
-            asignatura_data = supabase.table("asignatura").select("nombre, sigla") \
-                .eq("asignatura_id", c.get("asignatura_id")).execute().data
-            nombre_asignatura = asignatura_data[0]["nombre"] if asignatura_data else "No especificada"
-            sigla = asignatura_data[0]["sigla"] if asignatura_data else c.get("sigla", "-")
+            asig_res = supabase.table("asignatura").select("asignatura_id, nombre_asignatura, area") \
+                .eq("asignatura_id", c.get("asignatura_id")).maybe_single().execute()
+            if asig_res.data:
+                nombre_asignatura = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {c.get('asignatura_id')}"
+            else:
+                nombre_asignatura = f"Asignatura ID {c.get('asignatura_id')}"
 
             retroalimentaciones.append({
                 "tipo": "comentario_libre",
                 "docente": docente,
                 "asignatura": nombre_asignatura,
-                "sigla": sigla,
+                "sigla": c.get("sigla", "-"),
                 "respuesta": c["contenido"],
                 "creado_en": c["fecha"],
             })
 
+        # ordenar por fecha
         retroalimentaciones.sort(key=lambda x: x["creado_en"], reverse=True)
 
         return JsonResponse({"success": True, "retroalimentaciones": retroalimentaciones})
@@ -1460,8 +1466,46 @@ def obtener_retroalimentaciones_alumno(request):
     except Exception as e:
         print("Error obtener_retroalimentaciones_alumno:", e)
         return JsonResponse({"success": False, "error": str(e)})
-     
-# 4 ENVIAR RETROALIMENTACIÓN DESDE DOCENTE
+
+#5
+@csrf_exempt
+def buscar_docentes(request):
+    """
+    Retorna lista de docentes que coincidan con el texto (para autocompletado).
+    Devuelve: [{"usuario_id": 123, "nombre": "Juan Pérez"}, ...]
+    """
+    q = request.GET.get("q", "").strip()
+    if not q:
+        return JsonResponse({"docentes": []})
+
+    try:
+        # Buscar coincidencias en nombre o apellido (ilike)
+        usuarios_res = supabase.table("usuario") \
+            .select("usuario_id, nombre, apellido") \
+            .or_(f"nombre.ilike.%{q}%,apellido.ilike.%{q}%") \
+            .execute()  
+
+        usuarios = usuarios_res.data or []
+        if not usuarios:
+            return JsonResponse({"docentes": []})
+
+        # Filtrar solo aquellos que están en la tabla docente
+        usuario_ids = [u["usuario_id"] for u in usuarios]
+        docentes_res = supabase.table("docente").select("usuario_id").in_("usuario_id", usuario_ids).execute()
+        docentes_ids = {d["usuario_id"] for d in (docentes_res.data or [])}
+
+        docentes = [
+            {"usuario_id": u["usuario_id"], "nombre": f"{u.get('nombre','').strip()} {u.get('apellido','').strip()}"}
+            for u in usuarios if u["usuario_id"] in docentes_ids
+        ]
+
+        return JsonResponse({"docentes": docentes})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+# 6 ENVIAR RETROALIMENTACIÓN DESDE DOCENTE
 def enviar_retroalimentacion(request):
     if request.method == "POST":
         try:
@@ -1506,38 +1550,3 @@ def enviar_retroalimentacion(request):
     return JsonResponse({"success": False, "error": "Método no permitido"})
 
 
-@csrf_exempt
-def buscar_docentes(request):
-    """
-    Retorna lista de docentes que coincidan con el texto (para autocompletado).
-    Devuelve: [{"usuario_id": 123, "nombre": "Juan Pérez"}, ...]
-    """
-    q = request.GET.get("q", "").strip()
-    if not q:
-        return JsonResponse({"docentes": []})
-
-    try:
-        # Buscar coincidencias en nombre o apellido (ilike)
-        usuarios_res = supabase.table("usuario") \
-            .select("usuario_id, nombre, apellido") \
-            .or_(f"nombre.ilike.%{q}%,apellido.ilike.%{q}%") \
-            .execute()  
-
-        usuarios = usuarios_res.data or []
-        if not usuarios:
-            return JsonResponse({"docentes": []})
-
-        # Filtrar solo aquellos que están en la tabla docente
-        usuario_ids = [u["usuario_id"] for u in usuarios]
-        docentes_res = supabase.table("docente").select("usuario_id").in_("usuario_id", usuario_ids).execute()
-        docentes_ids = {d["usuario_id"] for d in (docentes_res.data or [])}
-
-        docentes = [
-            {"usuario_id": u["usuario_id"], "nombre": f"{u.get('nombre','').strip()} {u.get('apellido','').strip()}"}
-            for u in usuarios if u["usuario_id"] in docentes_ids
-        ]
-
-        return JsonResponse({"docentes": docentes})
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
