@@ -379,7 +379,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
   }
 
-  async function cargarRetroalimentaciones() {
+  async function cargarRetroalimentaciones(showLoader = true) {
     try {
       if (showLoader) mostrarLoader();
 
