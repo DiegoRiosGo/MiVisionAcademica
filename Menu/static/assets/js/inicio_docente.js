@@ -111,33 +111,6 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           controls.appendChild(btnResponder);
 
-          const btnFinalizar = document.createElement('button');
-          btnFinalizar.className = 'btn btn-sm btn-success me-2';
-          btnFinalizar.innerHTML = '<i class="fas fa-check"></i> Finalizar';
-          btnFinalizar.addEventListener('click', async () => {
-            const conf = await Swal.fire({
-              title: '¿Marcar como finalizada?',
-              text: 'La solicitud se moverá a Finalizadas.',
-              icon: 'question',
-              showCancelButton: true,
-              confirmButtonText: 'Sí, finalizar'
-            });
-            if (!conf.isConfirmed) return;
-            const resp = await fetch('/actualizar_estado_solicitud/', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ id_sretro: s.id, nuevo_estado: 'finalizada' })
-            });
-            const d = await resp.json();
-            if (d.success) {
-              Swal.fire('Finalizada', 'Solicitud marcada como finalizada.', 'success');
-              cargarSolicitudes();
-            } else {
-              Swal.fire('Error', d.error || 'No se pudo finalizar', 'error');
-            }
-          });
-          controls.appendChild(btnFinalizar);
-
           const btnDescartar = document.createElement('button');
           btnDescartar.className = 'btn btn-sm btn-danger';
           btnDescartar.innerHTML = '<i class="fas fa-trash-alt"></i> Descartar';

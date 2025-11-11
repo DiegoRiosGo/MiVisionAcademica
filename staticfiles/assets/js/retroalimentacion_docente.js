@@ -407,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const bodyData = id_sretro
         ? { id_sretro, respuesta: contenido } // respuesta formal
-        : { docente_id, estudiante_id, contenido, asignatura_id }; // comentario libre
+        : { docente_id, estudiante_id, contenido, asignatura_id, sigla  }; // comentario libre
 
       try {
         const res = await fetch(url, {
@@ -416,18 +416,26 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(bodyData),
         });
 
-        console.log("📦 Enviando retroalimentación con datos:", bodyData);
-        
+
         const data = await res.json();
         if (data.success) {
           Swal.fire({
             icon: "success",
             title: id_sretro ? "Respuesta enviada correctamente." : "Comentario guardado con éxito.",
-            timer: 3000,
+            timer: 2500,
             showConfirmButton: false
           });
+
+          // ✅ Limpiar todos los campos del formulario
           feedbackTextarea.value = "";
-          document.getElementById("id_sretro").value = ""; // limpiar modo respuesta
+          document.getElementById("id_sretro").value = "";
+
+          if (areaSelect) areaSelect.selectedIndex = 0;
+          if (asignaturaSelect) resetDependentSelects(asignaturaSelect, "Seleccione asignatura");
+          if (siglaSelect) resetDependentSelects(siglaSelect, "Seleccione sigla");
+          if (estudianteSelect) resetDependentSelects(estudianteSelect, "Seleccione estudiante");
+
+          limpiarGraficos();
         } else {
           Swal.fire("❌", data.error || "Error al guardar la retroalimentación.", "error");
         }

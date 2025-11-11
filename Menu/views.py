@@ -1170,6 +1170,7 @@ def guardar_comentario_docente(request):
         estudiante_id = data.get("estudiante_id")
         contenido = data.get("contenido")
         asignatura_id = data.get("asignatura_id")
+        sigla = data.get("sigla")
 
         if not (docente_id and estudiante_id and contenido):
             return JsonResponse({"success": False, "error": "Faltan datos requeridos."}, status=400)
@@ -1180,6 +1181,7 @@ def guardar_comentario_docente(request):
             "docente_id": int(docente_id),
             "estudiante_id": int(estudiante_id),
             "asignatura_id": int(asignatura_id),
+            "sigla": sigla if sigla else None,
             "contenido": contenido,
             "fecha": datetime.now().isoformat()
         }).execute()
@@ -1568,7 +1570,7 @@ def enviar_retroalimentacion(request):
             supabase.table("solicitud_retroalimentacion") \
                 .update({
                     "respuesta": respuesta,
-                    "estado": "respondida",
+                    "estado": "finalizada",
                     "actualizado_en": datetime.now().isoformat()
                 }) \
                 .eq("id_sretro", id_sretro) \
