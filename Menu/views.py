@@ -1398,7 +1398,7 @@ def actualizar_estado_solicitud(request):
 @csrf_exempt
 def obtener_retroalimentaciones_alumno(request):
     try:
-        id_estudiante = request.session.get("usuario_id")
+        id_estudiante = request.session.get("usuario_id") or getattr(request.user, "usuario_id", None)
 
         retroalimentaciones = []
 
@@ -1418,18 +1418,22 @@ def obtener_retroalimentaciones_alumno(request):
                 .eq("asignatura_id", s["asignatura"]).maybe_single().execute()
             if asig_res.data:
                 nombre_asignatura = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {s['asignatura']}"
+                area_asig = asig_res.data.get("area")
             else:
                 nombre_asignatura = f"Asignatura ID {s['asignatura']}"
+                area_asig = None
 
             retroalimentaciones.append({
                 "tipo": "respuesta_solicitud",
                 "docente": docente,
+                "asignatura_id": s["asignatura"],
                 "asignatura": nombre_asignatura,
                 "sigla": s.get("sigla", "-"),
                 "mensaje": s["mensaje"],
                 "respuesta": s.get("respuesta"),
                 "estado": s.get("estado", "pendiente"),
                 "creado_en": s["creado_en"],
+                "area": area_asig,
             })
 
         # --- 2. Comentarios libres del docente ---
@@ -1445,17 +1449,21 @@ def obtener_retroalimentaciones_alumno(request):
             asig_res = supabase.table("asignatura").select("asignatura_id, nombre_asignatura, area") \
                 .eq("asignatura_id", c.get("asignatura_id")).maybe_single().execute()
             if asig_res.data:
-                nombre_asignatura = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {c.get('asignatura_id')}"
+                nombre_asignatura = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {s['asignatura']}"
+                area_asig = asig_res.data.get("area")
             else:
-                nombre_asignatura = f"Asignatura ID {c.get('asignatura_id')}"
+                nombre_asignatura = f"Asignatura ID {s['asignatura']}"
+                area_asig = None
 
             retroalimentaciones.append({
                 "tipo": "comentario_libre",
                 "docente": docente,
+                "asignatura_id": s["asignatura"],
                 "asignatura": nombre_asignatura,
                 "sigla": c.get("sigla", "-"),
                 "respuesta": c["contenido"],
                 "creado_en": c["fecha"],
+                "area": area_asig,
             })
 
         # ordenar por fecha
