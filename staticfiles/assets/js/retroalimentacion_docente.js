@@ -416,6 +416,8 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(bodyData),
         });
 
+        console.log("📦 Enviando retroalimentación con datos:", bodyData);
+        
         const data = await res.json();
         if (data.success) {
           Swal.fire({

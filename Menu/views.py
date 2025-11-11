@@ -486,6 +486,9 @@ def RetroalimentacionDocente(request):
     # 1 Obtener el ID del usuario desde la sesión
     usuario_id = request.session.get('usuario_id')
 
+
+    id_sretro = request.GET.get("id_sretro", "")
+
     # 2 Buscar la información completa del usuario en Supabase
     try:
         response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
@@ -497,6 +500,7 @@ def RetroalimentacionDocente(request):
 
         # 3 Preparar los datos para el template
         contexto = {
+            "id_sretro": id_sretro,
             "docente_id": usuario_id,
             "nombre": usuario.get("nombre", ""),
             "apellido": usuario.get("apellido", ""),
@@ -1558,6 +1562,8 @@ def enviar_retroalimentacion(request):
 
             if validacion.data["estado"] == "respondida":
                 return JsonResponse({"success": False, "error": "Esta solicitud ya fue respondida."})
+            
+            print("➡️ Datos recibidos en enviar_retroalimentacion:", data)
 
             supabase.table("solicitud_retroalimentacion") \
                 .update({

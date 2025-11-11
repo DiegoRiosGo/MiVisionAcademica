@@ -102,12 +102,11 @@ document.addEventListener('DOMContentLoaded', function () {
           btnResponder.className = 'btn btn-sm btn-primary me-2';
           btnResponder.innerHTML = '<i class="fas fa-reply"></i> Responder';
           btnResponder.addEventListener('click', () => {
-            const id = encodeURIComponent(s.id || '');
             const area = encodeURIComponent(s.area || '');
             const asignatura = encodeURIComponent(s.asignatura || '');
             const sigla = encodeURIComponent(s.sigla || '');
             const estudiante = encodeURIComponent(s.estudiante || '');
-            const url = `/retroalimentacion_docente/?id_sretro=${id}&area=${area}&asignatura=${asignatura}&sigla=${sigla}&estudiante=${estudiante}&id_sretro=${s.id}`;
+            const url = `/retroalimentacion_docente/?id_sretro=${s.id}&area=${area}&asignatura=${asignatura}&sigla=${sigla}&estudiante=${estudiante}`;
             window.location.href = url;
           });
           controls.appendChild(btnResponder);
