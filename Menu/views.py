@@ -1475,12 +1475,12 @@ def obtener_retroalimentaciones_alumno(request):
             retroalimentaciones.append({
                 "tipo": "comentario_libre",
                 "id": c["comentario_id"],
-                "docente_id": c["id_docente"],
+                "docente_id": c["docente_id"],
                 "docente": nombre_doc,
                 "asignatura_id": c["asignatura_id"],
                 "asignatura": nombre_asignatura,
                 "sigla": c.get("sigla", "-"),
-                "respuesta": c.get("respuesta"),
+                "respuesta": c.get("contenido"),
                 "creado_en": c["fecha"],
                 "area": area_asig,
             })
