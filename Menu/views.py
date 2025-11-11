@@ -1457,19 +1457,19 @@ def obtener_retroalimentaciones_alumno(request):
         for c in comentarios.data or []:
             # obtener nombre del docente
             doc_res = supabase.table("usuario").select("nombre, apellido") \
-                .eq("usuario_id", s["id_docente"]).maybe_single().execute()
+                .eq("usuario_id", c["id_docente"]).maybe_single().execute()
             if doc_res.data:
                 nombre_doc = f"{doc_res.data.get('nombre','')} {doc_res.data.get('apellido','')}".strip()
             else:
                 nombre_doc = "Desconocido"
 
             # obtener nombre de la asignatura (usando asignatura_id correctamente)
-            asig_res = supabase.table("asignatura").select("asignatura_id, nombre_asignatura, area").eq("asignatura_id", s["asignatura"]).maybe_single().execute()
+            asig_res = supabase.table("asignatura").select("asignatura_id, nombre_asignatura, area").eq("asignatura_id", c["asignatura"]).maybe_single().execute()
             if asig_res.data:
-                nombre_asignatura = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {s['asignatura']}"
+                nombre_asignatura = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {c['asignatura']}"
                 area_asig = asig_res.data.get("area")
             else:
-                nombre_asignatura = f"Asignatura ID {s['asignatura']}"
+                nombre_asignatura = f"Asignatura ID {c['asignatura']}"
                 area_asig = None
 
             retroalimentaciones.append({
