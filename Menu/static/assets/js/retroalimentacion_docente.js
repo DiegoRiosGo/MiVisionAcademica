@@ -387,81 +387,57 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Enviar retroalimentación ---
   if (feedbackForm) {
     feedbackForm.addEventListener("submit", async (ev) => {
-    ev.preventDefault();
+      ev.preventDefault();
 
-    const docente_id = feedbackForm.dataset.docenteId;
-    const estudiante_id = estudianteSelect?.value;
-    const asignatura_id = asignaturaSelect?.value;
-    const contenido = feedbackTextarea?.value.trim();
-    const id_sretro = feedbackForm.dataset.idSretro || null; // <-- nuevo
+      const docente_id = feedbackForm.dataset.docenteId;
+      const estudiante_id = estudianteSelect?.value;
+      const asignatura_id = asignaturaSelect?.value;
+      const contenido = feedbackTextarea?.value.trim();
+      const id_sretro = document.getElementById("id_sretro")?.value || null;
 
-    if (!docente_id || !estudiante_id || !contenido || !asignatura_id) {
-      Swal.fire("Atención", "Completa todos los campos.", "warning");
-      return;
-    }
-
-    const csrftoken = getCookie("csrftoken");
-
-    // Si existe id_sretro, entonces es una respuesta formal
-    const url = id_sretro ? "/enviar_retroalimentacion/" : "/guardar_comentario_docente/";
-
-    const bodyData = id_sretro
-      ? { id_sretro, respuesta: contenido } // <-- respuesta formal
-      : { docente_id, estudiante_id, contenido, asignatura_id }; // <-- retro libre
-
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-        body: JSON.stringify(bodyData),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        Swal.fire("✅", id_sretro ? "Respuesta enviada correctamente." : "Retroalimentación guardada.", "success");
-        feedbackTextarea.value = "";
-      } else {
-        Swal.fire("❌", data.error || "Error al guardar la retroalimentación.", "error");
+      if (!docente_id || !estudiante_id || !contenido || !asignatura_id) {
+        Swal.fire("Atención", "Completa todos los campos antes de enviar.", "warning");
+        return;
       }
-    } catch (err) {
-      console.error("Error:", err);
-      Swal.fire("❌", "Error inesperado al enviar la retroalimentación.", "error");
-    }
-  });
-  }
-});
 
-//mensaje de aviso al estudiante
-document.getElementById("feedbackForm").addEventListener("submit", async (ev) => {
-  ev.preventDefault();
-  const estudiante_id = document.getElementById("studentSelect").value;
-  const contenido = document.getElementById("feedback").value;
+      const csrftoken = getCookie("csrftoken");
 
-  // --- Helper CSRF ---
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-      const cookies = document.cookie.split(";");
-      for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + "=")) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
+      // Si existe id_sretro → respuesta formal
+      const url = id_sretro ? "/enviar_retroalimentacion/" : "/guardar_comentario_docente/";
+
+      const bodyData = id_sretro
+        ? { id_sretro, respuesta: contenido } // respuesta formal
+        : { docente_id, estudiante_id, contenido, asignatura_id }; // comentario libre
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+          body: JSON.stringify(bodyData),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          Swal.fire({
+            icon: "success",
+            title: id_sretro ? "Respuesta enviada correctamente." : "Comentario guardado con éxito.",
+            timer: 3000,
+            showConfirmButton: false
+          });
+          feedbackTextarea.value = "";
+          document.getElementById("id_sretro").value = ""; // limpiar modo respuesta
+        } else {
+          Swal.fire("❌", data.error || "Error al guardar la retroalimentación.", "error");
         }
+      } catch (err) {
+        console.error("Error:", err);
+        Swal.fire("❌", "Error inesperado al enviar la retroalimentación.", "error");
       }
-    }
-    return cookieValue;
+    });
   }
-  const csrftoken = getCookie("csrftoken");
-  
-  const res = await fetch("/enviar_retroalimentacion/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-    body: JSON.stringify({ estudiante_id, contenido }),
-  });
-  const data = await res.json();
-  if (data.success) Swal.fire("Enviado", "Retroalimentación enviada al estudiante", "success");
 });
+
+
 
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN retroalimentacion_docente .JS ----------------------------------------

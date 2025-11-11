@@ -1541,25 +1541,24 @@ def enviar_retroalimentacion(request):
             id_sretro = data.get("id_sretro")
             respuesta = data.get("respuesta")
 
-            # --- Validaciones
             if not id_sretro or not respuesta:
                 return JsonResponse({"success": False, "error": "Datos incompletos"})
 
-            # --- Confirmar que el docente autenticado sea el propietario de la solicitud
             validacion = supabase.table("solicitud_retroalimentacion") \
-                .select("id_docente") \
+                .select("id_docente, estado") \
                 .eq("id_sretro", id_sretro) \
+                .maybe_single() \
                 .execute()
 
             if not validacion.data:
                 return JsonResponse({"success": False, "error": "Solicitud no encontrada"})
 
-            id_docente_solicitud = validacion.data[0]["id_docente"]
+            if validacion.data["id_docente"] != docente_usuario_id:
+                return JsonResponse({"success": False, "error": "No autorizado"})
 
-            if id_docente_solicitud != docente_usuario_id:
-                return JsonResponse({"success": False, "error": "No autorizado para responder esta solicitud"})
+            if validacion.data["estado"] == "respondida":
+                return JsonResponse({"success": False, "error": "Esta solicitud ya fue respondida."})
 
-            # --- Actualizar solicitud con respuesta
             supabase.table("solicitud_retroalimentacion") \
                 .update({
                     "respuesta": respuesta,
