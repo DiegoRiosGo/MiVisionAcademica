@@ -84,15 +84,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
       nuevasSolicitudes.forEach((s) => {
         const li = document.createElement("li");
-        li.className = "solicitud-item mb-2 p-2 fade-in"; // animación sutil
-        li.innerHTML = `
+        li.className = "solicitud-item mb-2 p-2 fade-in";
+
+        let contenidoHTML = `
           <div>
-            <strong>${s.estudiante}</strong> pide retroalimentación en 
+            <strong>${s.estudiante}</strong> pidió retroalimentación en 
             <em>${s.asignatura}</em> (${s.sigla})<br>
             <small class="text-muted">${new Date(s.creado_en).toLocaleString()}</small>
             <p class="mt-2">${s.mensaje}</p>
-          </div>
         `;
+
+        // ✅ Si está finalizada, muestra la respuesta del docente
+        if (estadoActual === "finalizada" && s.respuesta) {
+          contenidoHTML += `
+            <div class="mt-3 p-2 bg-light rounded border">
+              <strong>Respuesta enviada:</strong>
+              <blockquote class="mb-0 text-secondary" style="font-style: italic;">
+                ${s.respuesta}
+              </blockquote>
+            </div>
+          `;
+        }
+
+        contenidoHTML += `</div>`;
+        li.innerHTML = contenidoHTML;
 
         const controls = document.createElement('div');
         controls.className = 'mt-2';

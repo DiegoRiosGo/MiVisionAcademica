@@ -394,7 +394,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const asignatura_id = asignaturaSelect?.value;
       const contenido = feedbackTextarea?.value.trim();
       const id_sretro = document.getElementById("id_sretro")?.value || null;
-
+      const sigla = siglaSelect?.value || null;
+      
       if (!docente_id || !estudiante_id || !contenido || !asignatura_id) {
         Swal.fire("Atención", "Completa todos los campos antes de enviar.", "warning");
         return;

@@ -368,8 +368,21 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", async () => {
   const retroList = document.getElementById("retroList");
 
+  function mostrarLoader() {
+    retroList.innerHTML = `
+      <div class="text-center text-muted" style="padding: 30px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Cargando tus retroalimentaciones...</p>
+      </div>
+    `;
+  }
+
   async function cargarRetroalimentaciones() {
     try {
+      if (showLoader) mostrarLoader();
+
       const res = await fetch("/obtener_retroalimentaciones_alumno/");
       const data = await res.json();
       retroList.innerHTML = "";
@@ -381,9 +394,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       data.retroalimentaciones.forEach(r => {
         const div = document.createElement("div");
-        div.className = "retro-item";
+        div.className = "retro-item fade-in"; // animación ligera
 
-        // Diferenciar por tipo
+        // ✅ Diferenciar por tipo de retroalimentación
         if (r.tipo === "respuesta_solicitud") {
           div.innerHTML = `
             <p>
@@ -420,8 +433,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  cargarRetroalimentaciones();
-  setInterval(cargarRetroalimentaciones, 20000);
+  // Cargar al inicio
+  cargarRetroalimentaciones(true);
+
+  // 🔁 Refrescar cada 20 segundos sin molestar al usuario
+  setInterval(() => cargarRetroalimentaciones(false), 20000);
 });
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .JS ------------------------------------------
