@@ -1457,7 +1457,7 @@ def obtener_retroalimentaciones_alumno(request):
         for c in comentarios.data or []:
             # obtener nombre del docente
             doc_res = supabase.table("usuario").select("nombre, apellido") \
-                .eq("usuario_id", c["id_docente"]).maybe_single().execute()
+                .eq("usuario_id", c["docente_id"]).maybe_single().execute()
             if doc_res.data:
                 nombre_doc = f"{doc_res.data.get('nombre','')} {doc_res.data.get('apellido','')}".strip()
             else:
