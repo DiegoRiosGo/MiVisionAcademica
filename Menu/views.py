@@ -1457,7 +1457,7 @@ def obtener_retroalimentaciones_alumno(request):
 
         # --- 2. Comentarios libres del docente ---
         comentarios = supabase.table("comentario_docente") \
-            .select("comentario_id, docente_id, contenido, fecha, asignatura_id") \
+            .select("comentario_id, docente_id, contenido, fecha, asignatura_id, sigla") \
             .eq("estudiante_id", id_estudiante).execute()
         
         for c in comentarios.data or []:
