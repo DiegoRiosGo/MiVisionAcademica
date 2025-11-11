@@ -1415,8 +1415,8 @@ def obtener_retroalimentaciones_alumno(request):
         retroalimentaciones = []
 
         print("DEBUG SOLICITUD:", solicitudes)
-        
-        for s in solicitudes:
+
+        for s in solicitudes.data or []:
             # obtener nombre del docente
             doc_res = supabase.table("usuario").select("nombre, apellido") \
                 .eq("usuario_id", s["id_docente"]).maybe_single().execute()
@@ -1454,7 +1454,7 @@ def obtener_retroalimentaciones_alumno(request):
             .select("comentario_id, docente_id, contenido, fecha, asignatura_id") \
             .eq("estudiante_id", id_estudiante).execute()
         
-        for c in comentarios:
+        for c in comentarios.data or []:
             # obtener nombre del docente
             doc_res = supabase.table("usuario").select("nombre, apellido") \
                 .eq("usuario_id", s["id_docente"]).maybe_single().execute()
