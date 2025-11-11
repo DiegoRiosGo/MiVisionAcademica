@@ -1443,8 +1443,8 @@ def obtener_retroalimentaciones_alumno(request):
                 "asignatura": nombre_asignatura,
                 "sigla": s["sigla"],
                 "mensaje": s["mensaje"],
-                "respuesta": s["respuesta"],
-                "estado": s["estado", "pendiente"],
+                "respuesta": s.get("respuesta"),
+                "estado": s.get("estado", "pendiente"),
                 "creado_en": s["creado_en"],
                 "area": area_asig,
             })
@@ -1480,7 +1480,7 @@ def obtener_retroalimentaciones_alumno(request):
                 "asignatura_id": c["asignatura"],
                 "asignatura": nombre_asignatura,
                 "sigla": c.get("sigla", "-"),
-                "respuesta": c["contenido"],
+                "respuesta": c.get("respuesta"),
                 "creado_en": c["fecha"],
                 "area": area_asig,
             })
