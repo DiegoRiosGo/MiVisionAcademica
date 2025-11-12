@@ -38,7 +38,11 @@
           <li><a href="{% url 'informe_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'informe_alumno' %}active{% endif %}"><i class="fas fa-file-alt me-2"></i>Informes</a></li>
           <li><a href="{% url 'estadisticas_asignatura_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'estadisticas_asignatura_alumno' %}active{% endif %}"><i class="fas fa-chart-bar me-2"></i>Estadísticas Asignatura</a></li>
           <li><a href="{% url 'retroalimentacion_alumno' %}" class="nav-link {% if request.resolver_match.url_name == 'retroalimentacion_alumno' %}active{% endif %}"><i class="fas fa-file-alt me-2"></i>Mis Retroalimentaciones</a></li>
-          <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+          <li>
+            <a href="#" id="btnCerrarSesion" class="nav-link text-white">
+              <i class="fas fa-right-to-bracket me-2"></i>Salir
+            </a>
+          </li>
         </ul>
       </nav>          
 
@@ -84,6 +88,35 @@
   
       <!-- Popup de confirmación -->
       <div id="confirmationPopup">Foto de perfil actualizada con éxito</div>
+
+<!--cerrar sesion -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btnCerrarSesion = document.getElementById("btnCerrarSesion");
+
+  btnCerrarSesion.addEventListener("click", (e) => {
+    e.preventDefault(); // evita la redirección inmediata
+
+    Swal.fire({
+      title: "¿Deseas cerrar sesión?",
+      text: "Si cierras sesión, deberás volver a iniciar sesión para continuar.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, cerrar sesión",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+      reverseButtons: true,
+      allowOutsideClick: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirige solo si confirma
+        window.location.href = "{% url 'Inicio' %}";
+      }
+    });
+  });
+});
+</script>
 
       <!--llamado al js de perfil_alumno-->
       <script src="{% static 'assets/js/perfil_alumno.js' %}"></script>

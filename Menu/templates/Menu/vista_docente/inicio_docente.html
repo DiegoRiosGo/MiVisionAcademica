@@ -34,7 +34,11 @@
           <li><a href="{% url 'InicioDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'InicioDocente' %}active{% endif %}"><i class="fas fa-home me-2"></i>Inicio</a></li>
           <li><a href="{% url 'PerfilDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'PerfilDocente' %}active{% endif %}"><i class="fas fa-user-tie me-2"></i>Perfil</a></li>
           <li><a href="{% url 'RetroalimentacionDocente' %}" class="nav-link {% if request.resolver_match.url_name == 'RetroalimentacionDocente' %}active{% endif %}"><i class="fas fa-comments me-2"></i>Retroalimentación</a></li>
-          <li><a href="{% url 'Inicio' %}" class="nav-link text-white"><i class="fas fa-right-to-bracket me-2"></i>Salir</a></li>
+          <li>
+            <a href="#" id="btnCerrarSesion" class="nav-link text-white">
+              <i class="fas fa-right-to-bracket me-2"></i>Salir
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -65,6 +69,34 @@
           
         </div>
 
+<!--cerrar sesion -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btnCerrarSesion = document.getElementById("btnCerrarSesion");
+
+  btnCerrarSesion.addEventListener("click", (e) => {
+    e.preventDefault(); // evita la redirección inmediata
+
+    Swal.fire({
+      title: "¿Deseas cerrar sesión?",
+      text: "Si cierras sesión, deberás volver a iniciar sesión para continuar.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, cerrar sesión",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+      reverseButtons: true,
+      allowOutsideClick: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirige solo si confirma
+        window.location.href = "{% url 'Inicio' %}";
+      }
+    });
+  });
+});
+</script>
         
         <!--llamado al js de inicio_docente-->
         <script src="{% static 'assets/js/inicio_docente.js' %}"></script>
