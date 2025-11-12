@@ -83,7 +83,6 @@
         height: 100% !important;
         background-color: rgba(0, 0, 0, 0.5) !important;
         z-index: 1000 !important;
-        display: flex !important;
         justify-content: center !important;
         align-items: center !important;
     }
