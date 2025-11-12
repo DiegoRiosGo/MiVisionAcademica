@@ -73,11 +73,63 @@
         to { opacity: 1; transform: scale(1); }
     }
 
+  /* modal base */
+    .modal {
+        display: none !important; /* oculto por defecto */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        z-index: 1000 !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* mostrar modal */
+    .modal.show {
+        display: flex !important;
+    }
+
+    /* contenido del modal */
+    .modal-content {
+        background-color: #fff !important;
+        border-radius: 12px !important;
+        max-width: 500px !important;
+        width: 90% !important;
+        padding: 2rem !important;
+        box-shadow: 0 8px 20px rgba(138, 70, 226, 0.2) !important;
+        animation: fadeIn 0.3s ease-in-out !important;
+        position: relative !important;
+    }
+
+    /* animación suave */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* botón cerrar (esquina superior) */
+    .cerrar-modal {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        color: #5a2a82;
+        cursor: pointer;
+    }
+    .cerrar-modal:hover {
+        color: #b23ad3;
+    }
+
     /* título */
     .modal-content h5 {
         font-size: 1.3rem;
         margin-bottom: 1rem;
-        color: #5a2a82; /* tono púrpura elegante */
+        color: #5a2a82;
     }
 
     /* inputs y selects */
@@ -109,19 +161,18 @@
         color: white;
         margin-right: 0.5rem;
     }
-    #cancelarModal:hover{
+    #cancelarModal:hover {
         background-color: #5d2fb2;
         color: white;
     }
 
     /* botón enviar */
     #enviarSolicitud {
-        background-color: #5d2fb2; /* púrpura vibrante */
+        background-color: #5d2fb2;
         border: none;
         color: white;
     }
-
-    #enviarSolicitud:hover{
+    #enviarSolicitud:hover {
         background-color: #b23ad3;
         color: white;
     }
