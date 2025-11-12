@@ -49,90 +49,47 @@
           <p>Este es tu panel principal. Desde aquí puedes subir tu informe de notas para poder visualizar tus estadísticas, 
             además de poder realizar un test de interés personal y mucho más.</p>
 
-  <!-- TITULO PDF -->
+  <!-- NAV DE PESTAÑAS -->
+  <ul class="nav nav-tabs mt-4" id="tabCertificados">
+    <li class="nav-item">
+      <button class="nav-link active" id="tab-subir" data-bs-toggle="tab" data-bs-target="#subir" type="button">
+        <i class="fas fa-upload me-2"></i>Subir Certificados
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" id="tab-historial" data-bs-toggle="tab" data-bs-target="#historial" type="button">
+        <i class="fas fa-file-alt me-2"></i>Historial Certificados
+      </button>
+    </li>
+  </ul>
 
-        <div class="card p-4">
-          <h5>Subir Informe PDF</h5>
-          <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="pdfFile" class="form-label">Selecciona un archivo PDF:</label>
-              <input type="file" class="form-control" id="pdfFile" name="pdfFile" accept="application/pdf">
-            </div>
-            <button type="submit" class="btn btn-primary-custom">
-              <i class="fas fa-upload"></i> Subir
-            </button>
-          </form>
-        </div>
-
-        <!-- TITULO LISTA DE INFORMES -->
-        <div class="card mt-4 p-4">
-          <h5>Informes Subidos</h5>
-
-          {% if pdfs %}
-            <table class="table table-striped mt-3 align-middle text-center">
-              <thead class="table-primary">
-                <tr>
-                  <th class="color-cabecera">Nombre del Archivo</th>
-                  <th class="color-cabecera">Fecha de Subida</th>
-                  <th class="color-cabecera">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for pdf in pdfs %}
-                  <tr>
-                    <td>{{ pdf.nombre_archivo|default:"Informe.pdf" }}</td>
-                    <td>{{ pdf.fecha_subida}}</td>
-                    <td>
-                      <!-- Botón para visualizar -->
-                      <button class="btn btn-color1 ver-pdf-btn" 
-                              data-base64="{{ pdf.ruta_archivo }}" 
-                              data-nombre="{{ pdf.nombre_archivo|default:'Informe.pdf' }}">
-                        <i class="fas fa-eye"></i> Ver
-                      </button>
-
-                      <!-- Botón para descargar -->
-                      <a href="data:application/pdf;base64,{{ pdf.ruta_archivo }}" 
-                        download="{{ pdf.nombre_archivo|default:'Informe.pdf' }}" 
-                        class="btn btn-color2 ms-2">
-                        <i class="fas fa-download"></i> Descargar
-                      </a>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          {% else %}
-            <p class="text-muted mt-2">Aún no has subido ningún informe.</p>
-          {% endif %}
-        </div>
-
-        <!-- MODAL PARA VISUALIZAR PDF -->
-        <div class="modal fade" id="verPdfModal" tabindex="-1" aria-labelledby="verPdfModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="verPdfModalLabel">Visualizar Informe</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-              </div>
-              <div class="modal-body">
-                <iframe id="pdfViewer" src="" width="100%" height="600px" style="border:none;"></iframe>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              </div>
-            </div>
+  <div class="tab-content mt-3">
+    <!-- 🧠 PESTAÑA SUBIR CERTIFICADOS -->
+    <div class="tab-pane fade show active" id="subir" role="tabpanel">
+      <div class="card p-4">
+        <h5>Subir Informe PDF</h5>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="pdfFile" class="form-label">Selecciona un archivo PDF:</label>
+            <input type="file" class="form-control" id="pdfFile" name="pdfFile" accept="application/pdf">
           </div>
-        </div>
-      
-      <!-- MODAL PARA escribir asignaturas por pdf -->
+          <button type="submit" class="btn btn-primary-custom">
+            <i class="fas fa-upload"></i> Subir
+          </button>
+        </form>
+      </div>
+
+      <!-- BOTÓN ANALIZAR -->
       <div class="mt-4">
-        <button id="procesarPdfBtn" class="btn btn-success">🧠 Analizar Certificado</button>
+        <button id="procesarPdfBtn" class="btn btn-success">
+          🧠 Analizar Certificado
+        </button>
       </div>
 
       <div id="resultadoMensaje" class="mt-3"></div>
 
-      <!-- SECCIÓN DE ASIGNATURAS DETECTADAS -->
+      <!-- SECCIÓN ASIGNATURAS DETECTADAS -->
       <div id="seccionAsignaturas" class="mt-3" style="display: none;">
         <h5>Asignaturas detectadas:</h5>
         <table class="table table-bordered mt-2">
@@ -148,19 +105,83 @@
           <tbody id="tablaResultados"></tbody>
         </table>
       </div>
-      
-      <!-- MODAL DE CARGA -->
-      <div class="modal fade" id="loaderModal" tabindex="-1" aria-labelledby="loaderModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content text-center p-4">
-            <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
-              <span class="visually-hidden">Cargando...</span>
+    </div>
+
+    <!-- 📜 PESTAÑA HISTORIAL CERTIFICADOS -->
+    <div class="tab-pane fade" id="historial" role="tabpanel">
+      <div class="card mt-4 p-4">
+        <h5>Informes Subidos</h5>
+
+        {% if pdfs %}
+          <table class="table table-striped mt-3 align-middle text-center">
+            <thead class="table-primary">
+              <tr>
+                <th class="color-cabecera">Nombre del Archivo</th>
+                <th class="color-cabecera">Fecha de Subida</th>
+                <th class="color-cabecera">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pdf in pdfs %}
+                <tr>
+                  <td>{{ pdf.nombre_archivo|default:"Informe.pdf" }}</td>
+                  <td>{{ pdf.fecha_subida }}</td>
+                  <td>
+                    <!-- Botón visualizar -->
+                    <button class="btn btn-color1 ver-pdf-btn"
+                            data-base64="{{ pdf.ruta_archivo }}"
+                            data-nombre="{{ pdf.nombre_archivo|default:'Informe.pdf' }}">
+                      <i class="fas fa-eye"></i> Ver
+                    </button>
+
+                    <!-- Botón descargar -->
+                    <a href="data:application/pdf;base64,{{ pdf.ruta_archivo }}"
+                       download="{{ pdf.nombre_archivo|default:'Informe.pdf' }}"
+                       class="btn btn-color2 ms-2">
+                      <i class="fas fa-download"></i> Descargar
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-muted mt-2">Aún no has subido ningún informe.</p>
+        {% endif %}
+      </div>
+
+      <!-- MODAL PARA VISUALIZAR PDF -->
+      <div class="modal fade" id="verPdfModal" tabindex="-1" aria-labelledby="verPdfModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="verPdfModalLabel">Visualizar Informe</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <h5 class="mt-3">Procesando tu certificado...</h5>
-            <p class="text-muted mb-0">Por favor espera unos segundos mientras analizamos tu PDF.</p>
+            <div class="modal-body">
+              <iframe id="pdfViewer" src="" width="100%" height="600px" style="border:none;"></iframe>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- === MODAL DE CARGA === -->
+  <div class="modal fade" id="loaderModal" tabindex="-1" aria-labelledby="loaderModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-4">
+        <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <h5 class="mt-3">Procesando tu certificado...</h5>
+        <p class="text-muted mb-0">Por favor espera unos segundos mientras analizamos tu PDF.</p>
+      </div>
+    </div>
+  </div>
 
       <!-- === SISTEMA DE LECTURA Y PROCESAMIENTO DE PDF === -->
       <script>
