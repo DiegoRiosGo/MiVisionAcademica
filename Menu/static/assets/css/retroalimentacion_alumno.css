@@ -251,6 +251,22 @@
     }
 
 
+    .retro-list::after {
+        content: "";
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border: 4px solid #b23ad3; /* violeta */
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+
 
 /* TITULO FORMULARIO DE INTERES */
 
