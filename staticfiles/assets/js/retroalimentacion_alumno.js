@@ -41,8 +41,8 @@
             const asignaturaSelect = document.getElementById("asignaturaSelect");
             const siglaSelect = document.getElementById("siglaSelect");
 
-            btnAbrir.addEventListener("click", () => modal.style.display = "block");
-            btnCerrar.addEventListener("click", () => modal.style.display = "none");
+            btnAbrir.addEventListener("click", () => modal.classList.add("show"));
+            btnCerrar.addEventListener("click", () => modal.classList.remove("show"));
 
 
             const btnCerrarTop = document.getElementById("cerrarModalTop");
@@ -366,7 +366,18 @@ document.addEventListener("DOMContentLoaded", () => {
 // =====================
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const tabPendientes = document.getElementById("tabPendientes");
+  const tabFinalizadas = document.getElementById("tabFinalizadas");
   const retroList = document.getElementById("retroList");
+
+  let estadoActual = "pendiente";
+  let cargando = false;
+  let cacheRetro = [];
+
+  function setActiveTab(btn) {
+    [tabPendientes, tabFinalizadas].forEach(b => b.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+  }
 
   function mostrarLoader() {
     retroList.innerHTML = `
@@ -374,29 +385,71 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
-        <p class="mt-2">Cargando tus retroalimentaciones...</p>
+        <p class="mt-2">Cargando retroalimentaciones (${estadoActual})...</p>
       </div>
     `;
   }
 
-  async function cargarRetroalimentaciones(showLoader = true) {
+  // 🔹 Comparar cambios
+  function hayCambios(nuevas, antiguas) {
+    if (nuevas.length !== antiguas.length) return true;
+    for (let i = 0; i < nuevas.length; i++) {
+      if (nuevas[i].id !== antiguas[i].id || nuevas[i].estado !== antiguas[i].estado) return true;
+    }
+    return false;
+  }
+
+  async function cambiarEstado(estado, boton) {
+    if (cargando) return;
+    estadoActual = estado;
+    setActiveTab(boton);
+    await cargarRetroalimentaciones(true);
+  }
+
+  async function cargarRetroalimentaciones(showLoader = false) {
     try {
+      cargando = true;
       if (showLoader) mostrarLoader();
 
       const res = await fetch("/obtener_retroalimentaciones_alumno/");
       const data = await res.json();
-      retroList.innerHTML = "";
 
-      if (!data.success || data.retroalimentaciones.length === 0) {
-        retroList.innerHTML = `<p class="text-muted text-center">Aún no tienes retroalimentaciones.</p>`;
+      const todas = data.retroalimentaciones || [];
+
+      // ✅ Filtrar según pestaña activa
+      const filtradas = todas.filter(r => {
+        if (estadoActual === "pendiente") {
+          return (
+            (r.tipo === "respuesta_solicitud" && (r.estado === "pendiente" || r.estado === "eliminada"))
+          );
+        } else if (estadoActual === "finalizada") {
+          return (
+            (r.tipo === "respuesta_solicitud" && r.estado === "finalizada") ||
+            r.tipo === "comentario_libre"
+          );
+        }
+        return false;
+      });
+
+      if (!data.success || filtradas.length === 0) {
+        retroList.innerHTML = `<p class="text-muted text-center">No hay retroalimentaciones (${estadoActual}).</p>`;
+        cargando = false;
         return;
       }
 
-      data.retroalimentaciones.forEach(r => {
-        const div = document.createElement("div");
-        div.className = "retro-item fade-in"; // animación ligera
+      // Evita redibujar si no hay cambios
+      if (!hayCambios(filtradas, cacheRetro)) {
+        cargando = false;
+        return;
+      }
 
-        // ✅ Diferenciar por tipo de retroalimentación
+      cacheRetro = filtradas;
+      retroList.innerHTML = "";
+
+      filtradas.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "retro-item fade-in";
+
         if (r.tipo === "respuesta_solicitud") {
           div.innerHTML = `
             <p>
@@ -427,17 +480,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         retroList.appendChild(div);
       });
+
+      cargando = false;
     } catch (err) {
       console.error("Error al cargar retroalimentaciones:", err);
       retroList.innerHTML = `<p class="text-danger text-center">Error al cargar retroalimentaciones.</p>`;
+      cargando = false;
     }
   }
 
-  // Cargar al inicio
+  // Inicializar
+  setActiveTab(tabPendientes);
   cargarRetroalimentaciones(true);
 
-  // 🔁 Refrescar cada 20 segundos sin molestar al usuario
-  setInterval(() => cargarRetroalimentaciones(false), 20000);
+  // Auto refresh
+  setInterval(() => {
+    if (!cargando) cargarRetroalimentaciones(false);
+  }, 20000);
+
+  // Listeners pestañas
+  tabPendientes.addEventListener("click", () => cambiarEstado("pendiente", tabPendientes));
+  tabFinalizadas.addEventListener("click", () => cambiarEstado("finalizada", tabFinalizadas));
 });
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .JS ------------------------------------------

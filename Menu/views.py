@@ -1330,7 +1330,7 @@ def obtener_solicitudes_docente(request):
             return JsonResponse({"success": False, "error": "Estado inválido."}, status=400)
 
         solicitudes_res = supabase.table("solicitud_retroalimentacion") \
-            .select("id_sretro, id_estudiante, asignatura, sigla, mensaje, estado, creado_en") \
+            .select("id_sretro, id_estudiante, asignatura, sigla, mensaje, estado, respuesta, creado_en") \
             .eq("id_docente", id_docente) \
             .eq("estado", estado) \
             .order("creado_en", desc=True) \
@@ -1363,6 +1363,7 @@ def obtener_solicitudes_docente(request):
                 "sigla": s["sigla"],
                 "mensaje": s["mensaje"],
                 "estado": s["estado"],
+                "respuesta": s.get("respuesta"),
                 "creado_en": s["creado_en"],
                 "area": area_asig
             })

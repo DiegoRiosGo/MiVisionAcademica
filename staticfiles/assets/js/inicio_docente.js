@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <strong>Respuesta enviada:</strong>
               <blockquote class="mb-0 text-secondary" style="font-style: italic;">
                 ${s.respuesta}
-              </blockquote>
+              </blockquote> 
             </div>
           `;
         }

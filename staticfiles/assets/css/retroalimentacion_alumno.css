@@ -73,11 +73,49 @@
         to { opacity: 1; transform: scale(1); }
     }
 
+  /* modal base */
+    .custom-modal {
+        display: none; /* oculto por defecto */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        z-index: 1000 !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* mostrar modal */
+    .custom-modal.show {
+        display: flex !important;
+    }
+
+    /* contenido del modal */
+    .modal-content {
+        background-color: #fff !important;
+        border-radius: 12px !important;
+        max-width: 500px !important;
+        width: 90% !important;
+        padding: 2rem !important;
+        box-shadow: 0 8px 20px rgba(138, 70, 226, 0.2) !important;
+        animation: fadeIn 0.3s ease-in-out !important;
+        position: relative !important;
+    }
+
+    /* animación suave */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+
     /* título */
     .modal-content h5 {
         font-size: 1.3rem;
         margin-bottom: 1rem;
-        color: #5a2a82; /* tono púrpura elegante */
+        color: #5a2a82;
     }
 
     /* inputs y selects */
@@ -109,19 +147,18 @@
         color: white;
         margin-right: 0.5rem;
     }
-    #cancelarModal:hover{
+    #cancelarModal:hover {
         background-color: #5d2fb2;
         color: white;
     }
 
     /* botón enviar */
     #enviarSolicitud {
-        background-color: #5d2fb2; /* púrpura vibrante */
+        background-color: #5d2fb2;
         border: none;
         color: white;
     }
-
-    #enviarSolicitud:hover{
+    #enviarSolicitud:hover {
         background-color: #b23ad3;
         color: white;
     }
@@ -143,24 +180,6 @@
         background-color: #e0d7f5;
     }
 
-    /* botón de cierre arriba */
-    .cerrar-modal {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background-color: transparent;
-        border: none;
-        font-size: 1.2rem;
-        color: #5d2fb2;
-        cursor: pointer;
-        z-index: 10;
-        transition: transform 0.2s ease;
-    }
-
-    .cerrar-modal:hover {
-        transform: scale(1.2);
-        color: #b23ad3;
-    }
 
     /* botón confirmar */
     .btn-confirmar {
@@ -200,6 +219,11 @@
     }
 
 
+    .spinner-border.violeta {
+        color: #b23ad3 !important; /* violeta */
+    }
+
+    
 
 /* TITULO FORMULARIO DE INTERES */
 
@@ -207,238 +231,239 @@
 
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
-    @media (max-width: 768px) {
-    .content {
-        margin-left: 0;
-        padding: 20px;
-    }
+        @media (max-width: 768px) {
+        .content {
+            margin-left: 0;
+            padding: 20px;
+        }
 
-    .graphs-container {
-        grid-template-columns: 1fr;
-    }
+        .graphs-container {
+            grid-template-columns: 1fr;
+        }
 
-    .sidebar {
+        .sidebar {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+        }
+
+
+        .content {
+            margin-left: 240px; /* Evita sobreponerse del sidebar */
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+        }
+
+        .intro {
+            background-color: #ffffff;
+            border-radius: 12px;
+        }
+
+        .formulario {
+            margin-left: 240px; /* Igual que .content */
+            margin-right: auto;
+            max-width: 900px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .pregunta {
+            margin-bottom: 25px;
+        }
+
+        .pregunta p {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .opciones {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .opciones label {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .opciones input {
+            margin-right: 8px;
+        }
+
+        .opciones label:hover {
+            background-color: #f0e8ff;
+            border-color: #a26bfa;
+        }
+
+        .opciones label.selected {
+            background-color: #a26bfa;
+            color: white;
+            border-color: #8c52ff;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        /* Botón morado */
+        .btn-morado {
+            background-color: #a26bfa;
+            border-color: #8c52ff;
+            color: white;
+        }
+
+        .btn-morado:hover {
+            background-color: #8c52ff;
+            border-color: #6e3edb;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+        .content {
+            margin-left: 0; /* sidebar colapsa o desaparece */
+            padding: 15px;
+        }
+        }
+
+        @media (max-width: 576px) {
+        .container {
+            padding: 0 15px;
+        }
+        }
+
+
+    .autocomplete-wrapper { position: relative; }
+    .sugerencias-docente {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        z-index: 9999;
+        max-height: 220px;
+        overflow-y: auto;
+    }
+    .sugerencia-item { padding: 8px 12px; cursor: pointer; }
+    .sugerencia-item:hover { background: #f5f5f5; }
+    .sin-resultados { padding: 8px 12px; color:#777; font-style:italic; }   
+
+    .autocomplete-container {
         position: relative;
+    }
+
+    #suggestions-list {
+        position: absolute;
+        top: 100%; /* justo debajo del input */
+        left: 0;
         width: 100%;
-        height: auto;
+        background: #fff;
+        border: 1px solid #ddd;
+        z-index: 1000;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+
+    /* Botón violeta por ID */
+    .Enviar-btn,
+    #btnSolicitud {
+        background-color: #5d2fb2 !important;
+        color: #fff !important;
+        border: none;
+        padding: 8px 16px;
+        font-size: 15px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: inline-block;
+        text-align: center;
+    }
+
+    /* Hover para ambos */
+    .Enviar-btn:hover,
+    #btnSolicitud:hover {
+        background-color: #b23ad3 !important;
+        transform: scale(1.03);
+        cursor: pointer;
     }
 
 
-    .content {
-        margin-left: 240px; /* Evita sobreponerse del sidebar */
-        padding: 20px;
-    }
-
-    .container {
-    max-width: 900px;
-    }
-
-    .intro {
-    background-color: #ffffff;
-    border-radius: 12px;
-    }
-
-    .formulario {
-        margin-left: 240px; /* Igual que .content */
-        margin-right: auto;
-        max-width: 900px;
-        background-color: #ffffff;
+    /* ====== TABLA DE RETROALIMENTACIONES ====== */
+    .table-container {
+        background: #fff;
         border-radius: 12px;
         padding: 20px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        margin-left: 240px;
     }
 
-    .pregunta {
-    margin-bottom: 25px;
+    .table {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    .pregunta p {
-    font-weight: 600;
-    margin-bottom: 10px;
+    .table thead {
+        background-color: #5d2fb2;
+        color: white;
     }
 
-    .opciones {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    .table th, .table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
     }
 
-    .opciones label {
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    .table tr:hover {
+        background-color: #f7f3ff;
     }
 
-    .opciones input {
-    margin-right: 8px;
+    .retro-item {
+        background: #ffffff;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        transition: background 0.3s;
     }
 
-    .opciones label:hover {
-    background-color: #f0e8ff;
-    border-color: #a26bfa;
+    .retro-item:hover {
+        background: #fafafa;
     }
 
-    .opciones label.selected {
-    background-color: #a26bfa;
-    color: white;
-    border-color: #8c52ff;
+    .retro-item blockquote.respuesta {
+        margin: 10px 0;
+        padding: 10px 15px;
+        background: #f3f0ff;
+        border-left: 5px solid #7443ff;
+        border-radius: 8px;
+        font-style: italic;
     }
 
-    textarea {
-    resize: vertical;
+    .estado-pendiente {
+        color: #f39c12;
+        font-weight: bold;
     }
 
-    /* Botón morado */
-    .btn-morado {
-    background-color: #a26bfa;
-    border-color: #8c52ff;
-    color: white;
+    .estado-finalizada {
+        color: #27ae60;
+        font-weight: bold;
     }
 
-    .btn-morado:hover {
-    background-color: #8c52ff;
-    border-color: #6e3edb;
-    color: white;
+    .estado-eliminada {
+        color: #e74c3c;
+        font-weight: bold;
     }
-    /* Responsive */
-    @media (max-width: 768px) {
-    .content {
-        margin-left: 0; /* sidebar colapsa o desaparece */
-        padding: 15px;
-    }
-    }
-
-    @media (max-width: 576px) {
-    .container {
-        padding: 0 15px;
-    }
-    }
-
-
-.autocomplete-wrapper { position: relative; }
-.sugerencias-docente {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + 6px);
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  z-index: 9999;
-  max-height: 220px;
-  overflow-y: auto;
-}
-.sugerencia-item { padding: 8px 12px; cursor: pointer; }
-.sugerencia-item:hover { background: #f5f5f5; }
-.sin-resultados { padding: 8px 12px; color:#777; font-style:italic; }   
-
-.autocomplete-container {
-  position: relative;
-}
-
-#suggestions-list {
-  position: absolute;
-  top: 100%; /* justo debajo del input */
-  left: 0;
-  width: 100%;
-  background: #fff;
-  border: 1px solid #ddd;
-  z-index: 1000;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Botón violeta por ID */
-.Enviar-btn,
-#btnSolicitud {
-  background-color: #5d2fb2 !important;
-  color: #fff !important;
-  border: none;
-  padding: 8px 16px;
-  font-size: 15px;
-  border-radius: 6px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  display: inline-block;
-  text-align: center;
-}
-
-/* Hover para ambos */
-.Enviar-btn:hover,
-#btnSolicitud:hover {
-  background-color: #b23ad3 !important;
-  transform: scale(1.03);
-  cursor: pointer;
-}
-
-
-/* ====== TABLA DE RETROALIMENTACIONES ====== */
-.table-container {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    margin-left: 240px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table thead {
-  background-color: #5d2fb2;
-  color: white;
-}
-
-.table th, .table td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.table tr:hover {
-  background-color: #f7f3ff;
-}
-
-.retro-item {
-  background: #ffffff;
-  padding: 16px 20px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  transition: background 0.3s;
-}
-
-.retro-item:hover {
-  background: #fafafa;
-}
-
-.retro-item blockquote.respuesta {
-  margin: 10px 0;
-  padding: 10px 15px;
-  background: #f3f0ff;
-  border-left: 5px solid #7443ff;
-  border-radius: 8px;
-  font-style: italic;
-}
-
-.estado-pendiente {
-  color: #f39c12;
-  font-weight: bold;
-}
-
-.estado-finalizada {
-  color: #27ae60;
-  font-weight: bold;
-}
-
-.estado-eliminada {
-  color: #e74c3c;
-  font-weight: bold;
-}
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */
