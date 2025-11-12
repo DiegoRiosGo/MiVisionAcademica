@@ -455,8 +455,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <p>
               Tu solicitud <strong>"${r.mensaje}"</strong> al docente 
               <strong>${r.docente}</strong> por la asignatura 
-              <strong>${r.asignatura}</strong> (${r.sigla}) está en estado: 
-              <span class="estado-${r.estado}">${r.estado.toUpperCase()}</span>.
+              <strong>${r.asignatura}</strong> (${r.sigla}).
             </p>
             ${
               r.respuesta

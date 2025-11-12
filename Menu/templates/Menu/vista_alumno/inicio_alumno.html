@@ -132,7 +132,8 @@
 
       <div id="resultadoMensaje" class="mt-3"></div>
 
-      <div class="mt-3">
+      <!-- SECCIÓN DE ASIGNATURAS DETECTADAS -->
+      <div id="seccionAsignaturas" class="mt-3" style="display: none;">
         <h5>Asignaturas detectadas:</h5>
         <table class="table table-bordered mt-2">
           <thead>
@@ -147,46 +148,79 @@
           <tbody id="tablaResultados"></tbody>
         </table>
       </div>
-
       
+      <!-- MODAL DE CARGA -->
+      <div class="modal fade" id="loaderModal" tabindex="-1" aria-labelledby="loaderModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content text-center p-4">
+            <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <h5 class="mt-3">Procesando tu certificado...</h5>
+            <p class="text-muted mb-0">Por favor espera unos segundos mientras analizamos tu PDF.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- === SISTEMA DE LECTURA Y PROCESAMIENTO DE PDF === -->
       <script>
-      document.getElementById("procesarPdfBtn").addEventListener("click", async () => {
-        try {
-          const response = await fetch("{% url 'procesar_y_guardar_pdf' %}");
-          const data = await response.json();
-
+        document.getElementById("procesarPdfBtn").addEventListener("click", async () => {
+          const loaderModal = new bootstrap.Modal(document.getElementById("loaderModal"));
+          const seccionAsignaturas = document.getElementById("seccionAsignaturas");
           const tabla = document.getElementById("tablaResultados");
-          tabla.innerHTML = "";
 
-          if (data.error) {
-            Swal.fire("Error", data.error, "error");
-            return;
+          try {
+            // Mostrar loader modal
+            loaderModal.show();
+
+            // Ejecutar procesamiento
+            const response = await fetch("{% url 'procesar_y_guardar_pdf' %}");
+            const data = await response.json();
+
+            // Limpiar tabla
+            tabla.innerHTML = "";
+
+            // Si hay error, mostrar alerta y ocultar loader
+            if (data.error) {
+              loaderModal.hide();
+              Swal.fire("Error", data.error, "error");
+              return;
+            }
+
+            // Si no hay datos válidos
+            if (!data.data || data.data.length === 0) {
+              loaderModal.hide();
+              Swal.fire("Atención", "No se detectaron asignaturas en el PDF.", "warning");
+              return;
+            }
+
+            // Poblar tabla
+            data.data.forEach(item => {
+              const fila = `
+                <tr>
+                  <td>${item.sigla}</td>
+                  <td>${item.nombre_asignatura}</td>
+                  <td>${item.nota}</td>
+                  <td>${item.semestre}</td>
+                  <td>${item.anio}</td>
+                </tr>`;
+              tabla.innerHTML += fila;
+            });
+
+            // Mostrar sección con animación sutil
+            seccionAsignaturas.style.display = "block";
+            seccionAsignaturas.classList.add("fade-in");
+
+            // Ocultar loader y mostrar éxito
+            loaderModal.hide();
+            Swal.fire("Resultado", data.mensaje, "success");
+
+          } catch (err) {
+            console.error("Error al procesar y guardar PDF:", err);
+            loaderModal.hide();
+            Swal.fire("Error", "No se pudo procesar ni guardar el PDF.", "error");
           }
-
-          if (!data.data || data.data.length === 0) {
-            Swal.fire("Atención", "No se detectaron asignaturas en el PDF.", "warning");
-            return;
-          }
-
-          data.data.forEach(item => {
-            const fila = `
-              <tr>
-                <td>${item.sigla}</td>
-                <td>${item.nombre_asignatura}</td>
-                <td>${item.nota}</td>
-                <td>${item.semestre}</td>
-                <td>${item.anio}</td>
-              </tr>`;
-            tabla.innerHTML += fila;
-          });
-
-          Swal.fire("Resultado", data.mensaje, "success");
-        } catch (err) {
-          console.error("Error al procesar y guardar PDF:", err);
-          Swal.fire("Error", "No se pudo procesar ni guardar el PDF.", "error");
-        }
-      });
+        });
       </script>
       
     <!--llamado al js de inicio_alumno-->
