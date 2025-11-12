@@ -60,7 +60,6 @@
       <!-- solicitud retros  -->
       <div id="modalSolicitud" class="modal">
         <div class="modal-content p-3">
-          <button class="cerrar-modal" id="cerrarModalTop">✖</button>
           <h5>Enviar solicitud de retroalimentación</h5>
           <input type="text" id="buscarDocente" placeholder="Buscar docente..." class="form-control mb-2">
           <ul id="suggestions-list"></ul>
@@ -69,7 +68,7 @@
           <select id="siglaSelect" class="form-select mb-2" value="">Seleccione sigla</select>
           <textarea id="mensaje" class="form-control mb-3" rows="3" placeholder="Escribe tu mensaje..."></textarea>
           <div class="text-end">
-            
+            <button class="btn btn-secondary" id="cancelarModal">Cancelar</button>
             <button class="btn btn-success" id="enviarSolicitud">Enviar</button>
           </div>
         </div>
