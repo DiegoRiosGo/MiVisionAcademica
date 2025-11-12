@@ -89,7 +89,7 @@
 
     /* mostrar modal */
     .modal.show {
-        display: flex;
+        display: flex !important;
     }
 
     /* contenido del modal */
