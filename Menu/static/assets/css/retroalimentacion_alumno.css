@@ -252,7 +252,7 @@
 
 
     .spinner-border.violeta {
-        color: #b23ad3; /* violeta */
+        color: #b23ad3 !important; /* violeta */
     }
 
     
