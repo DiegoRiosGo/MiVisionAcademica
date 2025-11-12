@@ -41,8 +41,8 @@
             const asignaturaSelect = document.getElementById("asignaturaSelect");
             const siglaSelect = document.getElementById("siglaSelect");
 
-            btnAbrir.addEventListener("click", () => modal.style.display = "block");
-            btnCerrar.addEventListener("click", () => modal.style.display = "none");
+            btnAbrir.addEventListener("click", () => modal.classList.add("show"));
+            btnCerrar.addEventListener("click", () => modal.classList.remove("show"));
 
 
             const btnCerrarTop = document.getElementById("cerrarModalTop");
