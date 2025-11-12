@@ -75,7 +75,7 @@
 
   /* modal base */
     .modal {
-        display: none !important; /* oculto por defecto */
+        display: none; /* oculto por defecto */
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -89,7 +89,7 @@
 
     /* mostrar modal */
     .modal.show {
-        display: flex !important;
+        display: flex;
     }
 
     /* contenido del modal */
