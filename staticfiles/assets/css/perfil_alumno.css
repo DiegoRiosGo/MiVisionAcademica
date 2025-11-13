@@ -91,13 +91,14 @@
     }
 
     .btn-primary-custom:hover {
-        background-color: #b23ad3 !important;
+        background-color: #a68eee !important;
         transform: scale(1.03);
         cursor: pointer;
     }
 
+    
     .btn-primary-custom:active {
-        background-color: #8357a4 !important;
+        background-color: #a68eee !important;
         transform: scale(0.98);
     }
 

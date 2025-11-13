@@ -142,13 +142,13 @@
 
     /* botón cancelar */
     #cancelarModal {
-        background-color: #b23ad3;
+        background-color: #5d2fb2;
         border: none;
         color: white;
         margin-right: 0.5rem;
     }
     #cancelarModal:hover {
-        background-color: #5d2fb2;
+        background-color: #a68eee;
         color: white;
     }
 
@@ -159,7 +159,7 @@
         color: white;
     }
     #enviarSolicitud:hover {
-        background-color: #b23ad3;
+        background-color: #a68eee;
         color: white;
     }
 
@@ -393,7 +393,7 @@
     /* Hover para ambos */
     .Enviar-btn:hover,
     #btnSolicitud:hover {
-        background-color: #b23ad3 !important;
+        background-color: #a68eee !important;
         transform: scale(1.03);
         cursor: pointer;
     }
@@ -464,6 +464,27 @@
         color: #e74c3c;
         font-weight: bold;
     }
+
+    .spinner-border.violeta {
+        color: #a68eee /* violeta */
+    }
+
+
+    .btn-outline-morado {
+        color: #ffffff !important;
+        border: 1px solid #5d2fb2 !important;
+        background-color: #5d2fb2 !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .btn-outline-morado:hover,
+    .btn-outline-morado.active {
+        background-color: #a68eee !important;
+        color: white !important;
+        border-color: #a68eee !important;
+    }
+
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

@@ -96,10 +96,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (graficoEvolucion) graficoEvolucion.destroy();
         if (graficoRadar) graficoRadar.destroy();
         if (graficoBarras) graficoBarras.destroy();
+        if (graficoComparacion) graficoComparacion.destroy();
 
         graficoEvolucion = crearGraficoEvolucion(data.promedios_semestre);
         graficoRadar = crearGraficoRadar(data.promedios_area);
         graficoBarras = crearGraficoBarras(data.promedios_area_anio);
+        graficoComparacion = crearGraficoComparacion(data.promedios_semestre, data.promedios_general_semestre);
     }
 
     // --- Eventos de filtros ---
@@ -192,6 +194,49 @@ function crearGraficoBarras(datos) {
     });
 }
 
+function crearGraficoComparacion(promediosAlumno, promediosGeneral) {
+    const ctx = document.getElementById("graficoComparacion");
+    const semestres = Array.from(new Set([
+        ...Object.keys(promediosAlumno),
+        ...Object.keys(promediosGeneral)
+    ])).sort();
+
+    return new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: semestres,
+            datasets: [
+                {
+                    label: "Promedio del alumno",
+                    data: semestres.map(s => promediosAlumno[s] || null),
+                    borderColor: "rgba(91, 39, 204, 1)",
+                    backgroundColor: "rgba(91, 39, 204, 0.2)",
+                    tension: 0.3,
+                    fill: false
+                },
+                {
+                    label: "Promedio general",
+                    data: semestres.map(s => promediosGeneral[s] || null),
+                    borderColor: "rgba(255, 159, 64, 1)",
+                    backgroundColor: "rgba(255, 159, 64, 0.2)",
+                    borderDash: [5, 5],
+                    tension: 0.3,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: "Comparación: Alumno vs Promedio General" },
+                legend: { position: "bottom" }
+            },
+            scales: {
+                y: { beginAtZero: true, max: 7, title: { display: true, text: "Promedio" } }
+            }
+        }
+    });
+}
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .JS -----------------------------------
    ------------------------------------------------------------------------------------------------------------- */    

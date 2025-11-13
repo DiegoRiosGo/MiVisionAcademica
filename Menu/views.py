@@ -734,44 +734,56 @@ def api_estadisticas_alumno(request):
         if not usuario_id:
             return JsonResponse({"error": "Falta el ID del estudiante"}, status=400)
 
-        # 🔹 Captura de filtros opcionales
         filtro_anio = request.GET.get("anio")
         filtro_area = request.GET.get("area")
 
-        query = supabase.table("nota")\
+        # 🔹 Notas del estudiante actual
+        query_alumno = supabase.table("nota")\
             .select("acno, semestre, calificacion, asignatura(nombre_asignatura, area)")\
             .eq("estudiante_id", usuario_id)
 
-        # 🔹 Aplicar filtros si existen
         if filtro_anio:
-            query = query.eq("acno", int(filtro_anio))
+            query_alumno = query_alumno.eq("acno", int(filtro_anio))
         if filtro_area and filtro_area.lower() != "todas":
-            query = query.eq("asignatura.area", filtro_area)
+            query_alumno = query_alumno.eq("asignatura.area", filtro_area)
 
-        response = query.execute()
-        datos = response.data
-        if not datos:
-            return JsonResponse({"error": "No se encontraron notas"}, status=404)
+        datos_alumno = query_alumno.execute().data
+        if not datos_alumno:
+            return JsonResponse({"error": "No se encontraron notas del alumno"}, status=404)
 
-        # 🔹 Listado dinámico de años y áreas disponibles
-        anios_disponibles = sorted(list({d["acno"] for d in datos}))
-        areas_disponibles = sorted(list({d["asignatura"]["area"] for d in datos if d["asignatura"]}))
+        # 🔹 Notas de todos los estudiantes (para promedio general)
+        query_general = supabase.table("nota")\
+            .select("acno, semestre, calificacion, asignatura(area)")
+        if filtro_anio:
+            query_general = query_general.eq("acno", int(filtro_anio))
+        if filtro_area and filtro_area.lower() != "todas":
+            query_general = query_general.eq("asignatura.area", filtro_area)
 
-        # 🔹 Cálculos de promedios
+        datos_general = query_general.execute().data
+
+        # --- Promedio por semestre (alumno) ---
         promedios_semestre = {}
-        for d in datos:
+        for d in datos_alumno:
             clave = f"{d['acno']}-S{d['semestre']}"
             promedios_semestre.setdefault(clave, []).append(float(d["calificacion"]))
         promedios_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_semestre.items()}
 
+        # --- Promedio por semestre (general) ---
+        promedios_general_semestre = {}
+        for d in datos_general:
+            clave = f"{d['acno']}-S{d['semestre']}"
+            promedios_general_semestre.setdefault(clave, []).append(float(d["calificacion"]))
+        promedios_general_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_general_semestre.items()}
+
+        # --- Promedios por área y año (para gráficos existentes) ---
         promedios_area = {}
-        for d in datos:
+        for d in datos_alumno:
             area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
             promedios_area.setdefault(area, []).append(float(d["calificacion"]))
         promedios_area = {k: round(sum(v)/len(v), 2) for k, v in promedios_area.items()}
 
         area_anio = {}
-        for d in datos:
+        for d in datos_alumno:
             area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
             clave = (d["acno"], area)
             area_anio.setdefault(clave, []).append(float(d["calificacion"]))
@@ -780,10 +792,15 @@ def api_estadisticas_alumno(request):
             for (anio, area), v in area_anio.items()
         }
 
+        # --- Listas de filtro ---
+        anios_disponibles = sorted(list({d["acno"] for d in datos_alumno}))
+        areas_disponibles = sorted(list({d["asignatura"]["area"] for d in datos_alumno if d["asignatura"]}))
+
         return JsonResponse({
             "promedios_semestre": promedios_semestre,
             "promedios_area": promedios_area,
             "promedios_area_anio": area_anio,
+            "promedios_general_semestre": promedios_general_semestre,  # 🆕 agregado
             "anios": anios_disponibles,
             "areas": areas_disponibles
         })

@@ -201,12 +201,12 @@
 
     .cerrar-modal:hover {
         transform: scale(1.2);
-        color: #b23ad3;
+        color: #a68eee;
     }
 
     /* botón confirmar */
     .btn-confirmar {
-        background-color: #b23ad3;
+        background-color: #5d2fb2;
         color: white;
         border: none;
         border-radius: 8px;
@@ -217,7 +217,7 @@
     }
 
     .btn-confirmar:hover {
-        background-color: #5d2fb2;
+        background-color: #a68eee;
     }
 
     /* botón cancelar */
@@ -230,10 +230,11 @@
         font-weight: 500;
         cursor: pointer;
         transition: background-color 0.3s ease;
+        margin-left: 10px;
     }
 
     .btn-cancelar:hover {
-        background-color: #b23ad3;
+        background-color: #a68eee;
     }
 
     div:where(.swal2-icon).swal2-question {
@@ -245,7 +246,14 @@
 
 /* TITULO FORMULARIO DE INTERES */
 
-/* sin codigo */
+    .formulario {
+        max-width: 700px;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        box-sizing: border-box;
+    }
+
 
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
@@ -279,15 +287,6 @@
     .intro {
     background-color: #ffffff;
     border-radius: 12px;
-    }
-
-    .formulario {
-        margin-left: 240px; /* Igual que .content */
-        margin-right: auto;
-        max-width: 900px;
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
     }
 
     .pregunta {
@@ -410,7 +409,7 @@
 /* Hover para ambos */
 .Enviar-btn:hover,
 #btnSolicitud:hover {
-  background-color: #b23ad3 !important;
+  background-color: #a68eee !important;
   transform: scale(1.03);
   cursor: pointer;
 }
