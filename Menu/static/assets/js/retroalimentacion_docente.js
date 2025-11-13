@@ -315,62 +315,129 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Cargar gráficos al seleccionar estudiante ---
-  if (estudianteSelect) {
-    estudianteSelect.addEventListener("change", async () => {
-      const estudiante_id = estudianteSelect.value;
-      const area = areaSelect.value;
+if (estudianteSelect) {
+  estudianteSelect.addEventListener("change", async () => {
+    const estudiante_id = estudianteSelect.value;
+    const area = areaSelect.value;
 
-      limpiarGraficos();
+    limpiarGraficos();
 
-      if (!estudiante_id || !area) return;
+    if (!estudiante_id || !area) return;
 
-      try {
-        const res = await fetch(`/obtener_notas_estudiante_area/?estudiante_id=${estudiante_id}&area=${encodeURIComponent(area)}`);
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Error al obtener notas");
+    try {
+      const res = await fetch(`/obtener_notas_estudiante_area/?estudiante_id=${estudiante_id}&area=${encodeURIComponent(area)}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Error al obtener notas");
 
-        const etiquetas = data.notas.map(n => n.nombre_asignatura);
-        const valores = data.notas.map(n => n.calificacion);
+      // Filtramos para evitar “sin asignatura”
+      const notasValidas = data.notas.filter(n => n.nombre_asignatura && n.nombre_asignatura.toLowerCase() !== "sin asignatura");
 
-        // --- Gráfico de línea ---
-        const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
-        lineChart = new Chart(ctxLine, {
-          type: "line",
-          data: {
-            labels: etiquetas,
-            datasets: [{
-              label: "Evolución de notas",
+      const etiquetas = notasValidas.map(n => n.nombre_asignatura);
+      const valores = notasValidas.map(n => n.calificacion);
+      const promedios = notasValidas.map(n => n.promedio_general || 0); // se usará si backend entrega promedio general
+
+      // 🔹 Escala automática para el gráfico de línea
+      const minY = Math.min(...valores, ...promedios) - 0.3;
+      const maxY = Math.max(...valores, ...promedios) + 0.3;
+
+      // --- Gráfico de línea (Evolución del estudiante + promedio general) ---
+      const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
+      lineChart = new Chart(ctxLine, {
+        type: "line",
+        data: {
+          labels: etiquetas,
+          datasets: [
+            {
+              label: "Evolución del estudiante",
               data: valores,
-              borderColor: '#5d2fb2',
-              backgroundColor: '#9c7fdc',
+              borderColor: "#5d2fb2",
+              backgroundColor: "rgba(93,47,178,0.2)",
               tension: 0.3,
-              fill: true
-            }]
+              fill: true,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+            },
+            {
+              label: "Promedio general",
+              data: promedios,
+              borderColor: "#b39ddb",
+              backgroundColor: "rgba(179,157,219,0.1)",
+              borderDash: [5, 5],
+              tension: 0.3,
+              fill: false,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "top",
+              labels: { boxWidth: 15, color: "#333" }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}`
+              }
+            }
           },
-          options: { responsive: true, scales: { y: { beginAtZero: true, max: 7 } } }
-        });
+          scales: {
+            y: {
+              beginAtZero: false,
+              min: minY > 1 ? minY : 1,
+              max: maxY < 7.5 ? maxY : 7.5,
+              title: { display: true, text: "Calificación" }
+            },
+            x: {
+              title: { display: true, text: "Asignaturas" }
+            }
+          }
+        }
+      });
 
-        // --- Gráfico de radar ---
-        const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
-        radarChart = new Chart(ctxRadar, {
-          type: "radar",
-          data: {
-            labels: etiquetas,
-            datasets: [{
-              label: "Desempeño por asignatura",
-              data: valores,
-              backgroundColor: 'rgba(124,96,186,0.5)',
-              borderColor: '#7c60ba'
-            }]
+      // --- Gráfico de radar (Desempeño por asignatura) ---
+      const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
+      radarChart = new Chart(ctxRadar, {
+        type: "radar",
+        data: {
+          labels: etiquetas,
+          datasets: [{
+            label: "Desempeño por asignatura",
+            data: valores,
+            backgroundColor: "rgba(124,96,186,0.5)",
+            borderColor: "#7c60ba",
+            pointRadius: 5,
+            pointHoverRadius: 7,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            r: {
+              min: 2,
+              max: 7,
+              ticks: { display: false }, // 🔹 Oculta los números de escala
+              grid: { color: "rgba(0,0,0,0.1)" },
+              angleLines: { color: "rgba(0,0,0,0.1)" },
+              pointLabels: {
+                font: { size: 12 },
+                color: "#333"
+              }
+            }
           },
-          options: { responsive: true, scales: { r: { min: 2, max: 7 } } }
-        });
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
 
-      } catch (err) {
-        console.error("Error generando gráficos:", err);
-      }
-    });
-  }
+    } catch (err) {
+      console.error("Error generando gráficos:", err);
+    }
+  });
+}
 
   // --- Restablecer filtros ---
   if (resetBtn) {

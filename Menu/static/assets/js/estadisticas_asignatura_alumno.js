@@ -208,8 +208,8 @@ function crearGraficoRadar(datos) {
             // 🔹 Escala adaptativa sin números visibles
             scales: { 
                 r: { 
-                    min: Math.min(...Object.values(datosFiltrados)) - 0.25,
-                    max: Math.max(...Object.values(datosFiltrados)) + 0.25,
+                    min: 2,
+                    max: 7,
                     ticks: { display: false } 
                 }
             }
