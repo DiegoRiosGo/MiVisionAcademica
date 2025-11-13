@@ -201,12 +201,12 @@
 
     .cerrar-modal:hover {
         transform: scale(1.2);
-        color: #b23ad3;
+        color: #a68eee;
     }
 
     /* botón confirmar */
     .btn-confirmar {
-        background-color: #b23ad3;
+        background-color: #5d2fb2;
         color: white;
         border: none;
         border-radius: 8px;
@@ -217,7 +217,7 @@
     }
 
     .btn-confirmar:hover {
-        background-color: #5d2fb2;
+        background-color: #a68eee;
     }
 
     /* botón cancelar */
@@ -233,7 +233,7 @@
     }
 
     .btn-cancelar:hover {
-        background-color: #b23ad3;
+        background-color: #a68eee;
     }
 
     div:where(.swal2-icon).swal2-question {
