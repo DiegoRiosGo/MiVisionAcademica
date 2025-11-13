@@ -1237,7 +1237,10 @@ def guardar_comentario_docente(request):
 
 @csrf_exempt
 def obtener_notas_estudiante_area(request):
-    """Devuelve las notas del estudiante filtradas por área."""
+    """
+    Devuelve las notas del estudiante filtradas por área, junto con el promedio general
+    de todos los estudiantes por asignatura.
+    """
     try:
         estudiante_id = request.GET.get("estudiante_id")
         area = request.GET.get("area")
@@ -1245,17 +1248,55 @@ def obtener_notas_estudiante_area(request):
         if not estudiante_id or not area:
             return JsonResponse({"success": False, "error": "Faltan parámetros"}, status=400)
 
-        resp = supabase.table("nota")\
-            .select("calificacion, asignatura(nombre_asignatura, area)")\
+        # 🔹 Obtener todas las notas del estudiante y sus asignaturas relacionadas
+        resp = supabase.table("nota") \
+            .select("calificacion, asignatura_id, asignatura(nombre_asignatura, area)") \
             .eq("estudiante_id", int(estudiante_id)).execute()
+        datos_estudiante = resp.data or []
 
-        filas = [f for f in resp.data if f["asignatura"]["area"] == area]
-        notas = [
-            {"nombre_asignatura": f["asignatura"]["nombre_asignatura"], "calificacion": f["calificacion"]}
-            for f in filas
-        ]
+        # 🔹 Filtrar por área
+        notas_area = [f for f in datos_estudiante if f["asignatura"]["area"] == area]
+
+        if not notas_area:
+            return JsonResponse({"success": True, "notas": []})
+
+        # 🔹 Obtener IDs de asignaturas del área
+        asignatura_ids = [f["asignatura_id"] for f in notas_area]
+
+        # 🔹 Calcular promedio general por asignatura (todos los estudiantes)
+        resp_general = supabase.table("nota") \
+            .select("asignatura_id, calificacion") \
+            .in_("asignatura_id", asignatura_ids).execute()
+        datos_general = resp_general.data or []
+
+        promedios_generales = {}
+        for fila in datos_general:
+            aid = fila["asignatura_id"]
+            if aid not in promedios_generales:
+                promedios_generales[aid] = {"suma": 0, "count": 0}
+            promedios_generales[aid]["suma"] += fila["calificacion"]
+            promedios_generales[aid]["count"] += 1
+
+        for aid, info in promedios_generales.items():
+            promedios_generales[aid] = round(info["suma"] / info["count"], 2) if info["count"] > 0 else None
+
+        # 🔹 Estructurar salida final
+        notas = []
+        for f in notas_area:
+            nombre_asig = f["asignatura"]["nombre_asignatura"]
+            calif = f["calificacion"]
+            promedio_general = promedios_generales.get(f["asignatura_id"], None)
+            notas.append({
+                "nombre_asignatura": nombre_asig,
+                "calificacion": calif,
+                "promedio_general": promedio_general
+            })
+
+        # 🔹 Ordenar alfabéticamente por asignatura
+        notas.sort(key=lambda x: x["nombre_asignatura"].lower())
 
         return JsonResponse({"success": True, "notas": notas})
+
     except Exception as e:
         print("Error obteniendo notas por área:", e)
         return JsonResponse({"success": False, "error": str(e)}, status=500)

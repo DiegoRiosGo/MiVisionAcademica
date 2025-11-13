@@ -386,8 +386,8 @@ if (estudianteSelect) {
           scales: {
             y: {
               beginAtZero: false,
-              min: minY > 1 ? minY : 1,
-              max: maxY < 7.5 ? maxY : 7.5,
+              min: Math.min(...datasets.flatMap(d => d.data.filter(v => v !== null))) - 0.25,
+              max: Math.max(...datasets.flatMap(d => d.data.filter(v => v !== null))) + 0.25,
               title: { display: true, text: "Calificación" }
             },
             x: {
