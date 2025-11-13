@@ -93,16 +93,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function actualizarGraficos(data) {
-        if (graficoEvolucion) graficoEvolucion.destroy();
-        if (graficoRadar) graficoRadar.destroy();
-        if (graficoBarras) graficoBarras.destroy();
-        if (graficoComparacion) graficoComparacion.destroy();
+    if (graficoEvolucion) graficoEvolucion.destroy();
+    if (graficoRadar) graficoRadar.destroy();
+    if (graficoBarras) graficoBarras.destroy();
+    if (graficoComparacion) graficoComparacion.destroy();
 
-        graficoEvolucion = crearGraficoEvolucion(data.promedios_semestre);
-        graficoRadar = crearGraficoRadar(data.promedios_area);
-        graficoBarras = crearGraficoBarras(data.promedios_area_anio);
-        graficoComparacion = crearGraficoComparacion(data.promedios_semestre, data.promedios_general_semestre);
+    graficoEvolucion = crearGraficoEvolucion(data.promedios_semestre);
+    graficoComparacion = crearGraficoComparacion(
+        data.promedios_semestre,
+        data.promedios_general_semestre
+    );
+
+    // 🔹 Cambia los títulos según el tipo de datos
+    if (data.tipo_datos === "area") {
+        graficoRadar = crearGraficoRadar(data.promedios_especifico, "Promedio por área");
+        graficoBarras = crearGraficoBarras(data.promedios_especifico_anio, "Promedio por área y año");
+    } else {
+        graficoRadar = crearGraficoRadar(data.promedios_especifico, "Promedio por asignatura");
+        graficoBarras = crearGraficoBarras(data.promedios_especifico_anio, "Promedio por asignatura y año");
     }
+}
 
     // --- Eventos de filtros ---
     filtroAnio.addEventListener("change", () => cargarDatos());
@@ -169,7 +179,7 @@ function crearGraficoEvolucion(datos) {
     });
 }
 
-function crearGraficoRadar(datos) {
+function crearGraficoRadar(datos, titulo) {
     const ctx = document.getElementById("graficoRadar");
     const escala = ajustarEscalaY(datos);
     return new Chart(ctx, {
@@ -177,7 +187,7 @@ function crearGraficoRadar(datos) {
         data: {
             labels: Object.keys(datos),
             datasets: [{
-                label: "Promedio por área",
+                label: titulo,
                 data: Object.values(datos),
                 borderColor: "rgba(167, 78, 239, 1)",
                 backgroundColor: "rgba(167, 78, 239,0.2)"
@@ -185,33 +195,29 @@ function crearGraficoRadar(datos) {
         },
         options: {
             responsive: true,
-            plugins: { title: { display: true, text: "Rendimiento por área" } },
+            plugins: { title: { display: true, text: titulo } },
             scales: {
-                r: {
-                    min: 2,
-                    max: 7,
-                    ticks: { stepSize: escala.step }
-                }
+                r: { min: 2, max: 7, ticks: { stepSize: escala.step } }
             }
         }
     });
 }
 
-function crearGraficoBarras(datos) {
+function crearGraficoBarras(datos, titulo) {
     const agrupado = {};
     for (let clave in datos) {
-        const [anio, area] = clave.split("-");
+        const [anio, etiqueta] = clave.split("-");
         agrupado[anio] = agrupado[anio] || {};
-        agrupado[anio][area] = datos[clave];
+        agrupado[anio][etiqueta] = datos[clave];
     }
 
     const anios = Object.keys(agrupado);
-    const areas = [...new Set(Object.values(agrupado).flatMap(Object.keys))];
+    const etiquetas = [...new Set(Object.values(agrupado).flatMap(Object.keys))];
     const escala = ajustarEscalaY(datos);
 
-    const datasets = areas.map((area) => ({
-        label: area,
-        data: anios.map((a) => agrupado[a][area] || 0),
+    const datasets = etiquetas.map((etq) => ({
+        label: etq,
+        data: anios.map((a) => agrupado[a][etq] || 0),
         backgroundColor: `hsl(${Math.random() * 360}, 70%, 60%)`
     }));
 
@@ -222,7 +228,7 @@ function crearGraficoBarras(datos) {
         options: {
             responsive: true,
             plugins: {
-                title: { display: true, text: "Promedio por área y año" },
+                title: { display: true, text: titulo },
                 legend: { position: "bottom" }
             },
             scales: {
@@ -236,6 +242,7 @@ function crearGraficoBarras(datos) {
         }
     });
 }
+
 
 function crearGraficoComparacion(promediosAlumno, promediosGeneral) {
     const ctx = document.getElementById("graficoComparacion");
