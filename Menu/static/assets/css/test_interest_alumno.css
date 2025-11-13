@@ -245,7 +245,12 @@
 
 /* TITULO FORMULARIO DE INTERES */
 
-/* sin codigo */
+    .formulario {
+        max-width: 700px;     
+        width: 100%;         
+        margin: 0 auto;       
+    }
+
 
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
@@ -410,7 +415,7 @@
 /* Hover para ambos */
 .Enviar-btn:hover,
 #btnSolicitud:hover {
-  background-color: #b23ad3 !important;
+  background-color: #a68eee !important;
   transform: scale(1.03);
   cursor: pointer;
 }
