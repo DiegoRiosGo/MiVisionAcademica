@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     }
 
-    let graficoEvolucion, graficoRadar, graficoBarras;
+    let graficoEvolucion, graficoRadar, graficoBarras, graficoComparacion;
 
     function cargarDatos(reset = false) {
         const url = `${urlBase}&anio=${reset ? "" : (filtroAnio.value || "")}&area=${reset ? "" : (filtroArea.value || "")}`;
@@ -118,9 +118,30 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarDatos(); // primera carga
 });
 
+
+function ajustarEscalaY(datos) {
+    const valores = Object.values(datos).map(Number).filter(v => !isNaN(v));
+    if (valores.length === 0) return { min: 2, max: 7, step: 0.5 };
+
+    const min = Math.min(...valores);
+    const max = Math.max(...valores);
+
+    // Margen visual leve
+    let margen = (max - min) * 0.1 || 0.1;
+    let yMin = Math.max(1, Math.floor((min - margen) * 4) / 4);
+    let yMax = Math.min(7, Math.ceil((max + margen) * 4) / 4);
+
+    // Si rango pequeño, usar pasos de 0.25
+    const step = (yMax - yMin <= 2) ? 0.25 : 0.5;
+
+    return { min: yMin, max: yMax, step };
+}
+
+
 // --- Funciones de gráficos ---
 function crearGraficoEvolucion(datos) {
     const ctx = document.getElementById("graficoEvolucion");
+    const escala = ajustarEscalaY(datos);
     return new Chart(ctx, {
         type: "line",
         data: {
@@ -129,20 +150,28 @@ function crearGraficoEvolucion(datos) {
                 label: "Promedio por semestre",
                 data: Object.values(datos),
                 borderColor: "rgba(138, 53, 195, 1)",
-                backgroundColor: "rgba(75,192,192,0.2)",
+                backgroundColor: "rgba(138, 53, 195,0.2)",
                 tension: 0.3
             }]
         },
         options: {
             responsive: true,
-            plugins: { title: { display: true, text: "Evolución de notas por semestre" } }
+            plugins: { title: { display: true, text: "Evolución de notas por semestre" } },
+            scales: {
+                y: {
+                    min: escala.min,
+                    max: escala.max,
+                    ticks: { stepSize: escala.step },
+                    title: { display: true, text: "Promedio" }
+                }
+            }
         }
     });
 }
 
 function crearGraficoRadar(datos) {
     const ctx = document.getElementById("graficoRadar");
-    
+    const escala = ajustarEscalaY(datos);
     return new Chart(ctx, {
         type: "radar",
         data: {
@@ -151,13 +180,19 @@ function crearGraficoRadar(datos) {
                 label: "Promedio por área",
                 data: Object.values(datos),
                 borderColor: "rgba(167, 78, 239, 1)",
-                backgroundColor: "rgba(54,162,235,0.2)"
+                backgroundColor: "rgba(167, 78, 239,0.2)"
             }]
         },
         options: {
             responsive: true,
             plugins: { title: { display: true, text: "Rendimiento por área" } },
-            scales: { r: { min: 2, max: 7 } }
+            scales: {
+                r: {
+                    min: 2,
+                    max: 7,
+                    ticks: { stepSize: escala.step }
+                }
+            }
         }
     });
 }
@@ -172,6 +207,7 @@ function crearGraficoBarras(datos) {
 
     const anios = Object.keys(agrupado);
     const areas = [...new Set(Object.values(agrupado).flatMap(Object.keys))];
+    const escala = ajustarEscalaY(datos);
 
     const datasets = areas.map((area) => ({
         label: area,
@@ -189,17 +225,31 @@ function crearGraficoBarras(datos) {
                 title: { display: true, text: "Promedio por área y año" },
                 legend: { position: "bottom" }
             },
-            scales: { y: { beginAtZero: true, max: 7 } }
+            scales: {
+                y: {
+                    min: escala.min,
+                    max: escala.max,
+                    ticks: { stepSize: escala.step },
+                    title: { display: true, text: "Promedio" }
+                }
+            }
         }
     });
 }
 
 function crearGraficoComparacion(promediosAlumno, promediosGeneral) {
     const ctx = document.getElementById("graficoComparacion");
-    const semestres = Array.from(new Set([
-        ...Object.keys(promediosAlumno),
-        ...Object.keys(promediosGeneral)
-    ])).sort();
+    // 🔹 Solo los semestres cursados por el alumno
+    const semestres = Object.keys(promediosAlumno).sort();
+
+    // 🔹 Escala combinada alumno + general (solo en esos semestres)
+    const datosCombinados = {};
+    semestres.forEach(s => {
+        if (promediosAlumno[s]) datosCombinados[s + "_a"] = promediosAlumno[s];
+        if (promediosGeneral[s]) datosCombinados[s + "_g"] = promediosGeneral[s];
+    });
+    const escala = ajustarEscalaY(datosCombinados);
+
 
     return new Chart(ctx, {
         type: "line",
@@ -232,7 +282,12 @@ function crearGraficoComparacion(promediosAlumno, promediosGeneral) {
                 legend: { position: "bottom" }
             },
             scales: {
-                y: { beginAtZero: true, max: 7, title: { display: true, text: "Promedio" } }
+                y: {
+                    min: escala.min,
+                    max: escala.max,
+                    ticks: { stepSize: escala.step },
+                    title: { display: true, text: "Promedio" }
+                }
             }
         }
     });
