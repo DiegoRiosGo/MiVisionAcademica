@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     }
 
-    let graficoEvolucion, graficoRadar, graficoBarras;
+    let graficoEvolucion, graficoRadar, graficoBarras, graficoComparacion;
 
     function cargarDatos(reset = false) {
         const url = `${urlBase}&anio=${reset ? "" : (filtroAnio.value || "")}&area=${reset ? "" : (filtroArea.value || "")}`;
