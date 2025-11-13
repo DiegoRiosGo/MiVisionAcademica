@@ -471,17 +471,17 @@
 
 
     .btn-outline-morado {
-        color: #ffffff;
-        border: 1px solid #5d2fb2;
-        background-color: #5d2fb2;
-        transition: all 0.3s ease;
+        color: #ffffff !important;
+        border: 1px solid #5d2fb2 !important;
+        background-color: #5d2fb2 !important;
+        transition: all 0.3s ease !important;
     }
 
     .btn-outline-morado:hover,
     .btn-outline-morado.active {
-        background-color: #a68eee;
-        color: white;
-        border-color: #a68eee;
+        background-color: #a68eee !important;
+        color: white !important;
+        border-color: #a68eee !important;
     }
 
 
