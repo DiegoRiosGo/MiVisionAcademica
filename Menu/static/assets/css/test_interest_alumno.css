@@ -246,9 +246,11 @@
 /* TITULO FORMULARIO DE INTERES */
 
     .formulario {
-        max-width: 700px;     
-        width: 100%;         
-        margin: 0 auto;       
+        max-width: 700px;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        box-sizing: border-box;
     }
 
 
@@ -284,15 +286,6 @@
     .intro {
     background-color: #ffffff;
     border-radius: 12px;
-    }
-
-    .formulario {
-        margin-left: 240px; /* Igual que .content */
-        margin-right: auto;
-        max-width: 900px;
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
     }
 
     .pregunta {
