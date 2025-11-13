@@ -734,14 +734,17 @@ def api_estadisticas_alumno(request):
         if not usuario_id:
             return JsonResponse({"error": "Falta el ID del estudiante"}, status=400)
 
+        # 🔹 Captura de filtros opcionales
         filtro_anio = request.GET.get("anio")
         filtro_area = request.GET.get("area")
 
-        # --- Notas del estudiante actual ---
+   
+        # 🔹 Notas del estudiante actual
         query_alumno = supabase.table("nota")\
             .select("acno, semestre, calificacion, asignatura(nombre_asignatura, area)")\
             .eq("estudiante_id", usuario_id)
 
+        # 🔹 Aplicar filtros si existen
         if filtro_anio:
             query_alumno = query_alumno.eq("acno", int(filtro_anio))
         if filtro_area and filtro_area.lower() != "todas":
@@ -751,7 +754,8 @@ def api_estadisticas_alumno(request):
         if not datos_alumno:
             return JsonResponse({"error": "No se encontraron notas del alumno"}, status=404)
 
-        # --- Notas de todos los estudiantes (para promedio general comparativo) ---
+
+        # 🔹 Notas de todos los estudiantes (para promedio general)
         query_general = supabase.table("nota")\
             .select("acno, semestre, calificacion, asignatura(area)")
         if filtro_anio:
@@ -761,47 +765,47 @@ def api_estadisticas_alumno(request):
 
         datos_general = query_general.execute().data
 
+        # 🔹 Cálculos de promedios
         # --- Promedio por semestre (alumno) ---
         promedios_semestre = {}
         for d in datos_alumno:
             clave = f"{d['acno']}-S{d['semestre']}"
             promedios_semestre.setdefault(clave, []).append(float(d["calificacion"]))
-        promedios_semestre = {k: round(sum(v) / len(v), 2) for k, v in promedios_semestre.items()}
+        promedios_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_semestre.items()}
 
-        # --- Promedio general por semestre ---
+        # --- Promedio por semestre (general) ---
         promedios_general_semestre = {}
         for d in datos_general:
             clave = f"{d['acno']}-S{d['semestre']}"
             promedios_general_semestre.setdefault(clave, []).append(float(d["calificacion"]))
-        promedios_general_semestre = {k: round(sum(v) / len(v), 2) for k, v in promedios_general_semestre.items()}
+        promedios_general_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_general_semestre.items()}
 
-        # --- Promedios por asignatura (para gráfico radar) ---
-        promedios_asignatura = {}
+        # --- Promedios por área y año (para gráficos existentes) ---
+        promedios_area = {}
         for d in datos_alumno:
-            nombre_asig = d["asignatura"]["nombre_asignatura"] if d["asignatura"] else "Sin asignatura"
-            promedios_asignatura.setdefault(nombre_asig, []).append(float(d["calificacion"]))
-        promedios_asignatura = {k: round(sum(v) / len(v), 2) for k, v in promedios_asignatura.items()}
+            area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
+            promedios_area.setdefault(area, []).append(float(d["calificacion"]))
+        promedios_area = {k: round(sum(v)/len(v), 2) for k, v in promedios_area.items()}
 
-        # --- Promedio por asignatura y año ---
-        asignatura_anio = {}
+        area_anio = {}
         for d in datos_alumno:
-            nombre_asig = d["asignatura"]["nombre_asignatura"] if d["asignatura"] else "Sin asignatura"
-            clave = (d["acno"], nombre_asig)
-            asignatura_anio.setdefault(clave, []).append(float(d["calificacion"]))
-        asignatura_anio = {
-            f"{anio}-{nombre_asig}": round(sum(v) / len(v), 2)
-            for (anio, nombre_asig), v in asignatura_anio.items()
+            area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
+            clave = (d["acno"], area)
+            area_anio.setdefault(clave, []).append(float(d["calificacion"]))
+        area_anio = {
+            f"{anio}-{area}": round(sum(v)/len(v), 2)
+            for (anio, area), v in area_anio.items()
         }
 
-        # --- Listas dinámicas de filtros ---
+        # --- Listas de filtro ---
         anios_disponibles = sorted(list({d["acno"] for d in datos_alumno}))
         areas_disponibles = sorted(list({d["asignatura"]["area"] for d in datos_alumno if d["asignatura"]}))
 
         return JsonResponse({
             "promedios_semestre": promedios_semestre,
-            "promedios_asignatura": promedios_asignatura,  # 🔹 cambiamos nombre
-            "promedios_asignatura_anio": asignatura_anio,  # 🔹 cambiamos nombre
-            "promedios_general_semestre": promedios_general_semestre,
+            "promedios_area": promedios_area,
+            "promedios_area_anio": area_anio,
+            "promedios_general_semestre": promedios_general_semestre,  # 🆕 agregado
             "anios": anios_disponibles,
             "areas": areas_disponibles
         })
