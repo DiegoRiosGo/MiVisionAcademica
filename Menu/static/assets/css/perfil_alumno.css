@@ -96,6 +96,7 @@
         cursor: pointer;
     }
 
+    
     .btn-primary-custom:active {
         background-color: #a68eee !important;
         transform: scale(0.98);
