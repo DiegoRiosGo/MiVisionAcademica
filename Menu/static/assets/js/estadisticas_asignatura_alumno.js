@@ -179,45 +179,62 @@ function crearGraficoEvolucion(datos) {
     });
 }
 
-function crearGraficoRadar(datos, titulo) {
+// --- Función de gráfico Radar (Promedio por Área) ---
+function crearGraficoRadar(datos) {
     const ctx = document.getElementById("graficoRadar");
-    const escala = ajustarEscalaY(datos);
+
+    // 🔹 Filtrar asignaturas válidas (sin “sin asignatura”)
+    const datosFiltrados = Object.fromEntries(
+        Object.entries(datos).filter(([area]) => area.toLowerCase() !== "sin asignatura")
+    );
+
     return new Chart(ctx, {
         type: "radar",
         data: {
-            labels: Object.keys(datos),
+            labels: Object.keys(datosFiltrados),
             datasets: [{
-                label: titulo,
-                data: Object.values(datos),
+                label: "Promedio por área",
+                data: Object.values(datosFiltrados),
                 borderColor: "rgba(167, 78, 239, 1)",
-                backgroundColor: "rgba(167, 78, 239,0.2)"
+                backgroundColor: "rgba(54,162,235,0.2)"
             }]
         },
         options: {
             responsive: true,
-            plugins: { title: { display: true, text: titulo } },
-            scales: {
-                r: { min: 2, max: 7, ticks: { stepSize: escala.step } }
+            plugins: { 
+                title: { display: true, text: "Rendimiento por área" },
+                legend: { position: "bottom" }
+            },
+            // 🔹 Escala adaptativa sin números visibles
+            scales: { 
+                r: { 
+                    min: Math.min(...Object.values(datosFiltrados)) - 0.25,
+                    max: Math.max(...Object.values(datosFiltrados)) + 0.25,
+                    ticks: { display: false } 
+                }
             }
         }
     });
 }
 
-function crearGraficoBarras(datos, titulo) {
+// --- Función de gráfico de barras (Promedio por Área y Año) ---
+function crearGraficoBarras(datos) {
     const agrupado = {};
     for (let clave in datos) {
-        const [anio, etiqueta] = clave.split("-");
-        agrupado[anio] = agrupado[anio] || {};
-        agrupado[anio][etiqueta] = datos[clave];
+        const [anio, area] = clave.split("-");
+        if (area && area.toLowerCase() !== "sin asignatura") {
+            agrupado[anio] = agrupado[anio] || {};
+            agrupado[anio][area] = datos[clave];
+        }
     }
 
-    const anios = Object.keys(agrupado);
-    const etiquetas = [...new Set(Object.values(agrupado).flatMap(Object.keys))];
-    const escala = ajustarEscalaY(datos);
+    // 🔹 Solo usar años con datos válidos
+    const anios = Object.keys(agrupado).filter(a => Object.keys(agrupado[a]).length > 0);
+    const areas = [...new Set(Object.values(agrupado).flatMap(Object.keys))];
 
-    const datasets = etiquetas.map((etq) => ({
-        label: etq,
-        data: anios.map((a) => agrupado[a][etq] || 0),
+    const datasets = areas.map((area) => ({
+        label: area,
+        data: anios.map((a) => agrupado[a][area] || null),
         backgroundColor: `hsl(${Math.random() * 360}, 70%, 60%)`
     }));
 
@@ -228,15 +245,15 @@ function crearGraficoBarras(datos, titulo) {
         options: {
             responsive: true,
             plugins: {
-                title: { display: true, text: titulo },
+                title: { display: true, text: "Promedio por área y año" },
                 legend: { position: "bottom" }
             },
-            scales: {
-                y: {
-                    min: escala.min,
-                    max: escala.max,
-                    ticks: { stepSize: escala.step },
-                    title: { display: true, text: "Promedio" }
+            scales: { 
+                y: { 
+                    beginAtZero: false,
+                    min: Math.min(...datasets.flatMap(d => d.data.filter(v => v !== null))) - 0.25,
+                    max: Math.max(...datasets.flatMap(d => d.data.filter(v => v !== null))) + 0.25,
+                    ticks: { display: false } // 🔹 Ocultar números del eje Y
                 }
             }
         }
