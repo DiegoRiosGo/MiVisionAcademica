@@ -29,6 +29,13 @@
         padding-top: 20px;
         overflow-y: auto;
     }
+    .logo-sidebar {
+        max-width: 120px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+
 
     .sidebar .profile img {
         width: 80px;
