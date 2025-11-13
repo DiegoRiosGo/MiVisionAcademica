@@ -340,6 +340,7 @@ if (estudianteSelect) {
       const minY = Math.min(...valores, ...promedios) - 0.3;
       const maxY = Math.max(...valores, ...promedios) + 0.3;
 
+      
       // --- Gráfico de línea (Evolución del estudiante + promedio general) ---
       const ctxLine = document.getElementById("lineChartSubject").getContext("2d");
       lineChart = new Chart(ctxLine, {
@@ -386,8 +387,8 @@ if (estudianteSelect) {
           scales: {
             y: {
               beginAtZero: false,
-              min: Math.min(...datasets.flatMap(d => d.data.filter(v => v !== null))) - 0.25,
-              max: Math.max(...datasets.flatMap(d => d.data.filter(v => v !== null))) + 0.25,
+              min: minY > 2 ? minY : 2,
+              max: maxY < 7 ? maxY : 7,
               title: { display: true, text: "Calificación" }
             },
             x: {
