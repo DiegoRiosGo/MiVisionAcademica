@@ -464,6 +464,27 @@
         color: #e74c3c;
         font-weight: bold;
     }
+
+    .spinner-border.violeta {
+        color: #a68eee /* violeta */
+    }
+
+
+    .btn-outline-morado {
+        color: #ffffff;
+        border: 1px solid #5d2fb2;
+        background-color: #5d2fb2;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-morado:hover,
+    .btn-outline-morado.active {
+        background-color: #a68eee;
+        color: white;
+        border-color: #a68eee;
+    }
+
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN test_interes_alumno .CSS -----------------------------------------
    ------------------------------------------------------------------------------------------------------------- */

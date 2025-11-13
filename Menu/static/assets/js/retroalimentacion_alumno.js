@@ -382,7 +382,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function mostrarLoader() {
     retroList.innerHTML = `
       <div class="text-center text-muted" style="padding: 30px;">
-        <div class="spinner-border text-primary" role="status">
+        <div class="spinner-border violeta" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
         <p class="mt-2">Cargando retroalimentaciones (${estadoActual})...</p>
