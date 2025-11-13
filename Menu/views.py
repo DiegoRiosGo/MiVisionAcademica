@@ -737,7 +737,7 @@ def api_estadisticas_alumno(request):
         filtro_anio = request.GET.get("anio")
         filtro_area = request.GET.get("area")
 
-        # 🔹 Notas del estudiante actual
+        # --- Notas del estudiante actual ---
         query_alumno = supabase.table("nota")\
             .select("acno, semestre, calificacion, asignatura(nombre_asignatura, area)")\
             .eq("estudiante_id", usuario_id)
@@ -751,7 +751,7 @@ def api_estadisticas_alumno(request):
         if not datos_alumno:
             return JsonResponse({"error": "No se encontraron notas del alumno"}, status=404)
 
-        # 🔹 Notas de todos los estudiantes (para promedio general)
+        # --- Notas de todos los estudiantes (para promedio general comparativo) ---
         query_general = supabase.table("nota")\
             .select("acno, semestre, calificacion, asignatura(area)")
         if filtro_anio:
@@ -766,48 +766,48 @@ def api_estadisticas_alumno(request):
         for d in datos_alumno:
             clave = f"{d['acno']}-S{d['semestre']}"
             promedios_semestre.setdefault(clave, []).append(float(d["calificacion"]))
-        promedios_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_semestre.items()}
+        promedios_semestre = {k: round(sum(v) / len(v), 2) for k, v in promedios_semestre.items()}
 
-        # --- Promedio por semestre (general) ---
+        # --- Promedio general por semestre ---
         promedios_general_semestre = {}
         for d in datos_general:
             clave = f"{d['acno']}-S{d['semestre']}"
             promedios_general_semestre.setdefault(clave, []).append(float(d["calificacion"]))
-        promedios_general_semestre = {k: round(sum(v)/len(v), 2) for k, v in promedios_general_semestre.items()}
+        promedios_general_semestre = {k: round(sum(v) / len(v), 2) for k, v in promedios_general_semestre.items()}
 
-        # --- Promedios por área y año (para gráficos existentes) ---
-        promedios_area = {}
+        # --- Promedios por asignatura (para gráfico radar) ---
+        promedios_asignatura = {}
         for d in datos_alumno:
-            area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
-            promedios_area.setdefault(area, []).append(float(d["calificacion"]))
-        promedios_area = {k: round(sum(v)/len(v), 2) for k, v in promedios_area.items()}
+            nombre_asig = d["asignatura"]["nombre_asignatura"] if d["asignatura"] else "Sin asignatura"
+            promedios_asignatura.setdefault(nombre_asig, []).append(float(d["calificacion"]))
+        promedios_asignatura = {k: round(sum(v) / len(v), 2) for k, v in promedios_asignatura.items()}
 
-        area_anio = {}
+        # --- Promedio por asignatura y año ---
+        asignatura_anio = {}
         for d in datos_alumno:
-            area = d["asignatura"]["area"] if d["asignatura"] else "Sin área"
-            clave = (d["acno"], area)
-            area_anio.setdefault(clave, []).append(float(d["calificacion"]))
-        area_anio = {
-            f"{anio}-{area}": round(sum(v)/len(v), 2)
-            for (anio, area), v in area_anio.items()
+            nombre_asig = d["asignatura"]["nombre_asignatura"] if d["asignatura"] else "Sin asignatura"
+            clave = (d["acno"], nombre_asig)
+            asignatura_anio.setdefault(clave, []).append(float(d["calificacion"]))
+        asignatura_anio = {
+            f"{anio}-{nombre_asig}": round(sum(v) / len(v), 2)
+            for (anio, nombre_asig), v in asignatura_anio.items()
         }
 
-        # --- Listas de filtro ---
+        # --- Listas dinámicas de filtros ---
         anios_disponibles = sorted(list({d["acno"] for d in datos_alumno}))
         areas_disponibles = sorted(list({d["asignatura"]["area"] for d in datos_alumno if d["asignatura"]}))
 
         return JsonResponse({
             "promedios_semestre": promedios_semestre,
-            "promedios_area": promedios_area,
-            "promedios_area_anio": area_anio,
-            "promedios_general_semestre": promedios_general_semestre,  # 🆕 agregado
+            "promedios_asignatura": promedios_asignatura,  # 🔹 cambiamos nombre
+            "promedios_asignatura_anio": asignatura_anio,  # 🔹 cambiamos nombre
+            "promedios_general_semestre": promedios_general_semestre,
             "anios": anios_disponibles,
             "areas": areas_disponibles
         })
     except Exception as e:
         print("Error en api_estadisticas_alumno:", e)
         return JsonResponse({"error": str(e)}, status=500)
-
 
 # ---------------------------------------------------------------------
 # Análisis IA
