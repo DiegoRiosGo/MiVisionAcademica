@@ -170,45 +170,38 @@
     }
 
 
+      /* Pendientes */
+      button#tabPendientes.btn {
+          color: #fff !important;
+          background-color: #5d2fb2 !important;
+          border: 1px solid #5d2fb2 !important;
+      }
+      button#tabPendientes.btn:hover {
+          background-color: #a68eee !important;
+          border-color: #a68eee !important;
+      }
 
-    /* Pendientes: color principal violeta */
-    #tabPendientes {
-        color: #fff !important;
-        background-color: #5d2fb2 !important;
-        border: 1px solid #5d2fb2 !important;
-        transition: background-color 0.3s ease;
-    }
+      /* Descartadas */
+      button#tabDescartadas.btn {
+          color: #5d2fb2 !important;
+          background-color: #d1b0e9 !important;
+          border: 1px solid #d1b0e9 !important;
+      }
+      button#tabDescartadas.btn:hover {
+          background-color: #c39de2 !important;
+          border-color: #c39de2 !important;
+      }
 
-    #tabPendientes:hover {
-        background-color: #a68eee !important;
-        border-color: #a68eee !important;
-    }
-
-    /* Descartadas: tono lavanda suave */
-    #tabDescartadas {
-        color: #5d2fb2 !important;
-        background-color: #d1b0e9 !important;
-        border: 1px solid #d1b0e9 !important;
-        transition: background-color 0.3s ease;
-    }
-
-    #tabDescartadas:hover {
-        background-color: #c39de2 !important;
-        border-color: #c39de2 !important;
-    }
-
-    /* Finalizadas: violeta grisáceo elegante */
-    #tabFinalizadas {
-        color: #fff !important;
-        background-color: #7a5ca2 !important;
-        border: 1px solid #7a5ca2 !important;
-        transition: background-color 0.3s ease;
-    }
-
-    #tabFinalizadas:hover {
-        background-color: #a68eee !important;
-        border-color: #a68eee !important;
-    }
+      /* Finalizadas */
+      button#tabFinalizadas.btn {
+          color: #fff !important;
+          background-color: #7a5ca2 !important;
+          border: 1px solid #7a5ca2 !important;
+      }
+      button#tabFinalizadas.btn:hover {
+          background-color: #a68eee !important;
+          border-color: #a68eee !important;
+      }
 
 
     /* Botón Descartar: rojo elegante */
