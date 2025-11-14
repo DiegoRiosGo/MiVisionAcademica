@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
           controls.appendChild(btnDescartar);
         } else if (estadoActual === 'eliminada') {
           const btnRestaurar = document.createElement('button');
-          btnRestaurar.className = 'btn btn-sm btn-outline-primary';
+          btnRestaurar.className = 'btn btn-sm btn-responder';
           btnRestaurar.innerHTML = '<i class="fas fa-undo"></i> Restaurar';
           btnRestaurar.addEventListener('click', async () => {
             const resp = await fetch('/actualizar_estado_solicitud/', {
