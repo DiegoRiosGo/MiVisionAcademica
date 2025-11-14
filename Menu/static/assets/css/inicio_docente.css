@@ -170,40 +170,6 @@
     }
 
 
-      /* Pendientes */
-      button#tabPendientes.btn {
-          color: #fff !important;
-          background-color: #5d2fb2 !important;
-          border: 1px solid #5d2fb2 !important;
-      }
-      button#tabPendientes.btn:hover {
-          background-color: #a68eee !important;
-          border-color: #a68eee !important;
-      }
-
-      /* Descartadas */
-      button#tabDescartadas.btn {
-          color: #5d2fb2 !important;
-          background-color: #d1b0e9 !important;
-          border: 1px solid #d1b0e9 !important;
-      }
-      button#tabDescartadas.btn:hover {
-          background-color: #c39de2 !important;
-          border-color: #c39de2 !important;
-      }
-
-      /* Finalizadas */
-      button#tabFinalizadas.btn {
-          color: #fff !important;
-          background-color: #7a5ca2 !important;
-          border: 1px solid #7a5ca2 !important;
-      }
-      button#tabFinalizadas.btn:hover {
-          background-color: #a68eee !important;
-          border-color: #a68eee !important;
-      }
-
-
     /* Botón Descartar: rojo elegante */
     .btn-descartar {
       color: #fff;
@@ -229,6 +195,86 @@
       background-color: #a68eee;
       border-color: #a68eee;
     }
+
+
+/* ---------- Botones personalizados manteniendo .btn ---------- */
+
+/* Usar clase en lugar de ID para reutilizar y mantener especificidad */
+.btn.btn-pendiente,
+button.btn.btn-pendiente {
+    color: #fff !important;
+    background-color: #5d2fb2 !important;
+    border: 1px solid #5d2fb2 !important;
+    background-image: none !important;      /* quita gradientes de bootstrap */
+    box-shadow: none !important;            /* quita sombras */
+    -webkit-appearance: none !important;
+    background-clip: border-box !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease !important;
+}
+
+/* Estados comunes que Bootstrap aplica: hover / focus / active / .active */
+.btn.btn-pendiente:hover,
+.btn.btn-pendiente:focus,
+.btn.btn-pendiente:active,
+.btn.btn-pendiente.active {
+    color: #fff !important;
+    background-color: #a68eee !important;
+    border-color: #a68eee !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Para cuando el botón recibe focus (teclas) */
+.btn.btn-pendiente:focus {
+    box-shadow: 0 0 0 0.15rem rgba(93,47,178,0.25) !important; /* opcional */
+}
+
+/* Repite patrón para los otros botones */
+.btn.btn-descartada,
+button.btn.btn-descartada {
+    color: #5d2fb2 !important;
+    background-color: #d1b0e9 !important;
+    border: 1px solid #d1b0e9 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.btn.btn-descartada:hover,
+.btn.btn-descartada:focus,
+.btn.btn-descartada:active,
+.btn.btn-descartada.active {
+    color: #5d2fb2 !important;
+    background-color: #c39de2 !important;
+    border-color: #c39de2 !important;
+    box-shadow: none !important;
+}
+
+.btn.btn-finalizada,
+button.btn.btn-finalizada {
+    color: #fff !important;
+    background-color: #7a5ca2 !important;
+    border: 1px solid #7a5ca2 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.btn.btn-finalizada:hover,
+.btn.btn-finalizada:focus,
+.btn.btn-finalizada:active,
+.btn.btn-finalizada.active {
+    color: #fff !important;
+    background-color: #a68eee !important;
+    border-color: #a68eee !important;
+    box-shadow: none !important;
+}
+
+/* Si Bootstrap aplica reglas con más especificidad (poco común), esta regla final remata */
+button.btn.btn-pendiente[style],
+button.btn.btn-descartada[style],
+button.btn.btn-finalizada[style] {
+    /* asegura que si existe style="" inline se mantenga lo nuestro sustituyendo lo que sea necesario */
+}
+
 
 
 /* -------------------------------------------------------------------------------------------------------------
