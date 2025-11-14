@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function mostrarCargando() {
     lista.innerHTML = `
       <li class="sin-solicitudes text-center text-muted" style="padding: 20px;">
-        <div class="spinner-border text-primary" role="status">
+        <div class="spinner-border violeta" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
         <p class="mt-2">Cargando solicitudes (${estadoActual})...</p>
