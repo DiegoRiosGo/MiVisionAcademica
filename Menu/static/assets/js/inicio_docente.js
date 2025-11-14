@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (estadoActual === 'pendiente') {
           const btnResponder = document.createElement('button');
-          btnResponder.className = 'btn btn-sm btn-primary me-2';
+          btnResponder.className = 'btn btn-sm btn-responder';
           btnResponder.innerHTML = '<i class="fas fa-reply"></i> Responder';
           btnResponder.addEventListener('click', () => {
             const area = encodeURIComponent(s.area || '');
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
           controls.appendChild(btnResponder);
 
           const btnDescartar = document.createElement('button');
-          btnDescartar.className = 'btn btn-sm btn-danger';
+          btnDescartar.className = 'btn btn-sm btn-descartar';
           btnDescartar.innerHTML = '<i class="fas fa-trash-alt"></i> Descartar';
           btnDescartar.addEventListener('click', async () => {
             const conf = await Swal.fire({
