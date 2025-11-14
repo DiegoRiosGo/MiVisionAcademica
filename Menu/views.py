@@ -452,7 +452,7 @@ def PerfilDocente(request):
             supabase.table("usuario").update({"foto": foto_base64}).eq("usuario_id", usuario_id).execute()
 
             messages.success(request, "Tu foto de perfil fue actualizada correctamente.")
-            return redirect('perfil_alumno')
+            return redirect('perfil_docente')
 
         except Exception as e:
             print("❌ Error al guardar la foto:", e)
