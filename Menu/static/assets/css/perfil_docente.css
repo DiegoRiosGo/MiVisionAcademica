@@ -77,7 +77,6 @@
         color: #18233f;
     }   
 
-
 /* TITULO FOTO DE PERFIL */
     .btn-primary-custom {
         background-color: #5d2fb2 !important;
@@ -92,13 +91,14 @@
     }
 
     .btn-primary-custom:hover {
-        background-color: #b23ad3 !important;
+        background-color: #a68eee !important;
         transform: scale(1.03);
         cursor: pointer;
     }
 
+    
     .btn-primary-custom:active {
-        background-color: #8357a4 !important;
+        background-color: #a68eee !important;
         transform: scale(0.98);
     }
 
@@ -111,6 +111,7 @@
         display: block;
         margin: 0 auto 10px auto;
     }
+
 
 /* TITULO POPUP */
     #confirmationPopup {
