@@ -21,7 +21,7 @@
         <nav class="sidebar">
           <div class="profile text-center p-3">
             {% if foto %}
-              <img src="{{ foto }}" alt="Perfil">
+              <img src="data:image/jpeg;base64,{{ foto }}" alt="Perfil">
             {% else %}
               <img src="https://i.pinimg.com/736x/f6/d5/b4/f6d5b458bf7aa0276c81a666c916de18.jpg" alt="Perfil">
             {% endif %}
