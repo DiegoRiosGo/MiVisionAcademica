@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const res = await fetch(`/obtener_solicitudes_docente/?estado=${encodeURIComponent(estadoActual)}`);
       const data = await res.json();
 
-      const nuevasSolicitudes = (data.solicitudes || []).sort((a, b) => b.id - a.id);
+      const solicitudes = data.solicitudes || data.data || data.solicitud_retroalimentacion || [];
+      const nuevasSolicitudes = solicitudes.sort((a, b) => b.id - a.id);
 
       // 🔹 Si no hay cambios, no tocar el DOM
       if (!hayCambios(nuevasSolicitudes, cacheSolicitudes)) {
@@ -88,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const controls = document.createElement("div");   // <----- FALTABA ESTO
         controls.className = "d-flex gap-2 mt-2";         // estilo bonito
-        
+
         let contenidoHTML = `<div>`;
 
         // 🟣 Caso 1: Comentario libre (tipo = comentario)

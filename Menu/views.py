@@ -891,7 +891,7 @@ def analizar_perfil_ia_free(request):
             .select("respuesta, actualizado_en, asignatura(nombre_asignatura)") \
             .eq("estudiante_id", usuario_id) \
             .eq("estado", "finalizada") \
-            .not_("respuesta", "is", None) \
+            .filter("respuesta", "not.is", "null") \
             .order("actualizado_en", desc=True).execute()
 
         respuestas_solicitudes = resp_resp_solicitudes.data or []
@@ -938,7 +938,7 @@ def analizar_perfil_ia_free(request):
             f"🧠 RETROALIMENTACIÓN DOCENTE:\n{resumen_comentarios}\n\n"
             "Con toda esta información, genera un análisis integral del perfil académico del estudiante."
             "Analiza y devuelve en JSON exactamente como: "
-            '{"fortalezas":[],"debilidades":[],"recomendaciones":[],"recomendaciones_laborales":[],"herramietas_de_mejora":[],"resumen_corto":"","recomendaciones_recursos":[]}'
+            '{"fortalezas":[],"debilidades":[],"recomendaciones":[],"recomendaciones_laborales":[],"herramientas_de_mejora":[],"resumen_corto":"","recomendaciones_recursos":[]}'
         )
 
         # === 5️⃣ Llamada al modelo IA ===
@@ -1063,7 +1063,7 @@ def generar_pdf_informe(request):
     add_section("Debilidades", analisis.get("debilidades", []), "#C0392B")
     add_section("Recomendaciones Académicas", analisis.get("recomendaciones", []), "#2471A3")
     add_section("Recomendaciones Laborales", analisis.get("recomendaciones_laborales", []), "#8E44AD")
-    add_section("Herramientas de Mejora", analisis.get("herramietas_de_mejora", []), "#D68910")
+    add_section("Herramientas de Mejora", analisis.get("herramientas_de_mejora", []), "#D68910")
     add_section("Recursos Recomendados", analisis.get("recomendaciones_recursos", []), "#117864")
 
     doc.build(contenido)
