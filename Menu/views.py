@@ -1407,12 +1407,11 @@ def obtener_solicitudes_docente(request):
 
         id_docente = docente_res.data[0]["usuario_id"]
 
-        # recibir estado por query param (por defecto 'pendiente')
         estado = request.GET.get("estado", "pendiente")
-        # validar estado aceptado
         if estado not in ("pendiente", "eliminada", "finalizada"):
             return JsonResponse({"success": False, "error": "Estado inválido."}, status=400)
 
+        # --- 1. Solicitudes tradicionales ---
         solicitudes_res = supabase.table("solicitud_retroalimentacion") \
             .select("id_sretro, id_estudiante, asignatura, sigla, mensaje, estado, respuesta, creado_en") \
             .eq("id_docente", id_docente) \
@@ -1423,72 +1422,66 @@ def obtener_solicitudes_docente(request):
         solicitudes = []
         for s in solicitudes_res.data or []:
             # obtener nombre del estudiante
-            est_res = supabase.table("usuario").select("usuario_id, nombre, apellido").eq("usuario_id", s["id_estudiante"]).maybe_single().execute()
-            if est_res.data:
-                nombre_est = f"{est_res.data.get('nombre','')} {est_res.data.get('apellido','')}".strip()
-            else:
-                nombre_est = "Desconocido"
+            est_res = supabase.table("usuario").select("nombre, apellido") \
+                .eq("usuario_id", s["id_estudiante"]).maybe_single().execute()
+            nombre_est = f"{est_res.data.get('nombre','')} {est_res.data.get('apellido','')}".strip() if est_res.data else "Desconocido"
 
-            # obtener nombre asignatura
-            asig_res = supabase.table("asignatura").select("asignatura_id, nombre_asignatura, area").eq("asignatura_id", s["asignatura"]).maybe_single().execute()
-            if asig_res.data:
-                nombre_asig = asig_res.data.get("nombre_asignatura") or f"Asignatura ID {s['asignatura']}"
-                area_asig = asig_res.data.get("area")
-            else:
-                nombre_asig = f"Asignatura ID {s['asignatura']}"
-                area_asig = None
+            # obtener asignatura
+            asig_res = supabase.table("asignatura").select("nombre_asignatura, area") \
+                .eq("asignatura_id", s["asignatura"]).maybe_single().execute()
 
             solicitudes.append({
+                "tipo": "solicitud",
                 "id": s["id_sretro"],
-                "estudiante_id": s["id_estudiante"],
                 "estudiante": nombre_est,
-                "asignatura_id": s["asignatura"],
-                "asignatura": nombre_asig,
+                "asignatura": asig_res.data.get("nombre_asignatura") if asig_res.data else f"ID {s['asignatura']}",
                 "sigla": s["sigla"],
                 "mensaje": s["mensaje"],
-                "estado": s["estado"],
                 "respuesta": s.get("respuesta"),
+                "estado": s["estado"],
                 "creado_en": s["creado_en"],
-                "area": area_asig
+                "area": asig_res.data.get("area") if asig_res.data else None,
             })
 
-            # --- 2. Comentarios libres (SOLO en finalizadas) ---
-            comentarios_finales = []
-            if estado == "finalizada":
-                comentarios_res = supabase.table("comentario_docente") \
-                    .select("comentario_id, estudiante_id, docente_id, contenido, fecha, asignatura_id, sigla") \
-                    .eq("docente_id", id_docente).execute()
+        # --- 2. Comentarios libres (SOLO en finalizadas) ---
+        comentarios_finales = []
+        if estado == "finalizada":
+            comentarios_res = supabase.table("comentario_docente") \
+                .select("comentario_id, estudiante_id, docente_id, contenido, fecha, asignatura_id, sigla") \
+                .eq("docente_id", id_docente).execute()
 
-                for c in comentarios_res.data or []:
-                    est_res = supabase.table("usuario").select("nombre, apellido") \
-                        .eq("usuario_id", c["estudiante_id"]).maybe_single().execute()
-                    nombre_est = f"{est_res.data.get('nombre','')} {est_res.data.get('apellido','')}".strip() if est_res.data else "Desconocido"
+            for c in comentarios_res.data or []:
+                est_res = supabase.table("usuario").select("nombre, apellido") \
+                    .eq("usuario_id", c["estudiante_id"]).maybe_single().execute()
+                nombre_est = f"{est_res.data.get('nombre','')} {est_res.data.get('apellido','')}".strip() if est_res.data else "Desconocido"
 
-                    asig_res = supabase.table("asignatura").select("nombre_asignatura, area") \
-                        .eq("asignatura_id", c["asignatura_id"]).maybe_single().execute()
+                asig_res = supabase.table("asignatura").select("nombre_asignatura, area") \
+                    .eq("asignatura_id", c["asignatura_id"]).maybe_single().execute()
 
-                    comentarios_finales.append({
-                        "tipo": "comentario",
-                        "id": c["comentario_id"],
-                        "estudiante": nombre_est,
-                        "asignatura": asig_res.data.get("nombre_asignatura") if asig_res.data else f"ID {c['asignatura_id']}",
-                        "sigla": c.get("sigla", "-"),
-                        "mensaje": "(Comentario enviado por el docente)",
-                        "respuesta": c["contenido"],
-                        "estado": "finalizada",
-                        "creado_en": c["fecha"],
-                        "area": asig_res.data.get("area") if asig_res.data else None,
-                    })
+                comentarios_finales.append({
+                    "tipo": "comentario",
+                    "id": c["comentario_id"],
+                    "estudiante": nombre_est,
+                    "asignatura": asig_res.data.get("nombre_asignatura") if asig_res.data else f"ID {c['asignatura_id']}",
+                    "sigla": c.get("sigla", "-"),
+                    "mensaje": "(Comentario enviado por el docente)",
+                    "respuesta": c["contenido"],
+                    "estado": "finalizada",
+                    "creado_en": c["fecha"],
+                    "area": asig_res.data.get("area") if asig_res.data else None,
+                })
 
-            # --- Unificar ---
-            todo = solicitudes + comentarios_finales
-            # ordenar por fecha
-            todo.sort(key=lambda x: x["creado_en"], reverse=True)
+        # --- Unificar ---
+        todo = solicitudes + comentarios_finales
+        # ordenar por fecha
+        todo.sort(key=lambda x: x["creado_en"], reverse=True)
 
-        return JsonResponse({"success": True, "solicitudes": solicitudes})
+        return JsonResponse({"success": True, "solicitudes": todo})
+
     except Exception as e:
         print("ERROR obtener_solicitudes_docente:", e)
         return JsonResponse({"success": False, "error": "Error al obtener las solicitudes del docente."}, status=500)
+    
 
 # 3 actualizar_estado_solicitud (genérico para cambiar estado)
 @csrf_exempt

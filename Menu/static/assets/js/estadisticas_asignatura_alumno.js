@@ -227,7 +227,7 @@ function crearGraficoBarras(datos) {
                 y: { 
                     beginAtZero: false,
                     min: Math.min(...datasets.flatMap(d => d.data.filter(v => v !== null))) - 0.25,
-                    max: Math.max(...datasets.flatMap(d => d.data.filter(v => v !== null))) + 0.25,
+                    max: 7,
                     ticks: { display: true } 
                 }
             }
