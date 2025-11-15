@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render,redirect
 # Create your views here.
 from .decorators import login_requerido, solo_docente, solo_alumno
@@ -884,10 +885,38 @@ def analizar_perfil_ia_free(request):
             .select("contenido,fecha,asignatura(nombre_asignatura)") \
             .eq("estudiante_id", usuario_id).order("fecha", desc=True).execute()
         comentarios = resp_comentarios.data or []
-        resumen_comentarios = "\n".join([
-            f"{c['fecha'][:10]} - {c.get('asignatura', {}).get('nombre_asignatura', 'Asignatura desconocida')}: {c['contenido']}"
-            for c in comentarios
-        ]) or "Sin retroalimentaciones registradas."
+
+        # === 3.1️⃣ Retroalimentaciones provenientes de solicitudes finalizadas ===
+        resp_resp_solicitudes = supabase.table("solicitud_retroalimentacion") \
+            .select("respuesta, actualizado_en, asignatura(nombre_asignatura)") \
+            .eq("estudiante_id", usuario_id) \
+            .eq("estado", "finalizada") \
+            .not_("respuesta", "is", None) \
+            .order("actualizado_en", desc=True).execute()
+
+        respuestas_solicitudes = resp_resp_solicitudes.data or []
+
+        resumen_respuestas_solicitudes = "\n".join([
+            f"{r['actualizado_en'][:10]} - {r.get('asignatura',{}).get('nombre_asignatura','Asignatura desconocida')}: {r['respuesta']}"
+            for r in respuestas_solicitudes
+        ]) or ""
+
+        resumen_comentarios = ""
+
+        if comentarios:
+            resumen_comentarios += "\n".join([
+                f"{c['fecha'][:10]} - {c.get('asignatura', {}).get('nombre_asignatura', 'Asignatura desconocida')}: {c['contenido']}"
+                for c in comentarios
+            ])
+
+        if respuestas_solicitudes:
+            resumen_comentarios += "\n" + "\n".join([
+                f"{r['actualizado_en'][:10]} - {r.get('asignatura',{}).get('nombre_asignatura','Asignatura desconocida')}: {r['respuesta']}"
+                for r in respuestas_solicitudes
+            ])
+
+        if not resumen_comentarios.strip():
+            resumen_comentarios = "Sin retroalimentaciones registradas."
 
         # === 4️⃣ Construir el prompt completo ===
         system_instruction = (
@@ -976,6 +1005,9 @@ def analizar_perfil_ia_free(request):
 # ---------------------------------------------------------------------
 # Informes Con IA
 # ---------------------------------------------------------------------
+from reportlab.platypus import Image
+from reportlab.lib.units import cm
+
 @login_requerido
 @solo_alumno
 def generar_pdf_informe(request):
@@ -1006,6 +1038,15 @@ def generar_pdf_informe(request):
 
     contenido.append(Paragraph("Informe de Análisis Académico", titulo))
     contenido.append(Spacer(1, 12))
+    
+    logo_path = os.path.join(settings.BASE_DIR, "static/assets/imagenes/Logo2.png")
+    try:
+        logo = Image(logo_path, width=4*cm, height=4*cm)
+        logo.hAlign = 'CENTER'
+        contenido.insert(0, logo)
+        contenido.insert(1, Spacer(1, 12))
+    except:
+        print("⚠️ Logo no encontrado, continuando sin él.")
 
     if analisis.get("resumen_corto"):
         contenido.append(Paragraph("<b>Resumen:</b> " + analisis["resumen_corto"], normal))
