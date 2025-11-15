@@ -1045,110 +1045,178 @@ def analizar_perfil_ia_free(request):
 # ---------------------------------------------------------------------
 # Informes Con IA
 # ---------------------------------------------------------------------
-from reportlab.platypus import Image
+from django.http import FileResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.staticfiles import finders
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.utils import ImageReader
 from reportlab.lib.units import cm
+from io import BytesIO
+import base64
+import matplotlib.pyplot as plt
+import numpy as np
+import json
+
 
 @login_requerido
 @solo_alumno
 def generar_pdf_informe(request):
-    """
-    Genera un PDF con los resultados del análisis IA (sin guardarlo aún).
-    Recibe los datos en formato JSON desde el frontend.
-    """
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido."}, status=405)
 
     try:
         data = json.loads(request.body.decode("utf-8"))
-        analisis = data.get("analisis", {})
+        analisis = data.get("analisis")
+        if not analisis:
+            return JsonResponse({"error": "No hay análisis para generar el PDF"}, status=400)
+
+        estudiante_id = data.get("estudiante_id")
+        if not estudiante_id:
+            return JsonResponse({"error": "Falta estudiante_id"}, status=400)
+
+        # === 1) Obtener notas desde Supabase ===
+        resp_notas = supabase.table("nota").select("calificacion,acno,asignatura(area)").eq("estudiante_id", estudiante_id).execute()
+        notas = resp_notas.data or []
+
+        # Agrupar por área
+        areas = {}
+        for n in notas:
+            area = n.get("asignatura", {}).get("area", "Desconocida")
+            areas.setdefault(area, []).append(n["calificacion"])
+
+        # === 2) Obtener promedio general por área (para compararlo) ===
+        resp_general = supabase.table("nota").select("calificacion,asignatura(area)").execute()
+        todos = resp_general.data or []
+
+        general_area = {}
+        for n in todos:
+            area = n.get("asignatura", {}).get("area", "Desconocida")
+            general_area.setdefault(area, []).append(n["calificacion"])
+
+        # === 3) GENERAR GRÁFICOS EN MEMORIA ===
+
+        def generar_grafico_barras():
+            fig, ax = plt.subplots()
+            labels = list(areas.keys())
+            valores = [np.mean(areas[a]) for a in labels]
+
+            ax.bar(labels, valores)
+            ax.set_title("Promedio por área académica")
+            ax.set_ylabel("Promedio")
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format="png")
+            plt.close(fig)
+            buffer.seek(0)
+            return buffer
+
+        def generar_grafico_radar():
+            labels = list(areas.keys())
+            valores = [np.mean(areas[a]) for a in labels]
+
+            angles = np.linspace(0, 2*np.pi, len(labels), endpoint=False).tolist()
+            valores += valores[:1]
+            angles += angles[:1]
+
+            fig = plt.figure(figsize=(6, 6))
+            ax = fig.add_subplot(111, polar=True)
+            ax.plot(angles, valores)
+            ax.fill(angles, valores, alpha=0.3)
+            ax.set_xticks(angles[:-1])
+            ax.set_xticklabels(labels)
+            ax.set_title("Desempeño por áreas")
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format="png")
+            plt.close(fig)
+            buffer.seek(0)
+            return buffer
+
+        def generar_grafico_comparacion():
+            labels = list(areas.keys())
+            alumno = [np.mean(areas[a]) for a in labels]
+            general = [np.mean(general_area[a]) for a in labels]
+
+            x = np.arange(len(labels))
+            width = 0.35
+
+            fig, ax = plt.subplots()
+            ax.bar(x - width/2, alumno, width, label="Alumno")
+            ax.bar(x + width/2, general, width, label="General")
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels)
+            ax.legend()
+            ax.set_title("Alumno vs Promedio General")
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format="png")
+            plt.close(fig)
+            buffer.seek(0)
+            return buffer
+
+        # === 4) CREAR PDF EN MEMORIA ===
+        buffer_pdf = BytesIO()
+        doc = SimpleDocTemplate(buffer_pdf, pagesize=letter)
+        styles = getSampleStyleSheet()
+        contenido = []
+
+        titulo = styles["Title"]
+        subtitulo = styles["Heading2"]
+        texto = styles["BodyText"]
+
+        # === Logo ===
+        logo_path = finders.find("assets/imagenes/Logo2.png")
+        if logo_path:
+            with open(logo_path, "rb") as f:
+                logo_data = f.read()
+            img_logo = Image(ImageReader(BytesIO(logo_data)), width=4*cm, height=4*cm)
+            img_logo.hAlign = "CENTER"
+            contenido.append(img_logo)
+            contenido.append(Spacer(1, 12))
+
+        # === Título ===
+        contenido.append(Paragraph("Informe Académico", titulo))
+        contenido.append(Spacer(1, 20))
+
+        # === Análisis IA ===
+        contenido.append(Paragraph("<b>Resumen del Análisis IA</b>", subtitulo))
+        contenido.append(Spacer(1, 10))
+
+        for key, value in analisis.items():
+            if isinstance(value, list):
+                contenido.append(Paragraph(f"<b>{key.capitalize()}:</b>", texto))
+                for v in value:
+                    contenido.append(Paragraph(f"- {v}", texto))
+                contenido.append(Spacer(1, 8))
+            else:
+                contenido.append(Paragraph(f"<b>{key.capitalize()}:</b> {value}", texto))
+                contenido.append(Spacer(1, 8))
+
+        contenido.append(Spacer(1, 20))
+
+        # === Insertar gráficos ===
+        def agregar_imagen(buf, titulo):
+            contenido.append(Paragraph(f"<b>{titulo}</b>", subtitulo))
+            contenido.append(Spacer(1, 6))
+            img = Image(ImageReader(buf), width=16*cm, height=10*cm)
+            img.hAlign = "CENTER"
+            contenido.append(img)
+            contenido.append(Spacer(1, 18))
+
+        agregar_imagen(generar_grafico_barras(), "Promedio por Área")
+        agregar_imagen(generar_grafico_radar(), "Radar de Desempeño")
+        agregar_imagen(generar_grafico_comparacion(), "Alumno vs General")
+
+        doc.build(contenido)
+        buffer_pdf.seek(0)
+
+        return FileResponse(buffer_pdf, as_attachment=True, filename="informe_academico.pdf")
+
     except Exception as e:
-        print("⚠️ Error leyendo datos del análisis:", e)
-        return JsonResponse({"error": "Datos inválidos."}, status=400)
-
-    imagenes = data.get("imagenes", {})
-    img_barras = imagenes.get("barras")
-    img_radar = imagenes.get("radar")
-    img_comparacion = imagenes.get("comparacion")
-
-    # Configurar PDF
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    styles = getSampleStyleSheet()
-    contenido = []
-
-    # Estilos personalizados
-    titulo = ParagraphStyle("Titulo", parent=styles["Heading1"], alignment=1, textColor=colors.HexColor("#004aad"))
-    subtitulo = ParagraphStyle("Subtitulo", parent=styles["Heading2"], textColor=colors.HexColor("#003366"))
-    normal = styles["Normal"]
-
-    contenido.append(Paragraph("Informe de Análisis Académico", titulo))
-    contenido.append(Spacer(1, 12))
-    
-    logo_path = os.path.join(settings.BASE_DIR, "static/assets/imagenes/Logo2.png")
-    try:
-        logo = Image(logo_path, width=4*cm, height=4*cm)
-        logo.hAlign = 'CENTER'
-        contenido.insert(0, logo)
-        contenido.insert(1, Spacer(1, 12))
-    except:
-        print("⚠️ Logo no encontrado, continuando sin él.")
-
-    if analisis.get("resumen_corto"):
-        contenido.append(Paragraph("<b>Resumen:</b> " + analisis["resumen_corto"], normal))
-        contenido.append(Spacer(1, 12))
-
-    def add_section(title, items, color="#004aad"):
-        if items:
-            contenido.append(Paragraph(f"<b><font color='{color}'>{title}</font></b>", subtitulo))
-            lista = ListFlowable([ListItem(Paragraph(i, normal)) for i in items], bulletType="bullet")
-            contenido.append(lista)
-            contenido.append(Spacer(1, 10))
-
-    from reportlab.platypus import Image
-    import base64
-
-    def add_image_if_exists(img_base64, contenido, titulo=""):
-        if img_base64:
-            try:
-                contenido.append(Paragraph(f"<b>{titulo}</b>", subtitulo))
-                contenido.append(Spacer(1, 6))
-
-                # Convertir Base64 a binario
-                imagen_data = base64.b64decode(img_base64.split(",")[-1])
-
-                # Guardar temporalmente
-                temp_path = "/tmp/temp_chart.png"
-                with open(temp_path, "wb") as f:
-                    f.write(imagen_data)
-
-                # Insertar imagen en el PDF
-                img = Image(temp_path, width=14*cm, height=10*cm)
-                img.hAlign = "CENTER"
-                contenido.append(img)
-                contenido.append(Spacer(1, 12))
-
-            except Exception as e:
-                print("⚠️ Error insertando imagen:", e)
-
-    add_section("Fortalezas", analisis.get("fortalezas", []), "#1E8449")
-    add_section("Debilidades", analisis.get("debilidades", []), "#C0392B")
-    add_section("Recomendaciones Académicas", analisis.get("recomendaciones", []), "#2471A3")
-    add_section("Recomendaciones Laborales", analisis.get("recomendaciones_laborales", []), "#8E44AD")
-    add_section("Herramientas de Mejora", analisis.get("herramientas_de_mejora", []), "#D68910")
-    add_section("Recursos Recomendados", analisis.get("recomendaciones_recursos", []), "#117864")
-
-    add_image_if_exists(img_barras, contenido, "📊 Gráfico de Promedio por área y año")
-    add_image_if_exists(img_radar, contenido, "📈 Gráfico de Desempeño por Áreas")
-    add_image_if_exists(img_comparacion, contenido, "📈 Gráfico de Comparación: Alumno vs Promedio General")
-
-    doc.build(contenido)
-
-    # Retornar PDF como descarga
-    buffer.seek(0)
-    response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = 'attachment; filename="informe_academico.pdf"'
-    return response
-
+        print("ERROR en generar_pdf_informe:", e)
+        return JsonResponse({"error": "Error generando PDF"}, status=500)
 
 @login_requerido
 @solo_alumno

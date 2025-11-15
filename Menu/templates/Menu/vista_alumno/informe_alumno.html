@@ -292,6 +292,33 @@ document.getElementById("btnPruebaIAFree").addEventListener("click", async () =>
         });
       }
 
+      async function guardarPDF() {
+        const res = await fetch("/generar_pdf_informe/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify({
+                estudiante_id: ESTUDIANTE_ID,
+                analisis: ANALISIS_IA,   // lo que ya recibes desde `analizar_perfil_ia_free`
+            }),
+        });
+
+        if (!res.ok) {
+            alert("Error generando PDF");
+            return;
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "informe_academico.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
       // Evento para guardar pdf en BD
       document.getElementById("btnGuardarPDF").addEventListener("click", async () => {
         const btn = document.getElementById("btnGuardarPDF");
