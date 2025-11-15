@@ -87,9 +87,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const li = document.createElement("li");
         li.className = "solicitud-item mb-2 p-2 fade-in";
 
-        const controls = document.createElement("div");   // <----- FALTABA ESTO
-        controls.className = "d-flex gap-2 mt-2";         // estilo bonito
-
         let contenidoHTML = `<div>`;
 
         // 🟣 Caso 1: Comentario libre (tipo = comentario)
@@ -129,6 +126,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 `;
             }
         }
+
+        contenidoHTML += `</div>`;
+        li.innerHTML = contenidoHTML;
+
+        const controls = document.createElement('div');
+        controls.className = 'mt-2';
 
         if (estadoActual === 'pendiente') {
           const btnResponder = document.createElement('button');
