@@ -124,7 +124,6 @@
 
     /* Ajustar tamaño y estilo de cada gráfico */
     .chart-container {
-        max-width: 480px;
         background: #ffffff;
         padding: 15px;
         border-radius: 16px;
@@ -135,7 +134,6 @@
     /* El tercer gráfico ocupa toda la fila */
     .container.text-center .chart-container:nth-child(3) {
         grid-column: span 2;
-        max-width: 700px;
         
     }
 

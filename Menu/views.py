@@ -1065,6 +1065,11 @@ def generar_pdf_informe(request):
         print("⚠️ Error leyendo datos del análisis:", e)
         return JsonResponse({"error": "Datos inválidos."}, status=400)
 
+    imagenes = data.get("imagenes", {})
+    img_barras = imagenes.get("barras")
+    img_radar = imagenes.get("radar")
+    img_comparacion = imagenes.get("comparacion")
+
     # Configurar PDF
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
@@ -1099,12 +1104,42 @@ def generar_pdf_informe(request):
             contenido.append(lista)
             contenido.append(Spacer(1, 10))
 
+    from reportlab.platypus import Image
+    import base64
+
+    def add_image_if_exists(img_base64, contenido, titulo=""):
+        if img_base64:
+            try:
+                contenido.append(Paragraph(f"<b>{titulo}</b>", subtitulo))
+                contenido.append(Spacer(1, 6))
+
+                # Convertir Base64 a binario
+                imagen_data = base64.b64decode(img_base64.split(",")[-1])
+
+                # Guardar temporalmente
+                temp_path = "/tmp/temp_chart.png"
+                with open(temp_path, "wb") as f:
+                    f.write(imagen_data)
+
+                # Insertar imagen en el PDF
+                img = Image(temp_path, width=14*cm, height=10*cm)
+                img.hAlign = "CENTER"
+                contenido.append(img)
+                contenido.append(Spacer(1, 12))
+
+            except Exception as e:
+                print("⚠️ Error insertando imagen:", e)
+
     add_section("Fortalezas", analisis.get("fortalezas", []), "#1E8449")
     add_section("Debilidades", analisis.get("debilidades", []), "#C0392B")
     add_section("Recomendaciones Académicas", analisis.get("recomendaciones", []), "#2471A3")
     add_section("Recomendaciones Laborales", analisis.get("recomendaciones_laborales", []), "#8E44AD")
     add_section("Herramientas de Mejora", analisis.get("herramientas_de_mejora", []), "#D68910")
     add_section("Recursos Recomendados", analisis.get("recomendaciones_recursos", []), "#117864")
+
+    add_image_if_exists(img_barras, contenido, "📊 Gráfico de Promedio por área y año")
+    add_image_if_exists(img_radar, contenido, "📈 Gráfico de Desempeño por Áreas")
+    add_image_if_exists(img_comparacion, contenido, "📈 Gráfico de Comparación: Alumno vs Promedio General")
 
     doc.build(contenido)
 
