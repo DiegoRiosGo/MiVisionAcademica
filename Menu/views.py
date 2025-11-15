@@ -1452,6 +1452,39 @@ def obtener_solicitudes_docente(request):
                 "area": area_asig
             })
 
+            # --- 2. Comentarios libres (SOLO en finalizadas) ---
+            comentarios_finales = []
+            if estado == "finalizada":
+                comentarios_res = supabase.table("comentario_docente") \
+                    .select("comentario_id, estudiante_id, docente_id, contenido, fecha, asignatura_id, sigla") \
+                    .eq("docente_id", id_docente).execute()
+
+                for c in comentarios_res.data or []:
+                    est_res = supabase.table("usuario").select("nombre, apellido") \
+                        .eq("usuario_id", c["estudiante_id"]).maybe_single().execute()
+                    nombre_est = f"{est_res.data.get('nombre','')} {est_res.data.get('apellido','')}".strip() if est_res.data else "Desconocido"
+
+                    asig_res = supabase.table("asignatura").select("nombre_asignatura, area") \
+                        .eq("asignatura_id", c["asignatura_id"]).maybe_single().execute()
+
+                    comentarios_finales.append({
+                        "tipo": "comentario",
+                        "id": c["comentario_id"],
+                        "estudiante": nombre_est,
+                        "asignatura": asig_res.data.get("nombre_asignatura") if asig_res.data else f"ID {c['asignatura_id']}",
+                        "sigla": c.get("sigla", "-"),
+                        "mensaje": "(Comentario enviado por el docente)",
+                        "respuesta": c["contenido"],
+                        "estado": "finalizada",
+                        "creado_en": c["fecha"],
+                        "area": asig_res.data.get("area") if asig_res.data else None,
+                    })
+
+            # --- Unificar ---
+            todo = solicitudes + comentarios_finales
+            # ordenar por fecha
+            todo.sort(key=lambda x: x["creado_en"], reverse=True)
+
         return JsonResponse({"success": True, "solicitudes": solicitudes})
     except Exception as e:
         print("ERROR obtener_solicitudes_docente:", e)

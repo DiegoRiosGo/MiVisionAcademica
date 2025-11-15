@@ -92,8 +92,12 @@ document.addEventListener('DOMContentLoaded', function () {
             <em>${s.asignatura}</em> (${s.sigla})<br>
             <small class="text-muted">${new Date(s.creado_en).toLocaleString()}</small>
             <p class="mt-2">${s.mensaje}</p>
+            
         `;
-
+        if (s.tipo === "comentario") {
+            contenidoHTML += ` <span class="badge bg-primary">Comentario del docente</span>`;
+        }
+        
         // ✅ Si está finalizada, muestra la respuesta del docente
         if (estadoActual === "finalizada" && s.respuesta) {
           contenidoHTML += `
