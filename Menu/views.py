@@ -903,7 +903,7 @@ def analizar_perfil_ia_free(request):
         # === 3.1️⃣ Retroalimentaciones provenientes de solicitudes finalizadas ===
         resp_resp_solicitudes = supabase.table("solicitud_retroalimentacion") \
             .select("respuesta, actualizado_en, asignatura") \
-            .eq("estudiante_id", usuario_id) \
+            .eq("id_estudiante", usuario_id) \
             .eq("estado", "finalizada") \
             .filter("respuesta", "not.is", "null") \
             .order("actualizado_en", desc=True).execute()
