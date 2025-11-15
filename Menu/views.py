@@ -836,6 +836,20 @@ def api_estadisticas_alumno(request):
         print("Error en api_estadisticas_alumno:", e)
         return JsonResponse({"error": str(e)}, status=500)
 
+
+def obtener_nombre_asignatura(valor):
+    try:
+        asignatura_id = int(valor)
+    except:
+        return valor  # Si no es número, devolver tal cual
+
+    resp = supabase.table("asignatura") \
+        .select("nombre_asignatura") \
+        .eq("asignatura_id", asignatura_id).execute()
+
+    if resp.data:
+        return resp.data[0]["nombre_asignatura"]
+    return valor
 # ---------------------------------------------------------------------
 # Análisis IA
 # ---------------------------------------------------------------------
@@ -888,16 +902,42 @@ def analizar_perfil_ia_free(request):
 
         # === 3.1️⃣ Retroalimentaciones provenientes de solicitudes finalizadas ===
         resp_resp_solicitudes = supabase.table("solicitud_retroalimentacion") \
-            .select("respuesta, actualizado_en, asignatura(nombre_asignatura)") \
+            .select("respuesta, actualizado_en, asignatura") \
             .eq("estudiante_id", usuario_id) \
             .eq("estado", "finalizada") \
             .filter("respuesta", "not.is", "null") \
             .order("actualizado_en", desc=True).execute()
 
-        respuestas_solicitudes = resp_resp_solicitudes.data or []
+        respuestas_solicitudes_raw = resp_resp_solicitudes.data or []
 
+        # Función auxiliar para convertir el ID de asignatura en nombre real
+        def obtener_nombre_asignatura(valor):
+            if not valor:
+                return "Asignatura desconocida"
+            try:
+                asignatura_id = int(valor)
+            except:
+                return valor  # Si no es número, devolver tal cual
+            lookup = supabase.table("asignatura") \
+                .select("nombre_asignatura") \
+                .eq("asignatura_id", asignatura_id).execute()
+            if lookup.data:
+                return lookup.data[0]["nombre_asignatura"]
+            return valor
+        
+        # Procesar datos
+        respuestas_solicitudes = []
+        for r in respuestas_solicitudes_raw:
+            nombre = obtener_nombre_asignatura(r.get("asignatura"))
+            respuestas_solicitudes.append({
+                "respuesta": r["respuesta"],
+                "actualizado_en": r["actualizado_en"],
+                "nombre_asignatura": nombre
+            })
+
+        # Resumen para IA
         resumen_respuestas_solicitudes = "\n".join([
-            f"{r['actualizado_en'][:10]} - {r.get('asignatura',{}).get('nombre_asignatura','Asignatura desconocida')}: {r['respuesta']}"
+            f"{r['actualizado_en'][:10]} - {r['nombre_asignatura']}: {r['respuesta']}"
             for r in respuestas_solicitudes
         ]) or ""
 
