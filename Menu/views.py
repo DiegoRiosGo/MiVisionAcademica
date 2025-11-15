@@ -1492,16 +1492,23 @@ def actualizar_estado_solicitud(request):
         data = json.loads(request.body.decode("utf-8") or "{}")
         id_sretro = data.get("id_sretro")
         nuevo_estado = data.get("nuevo_estado")
+        motivo = data.get("motivo")  # <-- Nuevo
 
         if not id_sretro or not nuevo_estado:
             return JsonResponse({"success": False, "error": "Faltan parámetros."}, status=400)
         if nuevo_estado not in ("pendiente", "eliminada", "finalizada"):
             return JsonResponse({"success": False, "error": "Estado inválido."}, status=400)
 
-        resp = supabase.table("solicitud_retroalimentacion").update({
+        update_data = {
             "estado": nuevo_estado,
             "actualizado_en": datetime.now().isoformat()
-        }).eq("id_sretro", int(id_sretro)).execute()
+        }
+
+        # 🟣 Si se elimina → guardar motivo en respuesta
+        if nuevo_estado == "eliminada" and motivo:
+            update_data["respuesta"] = motivo.strip()
+
+        resp = supabase.table("solicitud_retroalimentacion").update(update_data).eq("id_sretro", int(id_sretro)).execute()
 
         if resp.data:
             return JsonResponse({"success": True})

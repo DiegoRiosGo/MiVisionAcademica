@@ -126,12 +126,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        contenidoHTML += `</div>`;
-        li.innerHTML = contenidoHTML;
-
-        const controls = document.createElement('div');
-        controls.className = 'mt-2';
-
         if (estadoActual === 'pendiente') {
           const btnResponder = document.createElement('button');
           btnResponder.className = 'btn btn-sm btn-responder';
@@ -188,11 +182,23 @@ document.addEventListener('DOMContentLoaded', function () {
               Swal.fire('Error', d.error || 'No se pudo descartar', 'error');
             }
           });
-          
+
 
           controls.appendChild(btnDescartar);
         } else if (estadoActual === 'eliminada') {
           const btnRestaurar = document.createElement('button');
+          
+          if (estadoActual === "eliminada" && s.respuesta) {
+            contenidoHTML += `
+                <div class="mt-3 p-2 bg-light rounded border border-danger">
+                    <strong>Motivo del descarte:</strong>
+                    <blockquote class="mb-0 text-danger" style="font-style: italic;">
+                        ${s.respuesta}
+                    </blockquote> 
+                </div>
+            `;
+          }
+
           btnRestaurar.className = 'btn btn-sm btn-responder';
           btnRestaurar.innerHTML = '<i class="fas fa-undo"></i> Restaurar';
           btnRestaurar.addEventListener('click', async () => {
