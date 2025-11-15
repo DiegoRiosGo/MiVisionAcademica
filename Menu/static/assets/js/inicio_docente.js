@@ -86,28 +86,44 @@ document.addEventListener('DOMContentLoaded', function () {
         const li = document.createElement("li");
         li.className = "solicitud-item mb-2 p-2 fade-in";
 
-        let contenidoHTML = `
-          <div>
-            <strong>${s.estudiante}</strong> pidió retroalimentación en 
-            <em>${s.asignatura}</em> (${s.sigla})<br>
-            <small class="text-muted">${new Date(s.creado_en).toLocaleString()}</small>
-            <p class="mt-2">${s.mensaje}</p>
-            
-        `;
+        let contenidoHTML = `<div>`;
+
+        // 🟣 Caso 1: Comentario libre (tipo = comentario)
         if (s.tipo === "comentario") {
-            contenidoHTML += ` <span class="badge bg-primary">Comentario del docente</span>`;
-        }
-        
-        // ✅ Si está finalizada, muestra la respuesta del docente
-        if (estadoActual === "finalizada" && s.respuesta) {
-          contenidoHTML += `
-            <div class="mt-3 p-2 bg-light rounded border">
-              <strong>Respuesta enviada:</strong>
-              <blockquote class="mb-0 text-secondary" style="font-style: italic;">
-                ${s.respuesta}
-              </blockquote> 
-            </div>
-          `;
+
+            contenidoHTML += `
+                <strong>Comentario libre enviado por el docente</strong><br>
+                <em>${s.asignatura}</em> (${s.sigla})<br>
+                <small class="text-muted">${new Date(s.creado_en).toLocaleString()}</small>
+
+                <div class="mt-3 p-2 bg-light rounded border">
+                  <strong>Contenido del comentario:</strong>
+                  <blockquote class="mb-0 text-secondary" style="font-style: italic;">
+                    ${s.respuesta}
+                  </blockquote>
+                </div>
+            `;
+
+        } else {
+
+            // 🟩 Caso 2: Solicitud tradicional del estudiante
+            contenidoHTML += `
+                <strong>${s.estudiante}</strong> pidió retroalimentación en 
+                <em>${s.asignatura}</em> (${s.sigla})<br>
+                <small class="text-muted">${new Date(s.creado_en).toLocaleString()}</small>
+                <p class="mt-2">${s.mensaje}</p>
+            `;
+
+            if (estadoActual === "finalizada" && s.respuesta) {
+                contenidoHTML += `
+                  <div class="mt-3 p-2 bg-light rounded border">
+                    <strong>Respuesta enviada:</strong>
+                    <blockquote class="mb-0 text-secondary" style="font-style: italic;">
+                      ${s.respuesta}
+                    </blockquote> 
+                  </div>
+                `;
+            }
         }
 
         contenidoHTML += `</div>`;
@@ -133,20 +149,37 @@ document.addEventListener('DOMContentLoaded', function () {
           const btnDescartar = document.createElement('button');
           btnDescartar.className = 'btn btn-sm btn-descartar';
           btnDescartar.innerHTML = '<i class="fas fa-trash-alt"></i> Descartar';
+
           btnDescartar.addEventListener('click', async () => {
-            const conf = await Swal.fire({
-              title: '¿Descartar solicitud?',
-              text: 'Se moverá a Descartadas (puedes restaurarla luego).',
-              icon: 'warning',
+
+            const { value: motivo } = await Swal.fire({
+              title: "Motivo del descarte",
+              input: "textarea",
+              inputLabel: "Explica brevemente por qué descartas esta solicitud",
+              inputPlaceholder: "Escribe el motivo...",
+              inputAttributes: { "aria-label": "Motivo" },
               showCancelButton: true,
-              confirmButtonText: 'Sí, descartar'
+              confirmButtonText: "Descartar",
+              cancelButtonText: "Cancelar",
+              inputValidator: (value) => {
+                if (!value || value.trim().length < 3) {
+                  return "Debes ingresar un motivo válido.";
+                }
+              }
             });
-            if (!conf.isConfirmed) return;
+
+            if (!motivo) return;
+
             const resp = await fetch('/actualizar_estado_solicitud/', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ id_sretro: s.id, nuevo_estado: 'eliminada' })
+              body: JSON.stringify({
+                id_sretro: s.id,
+                nuevo_estado: 'eliminada',
+                motivo: motivo.trim()
+              })
             });
+
             const d = await resp.json();
             if (d.success) {
               Swal.fire('Descartada', 'Solicitud movida a descartadas.', 'success');
@@ -155,6 +188,8 @@ document.addEventListener('DOMContentLoaded', function () {
               Swal.fire('Error', d.error || 'No se pudo descartar', 'error');
             }
           });
+          
+
           controls.appendChild(btnDescartar);
         } else if (estadoActual === 'eliminada') {
           const btnRestaurar = document.createElement('button');
