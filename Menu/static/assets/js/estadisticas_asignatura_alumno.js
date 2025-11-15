@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     }
 
-    let graficoEvolucion, graficoRadar, graficoBarras, graficoComparacion;
+    let graficoRadar, graficoBarras, graficoComparacion;
 
     function cargarDatos(reset = false) {
         const url = `${urlBase}&anio=${reset ? "" : (filtroAnio.value || "")}&area=${reset ? "" : (filtroArea.value || "")}`;
@@ -93,12 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function actualizarGraficos(data) {
-    if (graficoEvolucion) graficoEvolucion.destroy();
     if (graficoRadar) graficoRadar.destroy();
     if (graficoBarras) graficoBarras.destroy();
     if (graficoComparacion) graficoComparacion.destroy();
 
-    graficoEvolucion = crearGraficoEvolucion(data.promedios_semestre);
     graficoComparacion = crearGraficoComparacion(
         data.promedios_semestre,
         data.promedios_general_semestre
@@ -148,53 +146,31 @@ function ajustarEscalaY(datos) {
 }
 
 
-// --- Funciones de gráficos ---
-function crearGraficoEvolucion(datos) {
-    const ctx = document.getElementById("graficoEvolucion");
-    const escala = ajustarEscalaY(datos);
-    return new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: Object.keys(datos),
-            datasets: [{
-                label: "Promedio por semestre",
-                data: Object.values(datos),
-                borderColor: "rgba(138, 53, 195, 1)",
-                backgroundColor: "rgba(138, 53, 195,0.2)",
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { title: { display: true, text: "Evolución de notas por semestre" } },
-            scales: {
-                y: {
-                    min: escala.min,
-                    max: escala.max,
-                    ticks: { stepSize: escala.step },
-                    title: { display: true, text: "Promedio" }
-                }
-            }
-        }
-    });
-}
-
 // --- Función de gráfico Radar (Promedio por Área) ---
 function crearGraficoRadar(datos) {
     const ctx = document.getElementById("graficoRadar");
 
-    // 🔹 Filtrar asignaturas válidas (sin “sin asignatura”)
-    const datosFiltrados = Object.fromEntries(
-        Object.entries(datos).filter(([area]) => area.toLowerCase() !== "sin asignatura")
-    );
+    // 🔹 Filtrar valores válidos
+    let etiquetas = Object.keys(datos).filter(k => k.toLowerCase() !== "sin asignatura");
+    let valores = etiquetas.map(k => datos[k]);
+
+    // 🔹 Si hay 2 o menos elementos → agregar datos ficticios
+    const cantidadNecesaria = 3;
+    if (etiquetas.length < cantidadNecesaria) {
+        const faltantes = cantidadNecesaria - etiquetas.length;
+        for (let i = 1; i <= faltantes; i++) {
+            etiquetas.push(`Valor adicional ${i}`);
+            valores.push(7);  // valor ficticio para completar la figura
+        }
+    }
 
     return new Chart(ctx, {
         type: "radar",
         data: {
-            labels: Object.keys(datosFiltrados),
+            labels: etiquetas.map((e, i) => `${e} (${valores[i]})`),
             datasets: [{
-                label: "Promedio por área",
-                data: Object.values(datosFiltrados),
+                label: "Promedio por asignatura",
+                data: valores,
                 borderColor: "rgba(167, 78, 239, 1)",
                 backgroundColor: "rgba(54,162,235,0.2)"
             }]
@@ -202,15 +178,14 @@ function crearGraficoRadar(datos) {
         options: {
             responsive: true,
             plugins: { 
-                title: { display: true, text: "Rendimiento por área" },
+                title: { display: true, text: "Rendimiento por asignatura" },
                 legend: { position: "bottom" }
             },
-            // 🔹 Escala adaptativa sin números visibles
             scales: { 
                 r: { 
                     min: 2,
                     max: 7,
-                    ticks: { display: false } 
+                    ticks: { display: false }
                 }
             }
         }
@@ -253,7 +228,7 @@ function crearGraficoBarras(datos) {
                     beginAtZero: false,
                     min: Math.min(...datasets.flatMap(d => d.data.filter(v => v !== null))) - 0.25,
                     max: Math.max(...datasets.flatMap(d => d.data.filter(v => v !== null))) + 0.25,
-                    ticks: { display: false } // 🔹 Ocultar números del eje Y
+                    ticks: { display: true } 
                 }
             }
         }
@@ -278,7 +253,7 @@ function crearGraficoComparacion(promediosAlumno, promediosGeneral) {
     return new Chart(ctx, {
         type: "line",
         data: {
-            labels: semestres,
+            labels: semestres.map(s => `${s} (${promediosAlumno[s] || "-"})`),
             datasets: [
                 {
                     label: "Promedio del alumno",

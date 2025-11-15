@@ -346,7 +346,7 @@ if (estudianteSelect) {
       lineChart = new Chart(ctxLine, {
         type: "line",
         data: {
-          labels: etiquetas,
+          labels: etiquetas.map(s => `${s} (${valores[s] || "-"})`),
           datasets: [
             {
               label: "Evolución del estudiante",
@@ -400,10 +400,25 @@ if (estudianteSelect) {
 
       // --- Gráfico de radar (Desempeño por asignatura) ---
       const ctxRadar = document.getElementById("radarChartSubject").getContext("2d");
+
+      //prueba!!!
+
+      // 🔹 Si hay 2 o menos elementos → agregar datos ficticios
+      const cantidadNecesaria = 3;
+      if (etiquetas.length < cantidadNecesaria) {
+          const faltantes = cantidadNecesaria - etiquetas.length;
+          for (let i = 1; i <= faltantes; i++) {
+              etiquetas.push(`Valor adicional ${i}`);
+              valores.push(7);  // valor ficticio para completar la figura
+          }
+      }
+
+      //prueba!!!
+
       radarChart = new Chart(ctxRadar, {
         type: "radar",
         data: {
-          labels: etiquetas,
+          labels: etiquetas.map((e, i) => `${e} (${valores[i]})`),
           datasets: [{
             label: "Desempeño por asignatura",
             data: valores,
