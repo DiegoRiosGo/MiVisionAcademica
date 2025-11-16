@@ -51,5 +51,5 @@ urlpatterns = [
 
 
     path('admin/', views.admin, name="admin"),  
-    path("subirCSV/", views.subirCSV, name="subirCSV"),
+    path("admin/subirCSV/", views.subirCSV, name="subirCSV"),
 ] 
