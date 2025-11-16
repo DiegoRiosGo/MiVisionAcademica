@@ -292,25 +292,6 @@ function crearGraficoComparacion(promediosAlumno, promediosGeneral) {
     });
 }
 
-function obtenerImagenGrafico(idCanvas) {
-    const canvas = document.getElementById(idCanvas);
-    if (!canvas) return null;
-    return canvas.toDataURL("image/png");
-}
-
-const imageBarras = obtenerImagenGrafico("graficoBarras");
-const imagenRadar = obtenerImagenGrafico("graficoRadar");
-const imagenComparacion = obtenerImagenGrafico("graficoComparacion");
-
-// Enviar al backend junto con el JSON del análisis IA
-const payload = {
-    analisis: data.analisis,
-    imagenes: {
-        barras: imageBarras,
-        radar: imagenRadar,
-        comparacion: imagenComparacion
-    }
-};
 /* -------------------------------------------------------------------------------------------------------------
    ---------------------------------- FIN estadisticas_asignatura_alumno .JS -----------------------------------
    ------------------------------------------------------------------------------------------------------------- */    
