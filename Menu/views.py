@@ -1045,9 +1045,6 @@ def analizar_perfil_ia_free(request):
 # ---------------------------------------------------------------------
 # Informes Con IA
 # ---------------------------------------------------------------------
-from reportlab.platypus import Image
-from reportlab.lib.units import cm
-
 @login_requerido
 @solo_alumno
 def generar_pdf_informe(request):
@@ -1078,15 +1075,6 @@ def generar_pdf_informe(request):
 
     contenido.append(Paragraph("Informe de Análisis Académico", titulo))
     contenido.append(Spacer(1, 12))
-    
-    logo_path = os.path.join(settings.BASE_DIR, "static/assets/imagenes/Logo2.png")
-    try:
-        logo = Image(logo_path, width=4*cm, height=4*cm)
-        logo.hAlign = 'CENTER'
-        contenido.insert(0, logo)
-        contenido.insert(1, Spacer(1, 12))
-    except:
-        print("⚠️ Logo no encontrado, continuando sin él.")
 
     if analisis.get("resumen_corto"):
         contenido.append(Paragraph("<b>Resumen:</b> " + analisis["resumen_corto"], normal))
