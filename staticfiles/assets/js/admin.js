@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ESCUELA ↓
+    // ESCUELA prueba ↓
     sede.addEventListener("change", () => {
         escuela.disabled = sede.value === "";
         escuela.innerHTML = `
