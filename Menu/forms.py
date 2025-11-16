@@ -50,6 +50,8 @@ class RegistroForm(forms.Form):
             rol = 1
         elif correo.endswith('@duocuc.cl'):
             rol = 2
+        elif correo.endswith('@admin.cl'):
+            rol = 3
         else:
             raise forms.ValidationError(
                 "El correo debe ser institucional de Duoc UC que encontrara en el signo de pregunta al lado del formulario de correo electronico")
