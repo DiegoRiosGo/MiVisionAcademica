@@ -601,6 +601,9 @@ def iniciar_sesion(request):
             elif usuario['rol'] == 2:
                 messages.success(request, f"Bienvenido estudiante {usuario['nombre']}")
                 return redirect('inicio_alumno')
+            elif usuario['rol'] == 3:
+                messages.success(request, f"Bienvenido administrador {usuario['nombre']}")
+                return redirect('admin')
             else:
                 messages.warning(request, "Rol no identificado. Acceso limitado.")
                 return redirect('Inicio')

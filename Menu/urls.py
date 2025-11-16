@@ -50,5 +50,5 @@ urlpatterns = [
     path("obtener_retroalimentaciones_alumno/", views.obtener_retroalimentaciones_alumno, name="obtener_retroalimentaciones_alumno"),
 
 
-    path('admin/', admin, name="admin"),  
+    path('admin/', views.admin, name="admin"),  
 ] 
