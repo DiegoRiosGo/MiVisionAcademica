@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     const universidad = document.getElementById("selectUniversidad");
     const sede = document.getElementById("selectSede");
     const escuela = document.getElementById("selectEscuela");
     const carrera = document.getElementById("selectCarrera");
     const csvFile = document.getElementById("csvFile");
     const btnSubir = document.getElementById("btnSubirCSV");
+    const resultadoDiv = document.getElementById("resultadoCarga");
 
     // SEDE ↓
     universidad.addEventListener("change", () => {
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ESCUELA prueba ↓
+    // ESCUELA ↓
     sede.addEventListener("change", () => {
         escuela.disabled = sede.value === "";
         escuela.innerHTML = `
@@ -55,6 +55,65 @@ document.addEventListener("DOMContentLoaded", () => {
         const enable = carrera.value !== "";
         csvFile.disabled = !enable;
         btnSubir.disabled = !enable;
+    });
+
+    // ------------------------------------------------------
+    // VALIDAR Y ENVIAR CSV AL BACKEND
+    // ------------------------------------------------------
+    btnSubir.addEventListener("click", async () => {
+        const file = csvFile.files[0];
+
+        if (!file) {
+            Swal.fire("Error", "Debes seleccionar un archivo CSV.", "error");
+            return;
+        }
+
+        // Validación nombre correcto
+        if (file.name !== "asignaturas_inge_informatica.csv") {
+            Swal.fire(
+                "Archivo Incorrecto",
+                "El archivo debe llamarse exactamente <b>asignaturas_inge_informatica.csv</b>.",
+                "error"
+            );
+            return;
+        }
+
+        // Validación extensión
+        if (!file.name.endsWith(".csv")) {
+            Swal.fire("Error", "El archivo debe ser un CSV.", "error");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("csv", file);
+
+        Swal.fire({
+            title: "Procesando...",
+            text: "Subiendo asignaturas, por favor espera",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const response = await fetch("/admin/subirCSV/", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+            Swal.close();
+
+            resultadoDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <h5>Resultado del proceso</h5>
+                    <p><b>Asignaturas creadas:</b> ${data.creadas}</p>
+                    <p><b>Asignaturas ya existentes:</b> ${data.existentes}</p>
+                </div>
+            `;
+
+        } catch (e) {
+            Swal.fire("Error", "Hubo un problema con la carga del archivo.", "error");
+        }
     });
 
 });

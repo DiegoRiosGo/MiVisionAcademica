@@ -40,7 +40,7 @@ def Inicio(request):
     })
 
 
-# Vistas del alumno
+# Vistas del aadmin
 # ---------------------------------------------------------------------
 @login_requerido
 @solo_admin
@@ -1805,3 +1805,54 @@ def enviar_retroalimentacion(request):
     return JsonResponse({"success": False, "error": "Método no permitido"})
 
 
+
+import csv
+from io import TextIOWrapper
+
+@login_requerido
+@solo_admin
+def subirCSV(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+    if "csv" not in request.FILES:
+        return JsonResponse({"error": "No se recibió archivo"}, status=400)
+
+    file = request.FILES["csv"]
+
+    # Leer el archivo como texto UTF-8
+    try:
+        text_file = TextIOWrapper(file, encoding="utf-8")
+        csv_reader = csv.DictReader(text_file)
+    except Exception as e:
+        return JsonResponse({"error": "Error leyendo CSV"}, status=400)
+
+    creadas = 0
+    existentes = 0
+
+    for row in csv_reader:
+        nombre = row.get("nombre_asignatura")
+        area = row.get("area")
+
+        if not nombre or not area:
+            continue  # evitar filas vacías
+
+        # Verificar si existe ya la asignatura
+        existe = supabase.table("asignatura").select("asignatura_id").eq("nombre_asignatura", nombre).execute()
+
+        if existe.data:
+            existentes += 1
+            continue
+
+        # Insertar nueva asignatura
+        supabase.table("asignatura").insert({
+            "nombre_asignatura": nombre,
+            "area": area
+        }).execute()
+
+        creadas += 1
+
+    return JsonResponse({
+        "creadas": creadas,
+        "existentes": existentes
+    })
