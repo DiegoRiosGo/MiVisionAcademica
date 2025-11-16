@@ -19,14 +19,22 @@
 
     <!-- SIDEBAR -->
     <nav class="sidebar">
-
+        <div class="profile text-center p-3">
+          {% if foto %}
+            <img src="data:image/jpeg;base64,{{ foto }}" alt="Perfil">
+          {% else %}
+            <img src="https://i.pinimg.com/736x/f6/d5/b4/f6d5b458bf7aa0276c81a666c916de18.jpg" alt="Perfil">
+          {% endif %}
+          <h5 class="text-white">{{ nombre }} {{ apellido }}</h5>
+        </div>
+        
         <div class="profile text-center p-3">
             <img src="https://i.pinimg.com/736x/f6/d5/b4/f6d5b458bf7aa0276c81a666c916de18.jpg" alt="Perfil">
             <h5 class="text-white">Administrador</h5>
         </div>
 
         <ul class="nav flex-column">
-            <li><a href="{% url 'AdminPanel' %}" class="nav-link active"><i class="fas fa-gear me-2"></i>Administración</a></li>
+            <li><a href="{% url 'admin' %}" class="nav-link active"><i class="fas fa-gear me-2"></i>Administración</a></li>
             <li>
                 <a href="#" id="btnCerrarSesion" class="nav-link text-white">
                     <i class="fas fa-right-to-bracket me-2"></i>Salir
@@ -154,6 +162,6 @@
       </script>
       {% endfor %}
     {% endif %}
-    
+
 </body>
 </html>
