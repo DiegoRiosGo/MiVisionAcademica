@@ -87,6 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // Validación extensión
+        if (!file.name.endsWith(".csv")) {
+            Swal.fire("Error", "El archivo debe ser un CSV.", "error");
+            return;
+        }
+
         // Validación nombre correcto
         if (file.name !== "asignaturas_inge_informatica.csv") {
             Swal.fire(
@@ -96,12 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
             return;
         }
-
-        // Validación extensión
-        if (!file.name.endsWith(".csv")) {
-            Swal.fire("Error", "El archivo debe ser un CSV.", "error");
-            return;
-        }
+        
 
         const formData = new FormData();
         formData.append("csv", file);
@@ -114,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         try {
-            const response = await fetch("/admin/subirCSV/", {
+            const response = await fetch("/subirCSV/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
                 body: formData,
