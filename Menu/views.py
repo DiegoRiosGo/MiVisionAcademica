@@ -1,7 +1,6 @@
-from django.conf import settings
 from django.shortcuts import render,redirect
 # Create your views here.
-from .decorators import login_requerido, solo_docente, solo_alumno
+from .decorators import login_requerido, solo_docente, solo_alumno, solo_admin
 from django.utils.timezone import now
 
 
@@ -40,6 +39,38 @@ def Inicio(request):
         'login_form': login_form
     })
 
+
+# Vistas del alumno
+# ---------------------------------------------------------------------
+@login_requerido
+@solo_admin
+def admin(request):
+    # 1 Obtener el ID del usuario desde la sesión
+    usuario_id = request.session.get('usuario_id')
+
+    # 2 Buscar la información completa del usuario en Supabase
+    try:
+        response = supabase.table("usuario").select("*").eq("usuario_id", usuario_id).execute()
+        if not response.data:
+            messages.error(request, "No se encontró la información del usuario.")
+            return redirect('Inicio')
+
+        usuario = response.data[0]
+
+    except Exception as e:
+        print("Error al obtener usuario:", e)
+        messages.error(request, "Hubo un problema al cargar tu información.")
+        return redirect('Inicio')
+
+
+    # 6 Renderizar plantilla
+    contexto = {
+        "nombre": usuario.get("nombre", ""),
+        "apellido": usuario.get("apellido", ""),
+        "foto": usuario.get("foto", None),
+    }
+
+    return render(request, 'Menu/admin.html', contexto)
 
 # ---------------------------------------------------------------------
 # Vistas del alumno

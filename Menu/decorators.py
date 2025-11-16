@@ -29,3 +29,12 @@ def solo_alumno(view_func):
             return redirect('InicioDocente')
         return view_func(request, *args, **kwargs)
     return wrapper
+
+# --- Decorador para permitir solo alumnos ---
+def solo_admin(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.session.get('usuario_rol') != 3:
+            messages.error(request, "No tienes permisos para acceder a esta sección (solo administradores).")
+            return redirect('Inicio')
+        return view_func(request, *args, **kwargs)
+    return wrapper

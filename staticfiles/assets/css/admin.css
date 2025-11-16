@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+}
+
+body{
+    background: #f4f6f8;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100%;
+    background-color: #7c60ba;
+    padding-top: 20px;
+}
+
+.sidebar .profile img{
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.sidebar .nav-link{
+    color: #fff;
+    padding: 10px 20px;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active{
+    background-color: #9c7fdc;
+    border-radius: 6px;
+}
+
+/* CONTENT */
+.content{
+    margin-left: 220px;
+    padding: 40px;
+}
+
+.topbar h3{
+    color: #18233f;
+}
+
+.card{
+    border-radius: 12px;
+}
+
+#resultadoCarga{
+    padding: 15px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
