@@ -1809,8 +1809,7 @@ def enviar_retroalimentacion(request):
 import csv
 from io import TextIOWrapper
 
-@login_requerido
-@solo_admin
+@csrf_exempt
 def subirCSV(request):
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido"}, status=405)

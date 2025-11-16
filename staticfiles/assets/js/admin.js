@@ -60,6 +60,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // ------------------------------------------------------
     // VALIDAR Y ENVIAR CSV AL BACKEND
     // ------------------------------------------------------
+
+
+      // --- Helper CSRF ---
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                    }
+                }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie("csrftoken");
+
     btnSubir.addEventListener("click", async () => {
         const file = csvFile.files[0];
 
@@ -97,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch("/admin/subirCSV/", {
                 method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
                 body: formData,
             });
 
