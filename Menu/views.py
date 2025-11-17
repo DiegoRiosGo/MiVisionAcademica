@@ -1811,6 +1811,7 @@ from io import TextIOWrapper
 
 @csrf_exempt
 def subirCSV(request):
+
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido"}, status=405)
 
@@ -1820,33 +1821,63 @@ def subirCSV(request):
     file = request.FILES["csv"]
 
     try:
-        text_file = TextIOWrapper(file, encoding="utf-8")
+        # Soluciona problemas de BOM en Windows
+        text_file = TextIOWrapper(file, encoding="utf-8-sig")
+
         csv_reader = csv.DictReader(text_file)
-    except Exception:
+
+        # Mostrar cabeceras reales para diagnosticar
+        print("CABECERAS CSV:", csv_reader.fieldnames)
+
+        # Validar columnas esperadas
+        columnas_validas = ["nombre_asignatura", "area"]
+        for col in columnas_validas:
+            if col not in csv_reader.fieldnames:
+                return JsonResponse({
+                    "error": f"El CSV no contiene la columna requerida: '{col}'. "
+                             f"Columnas encontradas: {csv_reader.fieldnames}"
+                }, status=400)
+
+    except Exception as e:
+        print("ERROR LEYENDO CSV:", e)
         return JsonResponse({"error": "Error leyendo CSV, revise formato."}, status=400)
 
     creadas = 0
     existentes = 0
 
+    # Procesar filas
     for row in csv_reader:
-        nombre = row.get("nombre_asignatura")
-        area = row.get("area")
+        print("FILA LEIDA:", row)  # Log de cada fila (clave)
+
+        nombre = row.get("nombre_asignatura", "").strip()
+        area = row.get("area", "").strip()
 
         if not nombre or not area:
+            print("Fila inválida, se omite.")
             continue
 
-        existe = supabase.table("asignatura").select("asignatura_id").eq("nombre_asignatura", nombre).execute()
+        # Verificar existencia en Supabase
+        try:
+            existe = supabase.table("asignatura").select("asignatura_id").eq("nombre_asignatura", nombre).execute()
+        except Exception as e:
+            print("ERROR CONSULTANDO SUPABASE:", e)
+            return JsonResponse({"error": "Error consultando tabla asignatura."})
 
         if existe.data:
             existentes += 1
             continue
 
-        supabase.table("asignatura").insert({
-            "nombre_asignatura": nombre,
-            "area": area
-        }).execute()
+        # Insertar asignatura
+        try:
+            supabase.table("asignatura").insert({
+                "nombre_asignatura": nombre,
+                "area": area
+            }).execute()
+            creadas += 1
 
-        creadas += 1
+        except Exception as e:
+            print("ERROR INSERTANDO EN SUPABASE:", e)
+            return JsonResponse({"error": "Error insertando datos en Supabase."})
 
     return JsonResponse({
         "creadas": creadas,
