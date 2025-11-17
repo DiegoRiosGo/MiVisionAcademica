@@ -185,15 +185,16 @@
 
     /* Botón Responder: violeta principal */
     .btn-responder {
-      color: #fff;
-      background-color: #5d2fb2;
-      border: 1px solid #5d2fb2;
+      color: #fff !important;
+      background-color: #5d2fb2 !important;
+      border: 1px solid #5d2fb2 !important;
       transition: background-color 0.3s ease;
     }
 
     .btn-responder:hover {
-      background-color: #a68eee;
-      border-color: #a68eee;
+      color: white !important;
+      background-color: #a68eee !important;
+      border-color: #a68eee !important;
     }
 
 
