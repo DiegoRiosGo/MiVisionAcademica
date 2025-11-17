@@ -173,7 +173,7 @@
     /* Botón Descartar: rojo elegante */
     .btn-descartar {
       color: #fff !important;
-      background-color: # !important;
+      background-color: #df4f4f !important;
       border: 1px solid #df4f4f !important;
       transition: background-color 0.3s ease;
     }
@@ -198,60 +198,58 @@
         border-color: #a68eee !important;
     }
 
+    /* Pendientes */
+    .btn-pendiente {
+        color: white;
+        background-color: #5d2fb2;
+        border: 1px solid #5d2fb2;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .btn-pendiente:hover {
+        color: white;
+        background-color: #a68eee;
+        border-color: #a68eee;
+    }
 
 
-/* BOTONES QUE ODIO ATTE: GERALDINE */
+    /* Descartadas */
+    .btn-descartada {
+        color: white;
+        background-color: #d1b0e9;
+        border: 1px solid #d1b0e9;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .btn-descartada:hover {
+        color: white;
+        background-color: #c39de2;
+        border-color: #c39de2;
+    }
 
 
-/* Pendientes */
-.btn-pendiente {
-    color: #fff;
-    background-color: #5d2fb2;
-    border: 1px solid #5d2fb2;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
+    /* Finalizadas */
+    .btn-finalizada {
+        color: white;
+        background-color: #7a5ca2;
+        border: 1px solid #7a5ca2;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
 
-.btn-pendiente:hover {
-    background-color: #a68eee;
-    border-color: #a68eee;
-}
-
-
-/* Descartadas */
-.btn-descartada {
-    color: #5d2fb2;
-    background-color: #d1b0e9;
-    border: 1px solid #d1b0e9;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.btn-descartada:hover {
-    background-color: #c39de2;
-    border-color: #c39de2;
-}
-
-
-/* Finalizadas */
-.btn-finalizada {
-    color: #fff;
-    background-color: #7a5ca2;
-    border: 1px solid #7a5ca2;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.btn-finalizada:hover {
-    background-color: #a68eee;
-    border-color: #a68eee;
-}
+    .btn-finalizada:hover {
+        color: white;
+        background-color: #a68eee;
+        border-color: #a68eee;
+    }
 
     
 /* -------------------------------------------------------------------------------------------------------------
