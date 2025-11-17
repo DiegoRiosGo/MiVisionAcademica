@@ -72,6 +72,11 @@
         padding: 30px;
     }
 
+    .card {
+        box-shadow: 0 2px 6px rgb(194 136 254);
+        border-radius: 8px; /* opcional: esquinas redondeadas */
+    }
+
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
     @media (max-width: 768px) {
@@ -96,7 +101,7 @@
         background: #fff;
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 6px rgb(194 136 254);
         max-width: 900px;
     }
 
