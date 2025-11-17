@@ -21,9 +21,6 @@
 
       <!--clase de la barra lateral-->
       <nav class="sidebar">
-        <div class="logo-container text-center p-3">
-          <img src="{% static 'assets/imagenes/Logo2.png' %}" alt="Logo de la plataforma" class="logo-sidebar">
-        </div>
 
         <div class="profile text-center p-3">
           {% if foto %}
@@ -53,6 +50,7 @@
       <div class="content">
         <div class="topbar">
           <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4> 
+          <img src="{% static 'assets/imagenes/Logo2.png' %}" alt="Logo de la plataforma" class="logo">
         </div>
           <p>Este es tu panel principal. 
             Aquí puedes subir tu informe de notas para visualizar estadísticas académicas detalladas, 
