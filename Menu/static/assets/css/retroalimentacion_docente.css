@@ -180,8 +180,23 @@
 
     /* LOGO */
     
-    
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+    }
 
+    .logo {
+        height: 45px;
+        width: auto;
+    }
+
+    .titulo {
+        font-size: 1.6rem;
+        color: #4B2A7E;
+        margin: 0;
+    }
 
 
 
