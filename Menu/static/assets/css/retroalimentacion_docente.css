@@ -72,11 +72,6 @@
             padding: 50px;
         }
 
-        .topbar {
-            margin-bottom: 20px;
-            color: #18233f;
-        }   
-
         .btn-primary-custom {
             background-color: #5d2fb2 !important;
             color: #fff !important;
@@ -188,7 +183,7 @@
     }
 
     .logo {
-        height: 45px;
+        height: 80px;
         width: auto;
     }
 
