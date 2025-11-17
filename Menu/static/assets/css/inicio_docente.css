@@ -172,29 +172,30 @@
 
     /* Botón Descartar: rojo elegante */
     .btn-descartar {
-      color: #fff;
-      background-color: #df4f4f;
-      border: 1px solid #df4f4f;
+      color: #fff !important;
+      background-color: # !important;
+      border: 1px solid #df4f4f !important;
       transition: background-color 0.3s ease;
     }
 
     .btn-descartar:hover {
-      background-color: #b82f2f;
-      border-color: #b82f2f;
+        color: white !important;
+        background-color: #b82f2f !important;
+        border-color: #b82f2f !important;
     }
 
     /* Botón Responder: violeta principal */
     .btn-responder {
-      color: #fff !important;
-      background-color: #5d2fb2 !important;
-      border: 1px solid #5d2fb2 !important;
-      transition: background-color 0.3s ease;
+        color: #fff !important;
+        background-color: #5d2fb2 !important;
+        border: 1px solid #5d2fb2 !important;
+        transition: background-color 0.3s ease;
     }
 
     .btn-responder:hover {
-      color: white !important;
-      background-color: #a68eee !important;
-      border-color: #a68eee !important;
+        color: white !important;
+        background-color: #a68eee !important;
+        border-color: #a68eee !important;
     }
 
 
