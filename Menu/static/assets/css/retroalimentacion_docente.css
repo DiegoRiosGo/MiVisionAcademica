@@ -80,7 +80,7 @@
         .btn-primary-custom {
             background-color: #5d2fb2 !important;
             color: #fff !important;
-            border: none;
+            border: 1px solid #5d2fb2 !important;
             padding: 8px 16px;
             font-size: 15px;
             border-radius: 6px;
@@ -90,15 +90,36 @@
         }
 
         .btn-primary-custom:hover {
-            background-color: #b23ad3 !important;
+            color: white !important;
+            background-color: #a68eee !important;
+            border-color: #a68eee !important;
             transform: scale(1.03);
             cursor: pointer;
         }
 
         .btn-primary-custom:active {
-            background-color: #8357a4 !important;
+            color: white !important;
+            background-color: #a68eee !important;
+            border-color: #a68eee !important;
             transform: scale(0.98);
         }
+
+
+        .btn-violeta {
+            color: #fff !important;
+            background-color: #5d2fb2 !important;
+            border: 1px solid #5d2fb2 !important;
+            transition: background-color 0.3s ease; 
+        }
+
+        .btn-violeta:hover {
+            color: white !important;
+            background-color: #a68eee !important;
+            border-color: #a68eee !important;
+        }
+
+
+
         
     /* TITULO SELECTOR DE ASIGNATURA */  
         #subjectSelect {
@@ -156,6 +177,7 @@
             height: 500px !important;
         }
 
+
     /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
         @media (max-width: 768px) {
         .content {
@@ -175,17 +197,6 @@
         }
 
 
-        .btn-violeta {
-            color: #fff;
-            background-color: #7a5ca2 !important;
-            border: 1px solid #7a5ca2 !important;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-violeta:hover {
-            background-color: #a68eee !important;
-            border-color: #a68eee !important;
-        }
 
 /* -------------------------------------------------------------------------------------------------------------
    --------------------------------- FIN retroalimentacion_docente .CSS ----------------------------------------
