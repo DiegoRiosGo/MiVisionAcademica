@@ -69,13 +69,8 @@
 /* TITULO BIENVENIDA */
     .content {
         margin-left: 220px;
-        padding: 50px;
+        padding: 30px;
     }
-
-    .topbar {
-        margin-bottom: 20px;
-        color: #18233f;
-    }   
 
 /* TITULO FOTO DE PERFIL */
     .btn-primary-custom {
@@ -113,8 +108,26 @@
     }
 
     
-    /* LOGO */
+/* LOGO */
     
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .logo {
+        height: 80px;
+        width: auto;
+    }
+
+    .titulo {
+        font-size: 1.6rem;
+        color: #4B2A7E;
+        margin: 0;
+    }
+
     
 
 /* TITULO POPUP */

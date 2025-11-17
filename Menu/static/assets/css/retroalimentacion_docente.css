@@ -67,9 +67,10 @@
         }
 
     /* TITULO BIENVENIDA */
+    
         .content {
             margin-left: 220px;
-            padding: 50px;
+            padding: 30px;
         }
 
         .btn-primary-custom {
