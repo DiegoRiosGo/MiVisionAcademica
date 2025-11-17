@@ -140,6 +140,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 630px;
+            place-self: center;
         }
 
         /* Gráfico de radar */
@@ -152,6 +154,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 630px;
+            place-self: center;
         }
 
         /* Canvas general */
