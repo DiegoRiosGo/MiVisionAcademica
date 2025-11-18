@@ -44,9 +44,13 @@
     <div class="content">
 
         <div class="topbar">
-            <h3>Panel de Administración</h3>
-            <p class="text-muted">Registrar asignaturas para la plataforma</p>
+            <h4>Panel de Administración</h4>
+            <img src="{% static 'assets/imagenes/Logo2.png' %}" alt="Logo de la plataforma" class="logo">
         </div>
+        
+        <div class="card p-4 mb-4">
+            <p>Registrar asignaturas para la plataforma</p>
+          </div>
 
         <div class="card p-4 shadow-sm">
 
@@ -132,7 +136,7 @@
             showCancelButton: true,
             confirmButtonText: "Cerrar sesión",
             cancelButtonText: "Cancelar",
-            confirmButtonColor: "#d43939"
+            confirmButtonColor: "#d1b0e9"
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = "{% url 'Inicio' %}";
@@ -150,7 +154,7 @@
               icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
               title: "{{ message|escapejs }}",
               confirmButtonText: "Aceptar",
-              confirmButtonColor: "#d1b0e9",
+              confirmButtonColor: "#d43939",
               timer: 4000,
               timerProgressBar: true
           });
