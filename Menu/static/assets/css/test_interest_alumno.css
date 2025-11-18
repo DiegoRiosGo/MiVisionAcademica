@@ -107,9 +107,11 @@
     }
 
 
-    .form-control{
-        border-color:#5d2fb2 !important;
+    textarea.form-control:focus {
+        border-color: #5d2fb2; /* violeta personalizado */
+        box-shadow: 0 2px 6px rgb(194 136 254) !important;
     }
+
 /* TITULO FORMULARIO DE INTERES */
 
     .formulario {
