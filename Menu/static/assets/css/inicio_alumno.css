@@ -76,7 +76,7 @@
 /* TITULO BIENVENIDA */
     .content {
         margin-left: 220px;
-        padding: 50px;
+        padding: 30px;
     }
 
     .card {
@@ -84,7 +84,15 @@
         border-radius: 8px; /* opcional: esquinas redondeadas */
     }
 
-    
+    /* Spinner personalizado */
+    .spinner-border {
+        width: 4rem;   /* tamaño fijo */
+        height: 4rem;  /* tamaño fijo */
+        color: #5d2fb2; /* color violeta personalizado */
+        display: block;
+        margin: 0 auto; /* centra horizontalmente */
+    }
+
 /* LOGO */
     
     .topbar {

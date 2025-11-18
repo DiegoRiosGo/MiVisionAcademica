@@ -59,6 +59,7 @@
             realizar el test de interés vocacional y gestionar tus certificados. 
             Todo está diseñado para facilitar tu experiencia y acompañarte en tu desarrollo educativo.</p>
         </div>
+
   <!-- NAV DE PESTAÑAS -->
   <ul class="nav ia-tabs mt-4" id="tabCertificados">
     <li class="nav-item">
@@ -91,32 +92,31 @@
       </div>
 
       <!-- BOTÓN ANALIZAR -->
-       
-      <<div class="card p-4 mb-4">
+      <div class="card p-4 mb-4">
         <button id="procesarPdfBtn" class="btn btn-success">
           🧠 Analizar Certificado
         </button>
-      </div>
 
-      <div id="resultadoMensaje" class="mt-3"></div>
+          <div id="resultadoMensaje" class="mt-3"></div>
 
-      <!-- SECCIÓN ASIGNATURAS DETECTADAS -->
-      <div id="seccionAsignaturas" class="mt-3" style="display: none;">
-        <h5>Asignaturas detectadas:</h5>
-        <table class="table table-bordered mt-2">
-          <thead>
-            <tr>
-              <th class="cabecera-asignaturas">Sigla</th>
-              <th class="cabecera-asignaturas">Nombre Asignatura</th>
-              <th class="cabecera-asignaturas">Nota</th>
-              <th class="cabecera-asignaturas">Semestre</th>
-              <th class="cabecera-asignaturas">Año</th>
-            </tr>
-          </thead>
-          <tbody id="tablaResultados"></tbody>
-        </table>
+          <!-- SECCIÓN ASIGNATURAS DETECTADAS -->
+          <div id="seccionAsignaturas" class="mt-3" style="display: none;">
+            <h5>Asignaturas detectadas:</h5>
+            <table class="table table-bordered mt-2">
+              <thead>
+                <tr>
+                  <th class="cabecera-asignaturas">Sigla</th>
+                  <th class="cabecera-asignaturas">Nombre Asignatura</th>
+                  <th class="cabecera-asignaturas">Nota</th>
+                  <th class="cabecera-asignaturas">Semestre</th>
+                  <th class="cabecera-asignaturas">Año</th>
+                </tr>
+              </thead>
+              <tbody id="tablaResultados"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </div>
 
     <!-- 📜 PESTAÑA HISTORIAL CERTIFICADOS -->
     <div class="tab-pane fade" id="historial" role="tabpanel">
