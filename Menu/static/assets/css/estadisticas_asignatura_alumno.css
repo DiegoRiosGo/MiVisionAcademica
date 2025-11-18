@@ -183,7 +183,6 @@
     .graphs-container { /* Contenedor de gráficos */
         display: flex;
         flex-direction: column !important;
-        gap: 20px;
     }
 
     /* Tarjetas de gráfico */
