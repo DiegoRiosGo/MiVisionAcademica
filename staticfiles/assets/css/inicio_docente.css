@@ -69,14 +69,13 @@
 /* TITULO BIENVENIDA */
     .content {
         margin-left: 220px;
-        padding: 50px;
+        padding: 30px;
     }
 
-    .topbar {
-        margin-bottom: 20px;
-        color: #18233f;
-    }   
-
+    .card {
+        box-shadow: 0 2px 6px rgb(194 136 254);
+        border-radius: 8px; /* opcional: esquinas redondeadas */
+    }
 
 
 /* TITULO DISEÑO RESPONSIVE PARA MOVILES */
@@ -102,8 +101,8 @@
         background: #fff;
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        max-width: 700px;
+        box-shadow: 0 2px 6px rgb(194 136 254);
+        max-width: 900px;
     }
 
     #listaNotificaciones {
@@ -172,86 +171,107 @@
 
     /* Botón Descartar: rojo elegante */
     .btn-descartar {
-      color: #fff;
-      background-color: #df4f4f;
-      border: 1px solid #df4f4f;
+      color: #fff !important;
+      background-color: #df4f4f !important;
+      border: 1px solid #df4f4f !important;
       transition: background-color 0.3s ease;
+      margin-left: 10px !important;
     }
 
     .btn-descartar:hover {
-      background-color: #b82f2f;
-      border-color: #b82f2f;
+        color: white !important;
+        background-color: #b82f2f !important;
+        border-color: #b82f2f !important;
     }
 
     /* Botón Responder: violeta principal */
     .btn-responder {
-      color: #fff;
-      background-color: #5d2fb2;
-      border: 1px solid #5d2fb2;
-      transition: background-color 0.3s ease;
+        color: #fff !important;
+        background-color: #5d2fb2 !important;
+        border: 1px solid #5d2fb2 !important;
+        transition: background-color 0.3s ease;
     }
 
     .btn-responder:hover {
-      background-color: #a68eee;
-      border-color: #a68eee;
+        color: white !important;
+        background-color: #a68eee !important;
+        border-color: #a68eee !important;
+    }
+
+    /* Pendientes */
+    .btn-pendiente {
+        color: white;
+        background-color: #5d2fb2;
+        border: 1px solid #5d2fb2;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .btn-pendiente:hover {
+        color: white;
+        background-color: #a68eee;
+        border-color: #a68eee;
     }
 
 
+    /* Descartadas */
+    .btn-descartada {
+        color: white;
+        background-color: #d1b0e9;
+        border: 1px solid #d1b0e9;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
 
-/* BOTONES QUE ODIO ATTE: GERALDINE */
-
-
-/* Pendientes */
-.btn-pendiente {
-    color: #fff;
-    background-color: #5d2fb2;
-    border: 1px solid #5d2fb2;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.btn-pendiente:hover {
-    background-color: #a68eee;
-    border-color: #a68eee;
-}
+    .btn-descartada:hover {
+        color: white;
+        background-color: #c39de2;
+        border-color: #c39de2;
+    }
 
 
-/* Descartadas */
-.btn-descartada {
-    color: #5d2fb2;
-    background-color: #d1b0e9;
-    border: 1px solid #d1b0e9;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
+    /* Finalizadas */
+    .btn-finalizada {
+        color: white;
+        background-color: #7a5ca2;
+        border: 1px solid #7a5ca2;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
 
-.btn-descartada:hover {
-    background-color: #c39de2;
-    border-color: #c39de2;
-}
+    .btn-finalizada:hover {
+        color: white;
+        background-color: #a68eee;
+        border-color: #a68eee;
+    }
 
 
-/* Finalizadas */
-.btn-finalizada {
-    color: #fff;
-    background-color: #7a5ca2;
-    border: 1px solid #7a5ca2;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.btn-finalizada:hover {
-    background-color: #a68eee;
-    border-color: #a68eee;
-}
-
+/* LOGO */
     
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .logo {
+        height: 80px;
+        width: auto;
+    }
+
+    .titulo {
+        font-size: 1.6rem;
+        color: #4B2A7E;
+        margin: 0;
+    }
+
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN inicio_docente .CSS ----------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */    

@@ -67,191 +67,63 @@
     }
 
 /* TITULO FORMULARIO  */
+
     .content {
         margin-left: 220px;
-        padding: 50px;
+        padding: 30px;
+        max-width: calc(100% - 220px); /* evita que se sobresalga */
+        box-sizing: border-box;
+    }
+ 
+    .card {
+        box-shadow: 0 2px 6px rgb(194 136 254);
+        border-radius: 8px; /* opcional: esquinas redondeadas */
     }
 
-    .topbar {
+    /* Bloque de bienvenida */
+    .card.p-4.mb-4 {
+        max-width: 100%;
         margin-bottom: 20px;
-        color: #18233f;
-    }   
-    /* modal base */
-    .modal {
-        display: none !important; /* oculto por defecto */
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background-color: rgba(0, 0, 0, 0.5) !important;
-        z-index: 1000 !important;
-        justify-content: center !important;
-        align-items: center !important;
-
     }
 
-    /* mostrar modal */
-    .modal.show {
-        display: flex !important;
+    /* LOGO */
+    
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
     }
 
-    /* contenido del modal */
-    .modal-content {
-        background-color: #fff !important;
-        border-radius: 12px !important;
-        max-width: 500px !important;
-        width: 90% !important;
-        padding: 2rem !important;
-        box-shadow: 0 8px 20px rgba(138, 70, 226, 0.2) !important;
-        animation: fadeIn 0.3s ease-in-out !important;
-        position: relative !important;
+    .logo {
+        height: 80px;
+        width: auto;
     }
 
-
-    /* animación suave */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
+    .titulo {
+        font-size: 1.6rem;
+        color: #4B2A7E;
+        margin: 0;
     }
 
-    /* título */
-    .modal-content h5 {
-        font-size: 1.3rem;
-        margin-bottom: 1rem;
-        color: #5a2a82; /* tono púrpura elegante */
+    textarea.form-control{
+        border-color: #5d2fb2 !important;
     }
 
-    /* inputs y selects */
-    .modal-content .form-control,
-    .modal-content .form-select {
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 0.95rem;
-        padding: 0.6rem 0.8rem;
+    textarea.form-control:focus {
+        border-color: #5d2fb2; /* violeta personalizado */
+        box-shadow: 0 2px 6px rgb(194 136 254);
     }
-
-    /* textarea */
-    #mensaje {
-        resize: none;
-    }
-
-    /* botones */
-    .modal-content .btn {
-        min-width: 100px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        border-radius: 8px;
-    }
-
-    /* botón cancelar */
-    #cancelarModal {
-        background-color: #b23ad3;
-        border: none;
-        color: white;
-        margin-right: 0.5rem;
-    }
-    #cancelarModal:hover{
-        background-color: #5d2fb2;
-        color: white;
-    }
-
-    /* botón enviar */
-    #enviarSolicitud {
-        background-color: #5d2fb2; /* púrpura vibrante */
-        border: none;
-        color: white;
-    }
-
-    #enviarSolicitud:hover{
-        background-color: #b23ad3;
-        color: white;
-    }
-
-    /* lista de sugerencias */
-    #suggestions-list {
-        list-style: none;
-        padding-left: 0;
-        margin-bottom: 1rem;
-    }
-    #suggestions-list li {
-        padding: 0.5rem;
-        background-color: #f3f3f3;
-        border-radius: 6px;
-        margin-bottom: 0.3rem;
-        cursor: pointer;
-    }
-    #suggestions-list li:hover {
-        background-color: #e0d7f5;
-    }
-
-    /* botón de cierre arriba */
-    .cerrar-modal {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background-color: transparent;
-        border: none;
-        font-size: 1.2rem;
-        color: #5d2fb2;
-        cursor: pointer;
-        z-index: 10;
-        transition: transform 0.2s ease;
-    }
-
-    .cerrar-modal:hover {
-        transform: scale(1.2);
-        color: #a68eee;
-    }
-
-    /* botón confirmar */
-    .btn-confirmar {
-        background-color: #5d2fb2;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .btn-confirmar:hover {
-        background-color: #a68eee;
-    }
-
-    /* botón cancelar */
-    .btn-cancelar {
-        background-color: #5d2fb2;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-left: 10px;
-    }
-
-    .btn-cancelar:hover {
-        background-color: #a68eee;
-    }
-
-    div:where(.swal2-icon).swal2-question {
-        border-color: #a887bd;
-        color: #a887bd;
-    }
-
-
 
 /* TITULO FORMULARIO DE INTERES */
 
     .formulario {
-        max-width: 700px;
-        width: 100%;
-        margin-left: auto;
-        margin-right: auto;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
         box-sizing: border-box;
+        box-shadow: 0 2px 6px rgb(194 136 254) !important;
+        border-radius: 8px !important; /* opcional: esquinas redondeadas */
     }
 
 

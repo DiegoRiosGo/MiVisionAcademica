@@ -69,14 +69,38 @@
 /* TITULO DE INFORMES  */
     .content {
         margin-left: 220px;
-        padding: 50px;
+        padding: 30px;
     }
 
-    .topbar {
-        margin-bottom: 20px;
-        color: #18233f;
-    }   
+    .card {
+        box-shadow: 0 2px 6px rgb(194 136 254);
+        border-radius: 8px; /* opcional: esquinas redondeadas */
+    }
+
+/* LOGO */
     
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .logo {
+        height: 80px;
+        width: auto;
+    }
+
+    .titulo {
+        font-size: 1.6rem;
+        color: #4B2A7E;
+        margin: 0;
+    }
+
+      .color-cabecera{
+        background-color: #e9ddfd !important;
+    }
+
     .btn-view-custom {
         background-color: #5d2fb2 !important;
         color: #fff !important;
@@ -228,6 +252,7 @@
         color: #ffffff !important;
         border: 1px solid #5d2fb2 !important;
         background-color: #5d2fb2 !important;
+        margin-bottom: 5px;
     }
 
     .btn-color1:hover {
@@ -251,55 +276,55 @@
 
     
 /* === TABS PERSONALIZADAS PARA INFORME ALUMNO === */
-.ia-tabs {
-  border-bottom: 2px solid #ddd;
-}
+    .ia-tabs {
+        border-bottom: 2px solid #ddd;
+    }
 
-.ia-tab-link {
-  border: none;
-  background: none;
-  color: #555;
-  font-weight: 500;
-  padding: 10px 18px;
-  transition: all 0.3s ease;
-}
+    .ia-tab-link {
+        border: none;
+        background: none;
+        color: #555;
+        font-weight: 500;
+        padding: 10px 18px;
+        transition: all 0.3s ease;
+    }
 
-.ia-tab-link:hover {
-  color: #4b49ac;
-  background-color: #f3f2fd;
-  border-radius: 10px;
-}
+    .ia-tab-link:hover {
+        color: #4b49ac;
+        background-color: #f3f2fd;
+        border-radius: 10px;
+    }
 
-.ia-tab-link.active {
-  background-color: #4b49ac !important;
-  color: white !important;
-  border-radius: 10px 10px 0 0;
-}
+    .ia-tab-link.active {
+        background-color: #4b49ac !important;
+        color: white !important;
+        border-radius: 10px 10px 0 0;
+    }
 
-/* Animación suave al cambiar de pestaña */
-.tab-pane.fade {
-  opacity: 0;
-  transition: opacity 0.4s ease-in-out;
-}
+    /* Animación suave al cambiar de pestaña */
+    .tab-pane.fade {
+        opacity: 0;
+        transition: opacity 0.4s ease-in-out;
+    }
 
-.tab-pane.fade.show {
-  opacity: 1;
-}
+    .tab-pane.fade.show {
+        opacity: 1;
+    }
 
-/* Estilo del modal loader */
-#loaderModalIA .modal-content {
-  border-radius: 20px;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
-}
+    /* Estilo del modal loader */
+    #loaderModalIA .modal-content {
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    }
 
-#loaderModalIA h5 {
-  font-weight: 600;
-  color: #4b49ac;
-}
+    #loaderModalIA h5 {
+        font-weight: 600;
+        color: #4b49ac;
+    }
 
-#loaderModalIA p {
-  font-size: 0.9rem;
-}
+    #loaderModalIA p {
+        font-size: 0.9rem;
+    }
 /* -------------------------------------------------------------------------------------------------------------
    -------------------------------------- FIN informe_alumno .CSS ----------------------------------------------
    ------------------------------------------------------------------------------------------------------------- */    

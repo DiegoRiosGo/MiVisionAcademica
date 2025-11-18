@@ -76,13 +76,42 @@
 /* TITULO BIENVENIDA */
     .content {
         margin-left: 220px;
-        padding: 50px;
+        padding: 30px;
     }
 
+    .card {
+        box-shadow: 0 2px 6px rgb(194 136 254);
+        border-radius: 8px; /* opcional: esquinas redondeadas */
+    }
+
+    /* Spinner personalizado */
+    .spinner-border {
+        width: 4rem;   /* tamaño fijo */
+        height: 4rem;  /* tamaño fijo */
+        color: #5d2fb2 !important; /* color violeta personalizado */
+        display: block;
+        margin: 0 auto; /* centra horizontalmente */
+    }
+
+/* LOGO */
+    
     .topbar {
-        margin-bottom: 20px;
-        color: #18233f;
-    }   
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .logo {
+        height: 80px;
+        width: auto;
+    }
+
+    .titulo {
+        font-size: 1.6rem;
+        color: #4B2A7E;
+        margin: 0;
+    }
 
 /* TITULO PDF */
     .btn-primary-custom {
@@ -118,6 +147,8 @@
         transition: background-color 0.3s ease, transform 0.2s ease;
         display: inline-block;
         text-align: center;
+        width: 232px;
+        align-self: center;
     }
 
     #procesarPdfBtn:hover {
