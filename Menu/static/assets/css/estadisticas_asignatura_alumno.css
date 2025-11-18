@@ -113,7 +113,6 @@
     .content-graficos {
         flex-grow: 1;
         padding: 10px;
-        margin-left: 220px; /* ancho barra lateral */
     }
 
     .chart-container {
