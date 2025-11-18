@@ -52,11 +52,13 @@
           <h4>Bienvenido, {{ nombre }} {{ apellido }}</h4> 
           <img src="{% static 'assets/imagenes/Logo2.png' %}" alt="Logo de la plataforma" class="logo">
         </div>
+
+        <div class="card p-4 mb-4">
           <p>Este es tu panel principal. 
             Aquí puedes subir tu informe de notas para visualizar estadísticas académicas detalladas, 
             realizar el test de interés vocacional y gestionar tus certificados. 
             Todo está diseñado para facilitar tu experiencia y acompañarte en tu desarrollo educativo.</p>
-
+        </div>
   <!-- NAV DE PESTAÑAS -->
   <ul class="nav ia-tabs mt-4" id="tabCertificados">
     <li class="nav-item">
@@ -89,7 +91,8 @@
       </div>
 
       <!-- BOTÓN ANALIZAR -->
-      <div class="mt-4">
+       
+      <<div class="card p-4 mb-4">
         <button id="procesarPdfBtn" class="btn btn-success">
           🧠 Analizar Certificado
         </button>
