@@ -88,7 +88,7 @@
     .spinner-border {
         width: 4rem;   /* tamaño fijo */
         height: 4rem;  /* tamaño fijo */
-        color: #5d2fb2; /* color violeta personalizado */
+        color: #5d2fb2 !important; /* color violeta personalizado */
         display: block;
         margin: 0 auto; /* centra horizontalmente */
     }
