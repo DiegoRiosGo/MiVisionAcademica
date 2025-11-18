@@ -117,12 +117,24 @@
 
     .chart-container {
         margin: 30px auto;
-        background: #f9f9fa;
+        background: #ffffff;
         padding: 20px;
         border-radius: 12px;
         box-shadow: 0 0 10px #9c7fdc;
-        max-width: 800px;
+        max-width: 900px;
+        min-height: 360px; /* asegura espacio vertical */
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
+
+    /* Canvas con altura fija y sin estiramiento forzado */
+    .chart-container canvas {
+        width: 100% !important;
+        height: 320px !important;
+        max-height: 100%;
+    }
+
 
     canvas {
         width: 100% !important;
@@ -156,25 +168,11 @@
         gap: 20px;
     }
 
-    /* Ajustar tamaño y estilo de cada gráfico */
-    .chart-container {
-        background: #ffffff;
-        padding: 15px;
-        border-radius: 16px;
-        box-shadow: 0 0 8px #c5b2e6;
-        width: 100% !important;
-    }
 
     /* El tercer gráfico ocupa toda la fila */
     .container.text-center .chart-container:nth-child(3) {
         grid-column: span 2;
         
-    }
-
-    /* Canvas más compacto */
-    .chart-container canvas {
-        width: 100% !important;
-        height: 280px !important;
     }
 
 
@@ -238,7 +236,7 @@
         background-color: #ffffff;
         padding: 15px 25px;
         border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 6px rgb(194 136 254);
         max-width: 800px;
         justify-self: center;
     }
