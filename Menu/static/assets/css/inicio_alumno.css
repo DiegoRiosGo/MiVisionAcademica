@@ -147,6 +147,8 @@
         transition: background-color 0.3s ease, transform 0.2s ease;
         display: inline-block;
         text-align: center;
+        width: 232px;
+        align-self: center;
     }
 
     #procesarPdfBtn:hover {
