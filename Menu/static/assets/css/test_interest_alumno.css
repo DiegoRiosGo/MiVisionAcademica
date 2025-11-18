@@ -67,21 +67,24 @@
     }
 
 /* TITULO FORMULARIO  */
-    .content {
-        margin-left: 220px;
-        padding: 50px;
-    }
 
     .content {
         margin-left: 220px;
         padding: 30px;
+        max-width: calc(100% - 220px); /* evita que se sobresalga */
+        box-sizing: border-box;
     }
-    
+ 
     .card {
         box-shadow: 0 2px 6px rgb(194 136 254);
         border-radius: 8px; /* opcional: esquinas redondeadas */
     }
 
+    /* Bloque de bienvenida */
+    .card.p-4.mb-4 {
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
 
     /* LOGO */
     
@@ -276,12 +279,12 @@
 /* TITULO FORMULARIO DE INTERES */
 
     .formulario {
-        max-width: 700px;
-        width: 100%;
-        margin-left: auto;
-        margin-right: 90px;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
         box-sizing: border-box;
     }
+
 
 
 
