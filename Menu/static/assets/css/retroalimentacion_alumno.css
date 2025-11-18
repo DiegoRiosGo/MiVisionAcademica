@@ -431,6 +431,9 @@
         background-color: #a68eee !important;
         transform: scale(1.03);
         cursor: pointer;
+        text-align: center;
+        width: 232px;
+        align-self: center;
     }
 
 
