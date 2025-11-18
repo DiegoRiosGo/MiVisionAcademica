@@ -73,6 +73,41 @@
         to { opacity: 1; transform: scale(1); }
     }
 
+/* TITULO DE INFORMES  */
+    .content {
+        margin-left: 220px;
+        padding: 30px;
+    }
+
+    .card {
+        box-shadow: 0 2px 6px rgb(194 136 254);
+        border-radius: 8px; /* opcional: esquinas redondeadas */
+    }
+
+/* LOGO */
+    
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .logo {
+        height: 80px;
+        width: auto;
+    }
+
+    .titulo {
+        font-size: 1.6rem;
+        color: #4B2A7E;
+        margin: 0;
+    }
+
+
+
+
+
   /* modal base */
     .custom-modal {
         display: none; /* oculto por defecto */
@@ -404,7 +439,7 @@
         background: #fff;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 6px rgb(194 136 254);
         margin-left: 240px;
     }
 
