@@ -74,6 +74,19 @@ body{
     }
 
 
+    /* Botón  violeta principal */
+    .btn-subircsv {
+        color: #fff !important;
+        background-color: #5d2fb2 !important;
+        border: 1px solid #5d2fb2 !important;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-subircsv:hover {
+        color: white !important;
+        background-color: #a68eee !important;
+        border-color: #a68eee !important;
+    }
 
 
 .card{
