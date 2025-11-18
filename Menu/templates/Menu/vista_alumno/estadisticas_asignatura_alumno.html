@@ -50,11 +50,13 @@
     <div class="content">
         <div class="topbar">
           <h4>Estadísticas Académicas</h4>
+          <img src="{% static 'assets/imagenes/Logo2.png' %}" alt="Logo de la plataforma" class="logo">
         </div>
+        <div class="card p-4 mb-4">
           <p>Consulta tus estadísticas académicas por año y asignatura para seguir tu evolución. 
             Visualiza tu desempeño en distintas áreas de estudio a lo largo del tiempo. 
             Esta sección te ofrece una mirada clara y personalizada de tu rendimiento académico.</p>
-      
+        </div>
 
       <!-- TITULO APARTADO GRAFICOS -->
         <div>
@@ -70,7 +72,7 @@
             <button id="btnRestablecer">Restablecer Filtros</button>
           </div>   
         </div>  
-    </div>
+    
 
     <!--Graficos-->
       <main class="content-graficos">
@@ -90,6 +92,7 @@
         </div>
       </main>
 
+    </div>
       <!--cerrar sesion -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
