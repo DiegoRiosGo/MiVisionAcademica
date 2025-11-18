@@ -106,6 +106,8 @@
         margin: 0;
     }
 
+    .form-control{
+        border-color:#5d2fb2 !important;
 
     textarea.form-control:focus {
         border-color: #5d2fb2; /* violeta personalizado */
